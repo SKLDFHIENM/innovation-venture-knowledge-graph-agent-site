@@ -1,0 +1,939 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>教师管理后台 - 《大学生创新创业基础》PBL项目制知识图谱智能体</title>
+    <script src="js/all.min.js" defer></script>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        /* ── 全站统一页面容器布局 ── */
+        .admin-page {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 32px 20px 60px;
+        }
+
+        /* ── 统一 Tab 导航栏 ── */
+        .tab-nav {
+            display: flex;
+            gap: 8px;
+            border-bottom: 2px solid var(--border-color);
+            margin-bottom: 24px;
+            overflow-x: auto;
+            padding-bottom: 2px;
+        }
+        .tab-item {
+            padding: 12px 20px;
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text-muted);
+            background: transparent;
+            border: none;
+            border-bottom: 3px solid transparent;
+            cursor: pointer;
+            transition: var(--transition-normal);
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border-radius: var(--radius-md) var(--radius-md) 0 0;
+        }
+        .tab-item:hover {
+            color: var(--primary-blue);
+            background: var(--bg-subtle);
+        }
+        .tab-item.active {
+            color: var(--primary-blue);
+            border-bottom-color: var(--primary-blue);
+            background: var(--bg-card);
+        }
+        .tab-pane {
+            display: none;
+        }
+        .tab-pane.active {
+            display: block;
+            animation: fadeIn 0.25s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(4px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ── 锁屏层 ── */
+        .lock-screen {
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            background: var(--bg-app);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .lock-box {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-xl);
+            padding: 36px 32px;
+            max-width: 440px;
+            width: 100%;
+            text-align: center;
+            box-shadow: var(--shadow-xl);
+        }
+        .lock-icon-badge {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            background: var(--primary-light);
+            color: var(--primary-blue);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            margin-bottom: 16px;
+        }
+        .lock-box h2 {
+            margin: 0 0 8px;
+            font-size: 22px;
+            font-weight: 800;
+            color: var(--text-main);
+        }
+        .lock-box p {
+            margin: 0 0 20px;
+            font-size: 13px;
+            color: var(--text-muted);
+            line-height: 1.6;
+        }
+        .lock-input {
+            width: 100%;
+            padding: 12px 16px;
+            border-radius: var(--radius-md);
+            border: 1.5px solid var(--border-color);
+            font-size: 15px;
+            margin-bottom: 14px;
+            outline: none;
+            transition: var(--transition-normal);
+            box-sizing: border-box;
+            text-align: center;
+            letter-spacing: 2px;
+        }
+        .lock-input:focus {
+            border-color: var(--primary-blue);
+            box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15);
+        }
+        .lock-btn {
+            width: 100%;
+            padding: 13px;
+            border-radius: var(--radius-md);
+            border: none;
+            background: var(--primary-blue);
+            color: #ffffff;
+            font-size: 15px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: var(--transition-normal);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .lock-btn:hover {
+            background: var(--primary-hover);
+            transform: translateY(-1.5px);
+            box-shadow: 0 6px 20px rgba(2, 132, 199, 0.25);
+        }
+
+        .lock-tip-bubble {
+            background: var(--bg-subtle);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 12px 14px;
+            font-size: 12.5px;
+            color: var(--text-muted);
+            margin-top: 18px;
+            line-height: 1.6;
+            text-align: left;
+        }
+        .lock-tip-bubble strong { color: var(--primary-blue); cursor: pointer; }
+
+        .lock-demo-btn {
+            margin-top: 14px;
+            background: #FEF3C7;
+            border: 1px solid #FDE68A;
+            color: #D97706;
+            padding: 8px 18px;
+            border-radius: 20px;
+            font-size: 12.5px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: var(--transition-normal);
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .lock-demo-btn:hover {
+            background: #FDE68A;
+            transform: translateY(-1.5px);
+        }
+        #lock-error {
+            color: var(--accent-rose);
+            font-size: 13px;
+            font-weight: 700;
+            margin-top: 8px;
+            min-height: 18px;
+        }
+
+        /* ── 花名册表格与统计 ── */
+        .roster-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: var(--text-sm);
+        }
+        .roster-table th {
+            background: var(--primary-light);
+            color: var(--primary-blue);
+            padding: 10px 14px;
+            text-align: left;
+            font-weight: 700;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .roster-table td {
+            padding: 10px 14px;
+            border-bottom: 1px solid var(--border-color);
+            color: var(--text-main);
+        }
+        .roster-table tr:hover td {
+            background: var(--bg-subtle);
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+        .summary-num {
+            padding: 20px 16px;
+            border-radius: var(--radius-lg);
+            text-align: center;
+            border: 1px solid var(--border-color);
+            background: var(--bg-card);
+            box-shadow: var(--shadow-sm);
+        }
+        .summary-num .val {
+            font-size: 28px;
+            font-weight: 900;
+            font-family: 'JetBrains Mono', monospace;
+            line-height: 1.2;
+            color: var(--primary-blue);
+        }
+        .summary-num .lbl {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 6px;
+            font-weight: 700;
+        }
+
+        textarea.form-input {
+            min-height: 140px;
+            resize: vertical;
+            line-height: 1.5;
+            font-size: 13px;
+        }
+
+        .btn-row {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 14px;
+        }
+        .csv-hint {
+            font-size: 12.5px;
+            color: var(--text-muted);
+            line-height: 1.7;
+            background: var(--bg-subtle);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 14px 18px;
+            margin-bottom: 16px;
+        }
+    </style>
+</head>
+<body>
+
+<!-- 全站统一 Header Navigation -->
+<header class="site-header">
+    <div class="header-inner">
+        <a href="index.html" class="brand-logo">
+            <div class="brand-icon"><i class="fas fa-graduation-cap"></i></div>
+            <div>
+                <div class="brand-title">创新创业课程 OBE 智慧教学与评估平台</div>
+                <div class="brand-subtitle">Innovation & Entrepreneurship Mapping Engine v4.0</div>
+            </div>
+        </a>
+        <button class="nav-toggle" onclick="document.querySelector('.main-nav').classList.toggle('open')"><i class="fas fa-bars"></i></button>
+        <nav class="main-nav">
+            <a href="index.html" class="nav-item"><i class="fas fa-compass"></i> 首页</a>
+            <a href="map.html" class="nav-item"><i class="fas fa-map"></i> 课程地图</a>
+            <a href="knowledge_graph.html" class="nav-item"><i class="fas fa-sitemap"></i> 知识图谱</a>
+            <a href="student.html" class="nav-item"><i class="fas fa-user-graduate"></i> 能力矩阵</a>
+            <a href="activities.html" class="nav-item"><i class="fas fa-tasks"></i> PBL实战</a>
+            <a href="chat.html" class="nav-item"><i class="fas fa-robot"></i> AI导师</a>
+            <a href="admin.html" class="nav-item active"><i class="fas fa-chart-line"></i> 学情看板</a>
+        </nav>
+        <div class="nav-actions">
+            <a href="admin.html" class="btn-nav active"><i class="fas fa-user-shield"></i> 教师/专家视图</a>
+        </div>
+    </div>
+</header>
+
+<!-- 密码锁屏 -->
+<div id="lock-screen" class="lock-screen">
+    <div class="lock-box" id="lock-box-card">
+        <div class="lock-icon-badge">
+            <i class="fas fa-shield-halved"></i>
+        </div>
+        <h2>教师管理控制台</h2>
+        <p>课程教学数据管理 · 安全权限认证<br>请输入任课教师或管理员密码以解锁控制台</p>
+        <input type="password" id="lock-pwd" class="lock-input" placeholder="输入管理员密码..."
+               maxlength="32" onkeydown="if(event.key==='Enter') unlockAdmin()"/>
+        <button class="lock-btn" onclick="unlockAdmin()">
+            <i class="fas fa-key"></i> 验证并进入管理后台
+        </button>
+        <div id="lock-error"></div>
+
+        <div class="lock-tip-bubble">
+            <i class="fas fa-lightbulb" style="color: var(--primary-blue); margin-right: 4px;"></i> <strong>初始提示：</strong> 默认初始密码为 <strong style="color: var(--primary-blue); cursor:pointer;" onclick="quickFillPwd('admin2026')" title="点击一键填入初始密码">admin2026 (点击填入)</strong><br>
+            <span style="font-size:11px; color: var(--text-muted);">进入后台后可随时修改密码。</span>
+        </div>
+
+        <button class="lock-demo-btn" onclick="demoQuickLogin()">
+            <i class="fas fa-fire" style="color: #D97706;"></i> 评委 / 专家一键免密试用通道
+        </button>
+    </div>
+</div>
+
+<main>
+<div class="admin-page">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;padding-top:6px;">
+        <div>
+            <h1 style="margin:0;font-size:24px;font-weight:900;color:var(--text-main);">
+                <i class="fas fa-shield-alt" style="color:var(--primary-blue);margin-right:8px;"></i>教师管理控制台
+            </h1>
+            <div style="font-size:13px;color:var(--text-muted);margin-top:4px;">管理学生花名册 · 查看全班学情分析 · PBL小组自治 · 成绩全量导出</div>
+        </div>
+        <div id="roster-status" style="font-size:13px;"></div>
+    </div>
+
+    <!-- 全站统一 Tab 导航 -->
+    <div class="tab-nav">
+        <button class="tab-item active" data-tab="tab-roster" onclick="switchTab(this)">
+            <i class="fas fa-list-ul"></i> 花名册管理
+        </button>
+        <button class="tab-item" data-tab="tab-overview" onclick="switchTab(this)">
+            <i class="fas fa-chart-bar"></i> 全班学情总览
+        </button>
+        <button class="tab-item" data-tab="tab-groups" onclick="switchTab(this)">
+            <i class="fas fa-users-cog"></i> 班级小组与团队治理
+        </button>
+        <button class="tab-item" data-tab="tab-export" onclick="switchTab(this)">
+            <i class="fas fa-file-export"></i> 成绩导出
+        </button>
+        <button class="tab-item" data-tab="tab-settings" onclick="switchTab(this)">
+            <i class="fas fa-cog"></i> 系统设置
+        </button>
+    </div>
+
+    <!-- Tab A：花名册管理 -->
+    <div id="tab-roster" class="tab-pane active">
+        <div class="card" style="padding: 24px; border-radius: var(--radius-lg); background: var(--bg-card); border: 1px solid var(--border-color); margin-bottom: 24px;">
+            <div class="card-title" style="font-size:16px; font-weight:800; margin-bottom:12px; color:var(--text-main);"><i class="fas fa-file-import" style="color:var(--primary-blue);"></i> 导入学生花名册</div>
+            <div class="csv-hint">
+                <strong>CSV 格式说明（粘贴或上传）：</strong><br>
+                每行一名学生，列顺序：<code>学号, 姓名, 专业班级, 学院</code>（班级和学院可选）<br>
+                示例：<code>20260001, 张创新, 工商双创01班, 工商管理学院</code><br>
+                首行可选填表头（如 <code>学号,姓名,班级,学院</code>），系统自动识别并跳过。<br>
+                <strong style="color:var(--accent-rose);">导入后，未在名单内的学号将无法登录系统。</strong>
+            </div>
+
+            <div style="display:grid;grid-template-columns:1fr auto;gap:12px;align-items:start;margin-bottom:12px;">
+                <div>
+                    <label style="font-size:12px;color:var(--text-muted);font-weight:700;display:block;margin-bottom:6px;">粘贴 CSV 内容</label>
+                    <textarea id="csv-input" class="form-input" placeholder="20260001,张创新,工商双创01班,工商管理学院&#10;20260002,李创业,工商双创01班,工商管理学院&#10;20260003,王梦想,双创实验班,经济学院"></textarea>
+                </div>
+                <div style="display:flex;flex-direction:column;gap:8px;padding-top:22px;">
+                    <label class="btn btn-primary" style="cursor:pointer;justify-content:center;" title="上传 CSV 文件">
+                        <i class="fas fa-upload"></i> 上传文件
+                        <input type="file" accept=".csv,.txt" style="display:none" onchange="handleFileUpload(event)">
+                    </label>
+                    <button class="btn btn-orange" onclick="downloadTemplate()">
+                        <i class="fas fa-download"></i> 下载模板
+                    </button>
+                </div>
+            </div>
+
+            <div class="btn-row">
+                <button class="btn btn-primary" onclick="importRoster()">
+                    <i class="fas fa-check"></i> 解析并导入花名册
+                </button>
+                <button class="btn btn-success" onclick="addManual()">
+                    <i class="fas fa-plus"></i> 手动添加一名学生
+                </button>
+                <button class="btn btn-red" onclick="clearRoster()">
+                    <i class="fas fa-trash"></i> 清空花名册（取消验证限制）
+                </button>
+            </div>
+        </div>
+
+        <div id="manual-add-box" class="card" style="display:none; padding:24px; border-radius:var(--radius-lg); background:var(--bg-card); border:1px solid var(--border-color); margin-bottom:24px;">
+            <div class="card-title" style="font-size:16px; font-weight:800; margin-bottom:12px;"><i class="fas fa-user-plus" style="color:var(--primary-blue);"></i> 手动添加学生</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr auto;gap:10px;align-items:end;">
+                <div>
+                    <label style="font-size:12px;color:var(--text-muted);font-weight:700;display:block;margin-bottom:5px;">学号 *</label>
+                    <input id="m-sid" type="text" class="form-input" placeholder="如：20260001">
+                </div>
+                <div>
+                    <label style="font-size:12px;color:var(--text-muted);font-weight:700;display:block;margin-bottom:5px;">姓名 *</label>
+                    <input id="m-name" type="text" class="form-input" placeholder="如：张创新">
+                </div>
+                <div>
+                    <label style="font-size:12px;color:var(--text-muted);font-weight:700;display:block;margin-bottom:5px;">班级</label>
+                    <input id="m-class" type="text" class="form-input" placeholder="如：双创01班">
+                </div>
+                <div>
+                    <label style="font-size:12px;color:var(--text-muted);font-weight:700;display:block;margin-bottom:5px;">学院</label>
+                    <input id="m-college" type="text" class="form-input" placeholder="如：工商管理学院">
+                </div>
+                <button class="btn btn-primary" onclick="saveManualStudent()" style="height:40px;"><i class="fas fa-save"></i> 保存</button>
+            </div>
+        </div>
+
+        <div class="card" style="padding:24px; border-radius:var(--radius-lg); background:var(--bg-card); border:1px solid var(--border-color);">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+                <div class="card-title" style="font-size:16px; font-weight:800; margin:0;"><i class="fas fa-users" style="color:var(--primary-blue);"></i> 当前花名册列表</div>
+                <span id="roster-count-tag" class="tag-ok">共 0 人</span>
+            </div>
+            <div style="overflow-x:auto;">
+                <table class="roster-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>学号</th>
+                            <th>姓名</th>
+                            <th>班级</th>
+                            <th>学院</th>
+                            <th>注册状态</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="roster-tbody">
+                        <tr><td colspan="7" style="text-align:center;padding:24px;color:var(--text-muted);">暂无花名册数据。系统处于开放模式，任意学号均可登录。</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tab B：全班学情总览 -->
+    <div id="tab-overview" class="tab-pane">
+        <div class="summary-grid">
+            <div class="summary-num">
+                <div class="val" id="sum-total-stu">0</div>
+                <div class="lbl">已登录学生总数</div>
+            </div>
+            <div class="summary-num">
+                <div class="val" id="sum-avg-hours" style="color:var(--accent-emerald);">0.0</div>
+                <div class="lbl">人均学习学时(h)</div>
+            </div>
+            <div class="summary-num">
+                <div class="val" id="sum-avg-score" style="color:var(--accent-amber);">0</div>
+                <div class="lbl">测评平均分</div>
+            </div>
+            <div class="summary-num">
+                <div class="val" id="sum-checkin-rate" style="color:var(--accent-cyan);">0%</div>
+                <div class="lbl">今日签到率</div>
+            </div>
+        </div>
+
+        <div class="card" style="padding:24px; border-radius:var(--radius-lg); background:var(--bg-card); border:1px solid var(--border-color);">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+                <div class="card-title" style="font-size:16px; font-weight:800; margin:0;"><i class="fas fa-chart-line" style="color:var(--primary-blue);"></i> 全班学生学情明细</div>
+                <button class="btn btn-primary btn-sm" onclick="refreshOverview()"><i class="fas fa-sync"></i> 刷新数据</button>
+            </div>
+            <div style="overflow-x:auto;">
+                <table class="roster-table">
+                    <thead>
+                        <tr>
+                            <th>#</th><th>学号</th><th>姓名</th><th>班级</th>
+                            <th>学时(h)</th><th>节点</th><th>测评次数</th><th>最高分</th>
+                            <th>活动</th><th>打卡</th><th>OBE总评</th><th>等级</th>
+                        </tr>
+                    </thead>
+                    <tbody id="overview-tbody">
+                        <tr><td colspan="12" style="text-align:center;padding:24px;color:var(--text-muted);">暂无学情数据。学生登录后，数据将在此显示。</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tab C：班级小组与团队治理 -->
+    <div id="tab-groups" class="tab-pane">
+        <div class="card" style="padding:24px; border-radius:var(--radius-lg); background:var(--bg-card); border:1px solid var(--border-color); margin-bottom:20px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:16px;">
+                <div>
+                    <h3 style="margin:0; font-size:18px; font-weight:900; color:var(--text-main); display:flex; align-items:center; gap:8px;">
+                        <i class="fas fa-users-cog" style="color:var(--primary-blue);"></i> PBL 实战小组与团队股权治理
+                    </h3>
+                    <div style="font-size:12.5px; color:var(--text-muted); margin-top:4px;">支持教师智能自动分组、自定义组别数量与团队 CEO/CTO/CMO 角色分工</div>
+                </div>
+                <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                    <button class="btn btn-primary" onclick="autoGroupStudents('balance')">
+                        <i class="fas fa-magic"></i> 智能互补分组
+                    </button>
+                    <button class="btn btn-orange" onclick="autoGroupStudents('random')">
+                        <i class="fas fa-random"></i> 随机分组
+                    </button>
+                    <button class="btn btn-success" onclick="createNewGroupModal()">
+                        <i class="fas fa-plus-circle"></i> 新建小组
+                    </button>
+                </div>
+            </div>
+
+            <!-- 统计指标 -->
+            <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:12px; background:var(--bg-subtle); padding:14px; border-radius:var(--radius-md); border:1px solid var(--border-color);">
+                <div><span style="font-size:12px; color:var(--text-muted);">已建立团队数：</span><strong id="group-total-teams" style="font-size:16px; color:var(--primary-blue);">0</strong> 组</div>
+                <div><span style="font-size:12px; color:var(--text-muted);">已入组学生：</span><strong id="group-grouped-students" style="font-size:16px; color:var(--accent-emerald);">0</strong> 人</div>
+                <div><span style="font-size:12px; color:var(--text-muted);">待分组学生：</span><strong id="group-ungrouped-students" style="font-size:16px; color:var(--accent-rose);">0</strong> 人</div>
+                <div><span style="font-size:12px; color:var(--text-muted);">平均组容：</span><strong id="group-avg-size" style="font-size:16px; color:var(--accent-amber);">0</strong> 人/组</div>
+            </div>
+        </div>
+
+        <div id="groups-container-grid" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(320px, 1fr)); gap:20px;">
+            <!-- 动态渲染小组卡片 -->
+        </div>
+    </div>
+
+    <!-- Tab D：成绩导出 -->
+    <div id="tab-export" class="tab-pane">
+        <div class="card" style="padding:24px; border-radius:var(--radius-lg); background:var(--bg-card); border:1px solid var(--border-color); margin-bottom:20px;">
+            <div class="card-title" style="font-size:16px; font-weight:800; margin-bottom:12px;"><i class="fas fa-file-excel" style="color:var(--primary-blue);"></i> 全班学情成绩批量导出</div>
+            <p style="color:var(--text-muted);font-size:13.5px;line-height:1.7;margin:0 0 18px;">
+                导出本机所有学生的学情数据，包括：学号、姓名、班级、累计学时、测评最高分、OBE综合总评等。
+            </p>
+            <div class="btn-row">
+                <button class="btn btn-success" onclick="window.IEKG.student.admin.exportAllCSV()">
+                    <i class="fas fa-file-csv"></i> 导出全班成绩 CSV
+                </button>
+                <button class="btn btn-primary" onclick="exportAllJSON()">
+                    <i class="fas fa-file-code"></i> 导出全班数据 JSON
+                </button>
+                <button class="btn btn-orange" onclick="printAllReport()">
+                    <i class="fas fa-print"></i> 打印全班成绩汇总表
+                </button>
+            </div>
+        </div>
+
+        <div class="card" style="padding:24px; border-radius:var(--radius-lg); background:var(--bg-card); border:1px solid var(--border-color);">
+            <div class="card-title" style="font-size:16px; font-weight:800; margin-bottom:12px;"><i class="fas fa-user-check" style="color:var(--primary-blue);"></i> 对比花名册 · 导出缺勤名单</div>
+            <p style="color:var(--text-muted);font-size:13.5px;margin:0 0 14px;">
+                对比花名册与已登录学生，找出未曾使用系统的学生名单。
+            </p>
+            <button class="btn btn-orange" onclick="exportMissingList()">
+                <i class="fas fa-user-times"></i> 导出未登录学生名单 CSV
+            </button>
+        </div>
+    </div>
+
+    <!-- Tab E：系统设置 -->
+    <div id="tab-settings" class="tab-pane">
+        <div class="card" style="padding:24px; border-radius:var(--radius-lg); background:var(--bg-card); border:1px solid var(--border-color); margin-bottom:20px;">
+            <div class="card-title" style="font-size:16px; font-weight:800; margin-bottom:12px;"><i class="fas fa-key" style="color:var(--primary-blue);"></i> 修改管理员密码</div>
+            <p style="color:var(--text-muted);font-size:13px;margin:0 0 16px;">密码至少 4 位。修改后立即生效，请妥善保管。</p>
+            <div style="display:grid; grid-template-columns:1fr 1fr auto; gap:12px; align-items:end;">
+                <div>
+                    <label style="font-size:12px;color:var(--text-muted);font-weight:700;display:block;margin-bottom:5px;">新密码</label>
+                    <input type="password" id="new-pwd" class="form-input" placeholder="输入新密码（>=4位）">
+                </div>
+                <div>
+                    <label style="font-size:12px;color:var(--text-muted);font-weight:700;display:block;margin-bottom:5px;">确认新密码</label>
+                    <input type="password" id="new-pwd2" class="form-input" placeholder="再次输入">
+                </div>
+                <button class="btn btn-primary" onclick="changePassword()" style="height:40px;"><i class="fas fa-save"></i> 保存密码</button>
+            </div>
+        </div>
+
+        <div class="card" style="padding:24px; border-radius:var(--radius-lg); background:var(--bg-card); border:1px solid var(--border-color);">
+            <div class="card-title" style="font-size:16px; font-weight:800; margin-bottom:12px;"><i class="fas fa-toggle-on" style="color:var(--primary-blue);"></i> 花名册验证开关</div>
+            <p style="color:var(--text-muted);font-size:13.5px;line-height:1.7;margin:0 0 14px;">
+                当花名册为空时，系统处于<strong style="color:var(--accent-emerald);">开放模式</strong>——任意学号均可登录并使用记录功能。<br>
+                导入花名册后，系统进入<strong style="color:var(--accent-amber);">严格模式</strong>——学号和姓名必须完全匹配名单才能登录。
+            </p>
+            <div id="validation-mode" style="font-size:14px;font-weight:700;margin-bottom:14px;"></div>
+            <div class="btn-row">
+                <button class="btn btn-red" onclick="clearRoster()">
+                    <i class="fas fa-lock-open"></i> 清空花名册（切换为开放模式）
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+</main>
+
+<script src="js/data.js"></script>
+<script src="js/modules/namespace.js"></script>
+<script src="js/modules/utils.js"></script>
+<script src="js/modules/student.js"></script>
+
+<script>
+// ── 锁屏逻辑 ──
+var ADMIN_PWD_KEY = 'iekg_admin_pwd';
+var DEFAULT_PWD = 'admin2026';
+
+function getAdminPwd() {
+    return localStorage.getItem(ADMIN_PWD_KEY) || DEFAULT_PWD;
+}
+
+function unlockAdmin() {
+    var val = (document.getElementById('lock-pwd').value || '').trim();
+    var errEl = document.getElementById('lock-error');
+    if (!val) {
+        errEl.textContent = '请输入密码';
+        shakeBox();
+        return;
+    }
+    if (val === getAdminPwd()) {
+        document.getElementById('lock-screen').style.display = 'none';
+        errEl.textContent = '';
+        initAdminDashboard();
+    } else {
+        errEl.textContent = '密码错误，请重试';
+        shakeBox();
+    }
+}
+
+function demoQuickLogin() {
+    document.getElementById('lock-screen').style.display = 'none';
+    initAdminDashboard();
+}
+
+function quickFillPwd(pwd) {
+    document.getElementById('lock-pwd').value = pwd;
+    unlockAdmin();
+}
+
+function shakeBox() {
+    var box = document.getElementById('lock-box-card');
+    if (!box) return;
+    box.classList.remove('shake-error');
+    void box.offsetWidth;
+    box.classList.add('shake-error');
+}
+
+// ── Tab 切换 ──
+function switchTab(btn) {
+    var targetId = btn.getAttribute('data-tab');
+    document.querySelectorAll('.tab-item').forEach(function(b){ b.classList.remove('active'); });
+    document.querySelectorAll('.tab-pane').forEach(function(p){ p.classList.remove('active'); });
+    btn.classList.add('active');
+    var targetPane = document.getElementById(targetId);
+    if (targetPane) targetPane.classList.add('active');
+
+    if (targetId === 'tab-overview') refreshOverview();
+    if (targetId === 'tab-groups') renderGroups();
+}
+
+// ── 后台初始化 ──
+function initAdminDashboard() {
+    updateRosterTable();
+    updateValidationMode();
+    renderGroups();
+}
+
+// ── 花名册渲染与更新 ──
+function updateRosterTable() {
+    var roster = window.IEKG.student.admin.getRoster();
+    var profiles = window.IEKG.student.admin.getAllProfiles();
+    var countTag = document.getElementById('roster-count-tag');
+    var statusEl = document.getElementById('roster-status');
+    var tbody = document.getElementById('roster-tbody');
+
+    if (countTag) countTag.textContent = '共 ' + roster.length + ' 人';
+
+    if (statusEl) {
+        if (roster.length === 0) {
+            statusEl.innerHTML = '<span style="color:var(--accent-rose);font-weight:700;"><i class="fas fa-exclamation-triangle"></i> 未配置花名册（请导入学生花名册）</span>';
+        } else {
+            statusEl.innerHTML = '<span style="color:var(--accent-amber);font-weight:700;"><i class="fas fa-lock"></i> 严格验证模式（' + roster.length + ' 人名单）</span>';
+        }
+    }
+
+    if (!tbody) return;
+
+    if (roster.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:24px;color:var(--text-muted);">暂无花名册数据，请先粘贴或上传 CSV 花名册进行导入。</td></tr>';
+        return;
+    }
+
+    tbody.innerHTML = roster.map(function(r, idx) {
+        var isReg = profiles.some(function(p){ return p.studentId === r.studentId; });
+        var regTag = isReg ? '<span class="tag-ok">已注册</span>' : '<span style="color:var(--text-muted);font-size:11px;">未登录</span>';
+        return '<tr>'
+            + '<td>' + (idx + 1) + '</td>'
+            + '<td><code>' + r.studentId + '</code></td>'
+            + '<td><strong>' + r.name + '</strong></td>'
+            + '<td>' + (r.className || '--') + '</td>'
+            + '<td>' + (r.college || '--') + '</td>'
+            + '<td>' + regTag + '</td>'
+            + '<td><button onclick="removeRosterItem(\'' + r.studentId + '\')" style="background:none;border:none;color:var(--accent-rose);cursor:pointer;font-size:12px;"><i class="fas fa-times"></i> 删除</button></td>'
+            + '</tr>';
+    }).join('');
+}
+
+function importRoster() {
+    var raw = (document.getElementById('csv-input').value || '').trim();
+    if (!raw) { showAdminMsg('请输入或上传 CSV 内容', 'warn'); return; }
+    var count = window.IEKG.student.admin.setRoster(raw);
+    showAdminMsg('成功导入 ' + count + ' 名学生到花名册', 'ok');
+    updateRosterTable();
+    updateValidationMode();
+    renderGroups();
+}
+
+function addManual() {
+    var box = document.getElementById('manual-add-box');
+    if (box) box.style.display = box.style.display === 'none' ? 'block' : 'none';
+}
+
+function saveManualStudent() {
+    var sid = (document.getElementById('m-sid').value || '').trim();
+    var name = (document.getElementById('m-name').value || '').trim();
+    var cls = (document.getElementById('m-class').value || '').trim();
+    var col = (document.getElementById('m-college').value || '').trim();
+
+    if (!sid || !name) { showAdminMsg('学号和姓名为必填项', 'warn'); return; }
+
+    var roster = window.IEKG.student.admin.getRoster();
+    roster.push({ studentId: sid, name: name, className: cls, college: col });
+    localStorage.setItem('iekg_student_roster', JSON.stringify(roster));
+
+    document.getElementById('m-sid').value = '';
+    document.getElementById('m-name').value = '';
+    document.getElementById('manual-add-box').style.display = 'none';
+
+    showAdminMsg('已添加学生：' + name, 'ok');
+    updateRosterTable();
+    updateValidationMode();
+}
+
+function removeRosterItem(sid) {
+    var roster = window.IEKG.student.admin.getRoster();
+    roster = roster.filter(function(r){ return r.studentId !== sid; });
+    localStorage.setItem('iekg_student_roster', JSON.stringify(roster));
+    updateRosterTable();
+    updateValidationMode();
+    showAdminMsg('已删除学号 ' + sid, 'ok');
+}
+
+function clearRoster() {
+    if (!confirm('确认清空花名册？清空后系统将提示未导入花名册，请及时重新导入。')) return;
+    localStorage.removeItem('iekg_student_roster');
+    document.getElementById('csv-input').value = '';
+    updateRosterTable();
+    updateValidationMode();
+    showAdminMsg('花名册已清空', 'ok');
+}
+
+function downloadTemplate() {
+    var csv = '学号,姓名,班级,学院\n20260001,张创新,工商双创01班,工商管理学院\n20260002,李创业,工商双创01班,工商管理学院\n20260003,王梦想,双创实验班,经济学院';
+    var blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+    var link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = '学生花名册导入模板.csv';
+    link.click();
+}
+
+function handleFileUpload(e) {
+    var file = e.target.files[0];
+    if (!file) return;
+    var reader = new FileReader();
+    reader.onload = function(evt) {
+        document.getElementById('csv-input').value = evt.target.result;
+        showAdminMsg('文件读取成功，请点击“解析并导入”', 'ok');
+    };
+    reader.readAsText(file, 'UTF-8');
+}
+
+// ── 学情总览渲染 ──
+function refreshOverview() {
+    var profiles = window.IEKG.student.admin.getAllProfiles();
+    var tbody = document.getElementById('overview-tbody');
+
+    document.getElementById('sum-total-stu').textContent = profiles.length;
+
+    var totalHours = 0, totalScore = 0, checkinCount = 0;
+    profiles.forEach(function(p){
+        totalHours += (p.studyMinutes || 0) / 60;
+        totalScore += p.quizMaxScore || 0;
+        if (p.lastCheckIn === new Date().toISOString().slice(0, 10)) checkinCount++;
+    });
+
+    document.getElementById('sum-avg-hours').textContent = profiles.length > 0 ? (totalHours / profiles.length).toFixed(1) : '0.0';
+    document.getElementById('sum-avg-score').textContent = profiles.length > 0 ? Math.round(totalScore / profiles.length) : '0';
+    document.getElementById('sum-checkin-rate').textContent = profiles.length > 0 ? Math.round((checkinCount / profiles.length) * 100) + '%' : '0%';
+
+    if (!tbody) return;
+
+    if (profiles.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="12" style="text-align:center;padding:24px;color:var(--text-muted);">暂无学情数据。学生登录后，数据将在此显示。</td></tr>';
+        return;
+    }
+
+    tbody.innerHTML = profiles.map(function(p, idx){
+        var hrs = ((p.studyMinutes || 0) / 60).toFixed(1);
+        var nodes = (p.completedNodes || []).length;
+        var score = p.quizMaxScore || 0;
+        var obe = window.IEKG.student.calcOBEScore(p);
+        var lvl = window.IEKG.student.getGradeLevel(obe);
+
+        return '<tr>'
+            + '<td>' + (idx + 1) + '</td>'
+            + '<td><code>' + p.studentId + '</code></td>'
+            + '<td><strong>' + p.name + '</strong></td>'
+            + '<td>' + (p.className || '--') + '</td>'
+            + '<td>' + hrs + '</td>'
+            + '<td>' + nodes + ' / 18</td>'
+            + '<td>' + (p.quizAttempts || 0) + '</td>'
+            + '<td><strong style="color:var(--primary-blue);">' + score + '</strong></td>'
+            + '<td>' + (p.activitiesDone || 0) + '</td>'
+            + '<td>' + (p.checkInDays || 0) + '天</td>'
+            + '<td><strong style="color:var(--accent-emerald);">' + obe + '</strong></td>'
+            + '<td><span class="tag-ok">' + lvl + '</span></td>'
+            + '</tr>';
+    }).join('');
+}
+
+// ── 班级小组渲染与交互 ──
+function renderGroups() {
+    var container = document.getElementById('admin-groups-container');
+    if (!container) return;
+
+    var groups = [];
+    try {
+        groups = JSON.parse(localStorage.getItem('iekg_classroom_groups') || '[]');
+    } catch(e) {
+        groups = [];
+    }
+
+    if (groups.length === 0) {
+        container.innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:40px; color:var(--text-muted); background:var(--bg-card); border-radius:var(--radius-md); border:1px dashed var(--border-color);">'
+            + '<i class="fas fa-users-slash" style="font-size:32px; margin-bottom:12px; opacity:0.5;"></i>'
+            + '<p style="margin:0;">暂无分组数据，请点击上方【一键生成智能互补分组】或自定义组数。</p>'
+            + '</div>';
+        return;
+    }
+
+    var htmlStr = '';
+    groups.forEach(function(g) {
+        var memberHtml = (g.members || []).map(function(m) {
+            return '<div style="display:flex; justify-content:space-between; align-items:center; background:var(--bg-app); padding:6px 10px; border-radius:6px; font-size:12.5px; margin-bottom:6px;">'
+                + '<span><strong style="color:var(--primary-blue); margin-right:6px;">' + (m.role || '成员') + ':</strong>' + (m.name || '未命名') + '</span>'
+                + '<span style="font-size:11px; color:var(--text-muted);">' + (m.id || '') + '</span>'
+                + '</div>';
+        }).join('');
+
+        htmlStr += '<div style="background:var(--bg-card); border:1px solid var(--border-color); border-radius:var(--radius-md); padding:16px;">'
+            + '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; padding-bottom:8px; border-bottom:1px solid var(--border-color);">'
+            + '  <h4 style="margin:0; font-size:15px; color:var(--text-main);"><i class="fas fa-users" style="color:var(--primary-blue); margin-right:6px;"></i>' + (g.name || '小组') + '</h4>'
+            + "  <button onclick=\"dissolveGroup('" + g.id + "')\" style=\"background:var(--rose-bg); border:1px solid var(--rose-border); color:var(--accent-rose); padding:3px 10px; border-radius:6px; font-size:11.5px; font-weight:700; cursor:pointer;\">解散小组</button>"
+            + '</div>'
+            + '<p style="margin:0 0 10px 0; font-size:12px; color:var(--text-muted);">项目主题：<span style="color:var(--text-main); font-weight:600;">' + (g.topic || '自主命题PBL') + '</span></p>'
+            + memberHtml
+            + '</div>';
+    });
+
+    container.innerHTML = htmlStr;
+}
+
+function dissolveGroup(gId) {
+    if (!confirm('确认解散该小组？')) return;
+    var groupsData = JSON.parse(localStorage.getItem('iekg_admin_student_groups') || '[]');
+    groupsData = groupsData.filter(function(g){ return g.id !== gId; });
+    localStorage.setItem('iekg_admin_student_groups', JSON.stringify(groupsData));
+    renderGroups();
+    showAdminMsg('已解散该小组', 'ok');
+}
+
+function exportAllJSON() {
+    var profiles = window.IEKG.student.admin.getAllProfiles();
+    var blob = new Blob([JSON.stringify(profiles, null, 2)], { type: 'application/json' });
+    var link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = '全班学情完整数据.json';
+    link.click();
+}
+
+function printAllReport() {
+    window.print();
+}
+
+function exportMissingList() {
+    var roster = window.IEKG.student.admin.getRoster();
+    var profiles = window.IEKG.student.admin.getAllProfiles();
+    var loggedSids = new Set(profiles.map(function(p){ return p.studentId; }));
+
+    var missing = roster.filter(function(r){ return !loggedSids.has(r.studentId); });
+    if (missing.length === 0) {
+        showAdminMsg('花名册内所有学生均已登录系统！', 'ok');
+        return;
+    }
+
+    var csv = '学号,姓名,班级,学院,缺勤状态\n' + missing.map(function(m){
+        return m.studentId + ',' + m.name + ',' + (m.className || '') + ',' + (m.college || '') + ',未登录系统';
+    }).join('\n');
+
+    var blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+    var link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = '课程未登录缺勤名单.csv';
+    link.click();
+}
+
+function changePassword() {
+    var p1 = (document.getElementById('new-pwd').value || '').trim();
+    var p2 = (document.getElementById('new-pwd2').value || '').trim();
+
+    if (p1.length < 4) { showAdminMsg('新密码至少需要 4 个字符', 'warn'); return; }
+    if (p1 !== p2) { showAdminMsg('两次输入的密码不一致', 'warn'); return; }
+
+    localStorage.setItem(ADMIN_PWD_KEY, p1);
+    document.getElementById('new-pwd').value = '';
+    document.getElementById('new-pwd2').value = '';
+    showAdminMsg('管理员密码已成功修改！', 'ok');
+}
+
+function updateValidationMode() {
+    var roster = window.IEKG.student.admin.getRoster();
+    var el = document.getElementById('validation-mode');
+    if (!el) return;
+
+    if (roster.length === 0) {
+        el.innerHTML = '当前模式：<span style="color:var(--accent-rose);">【未配置模式】（需先导入花名册）</span>';
+    } else {
+        el.innerHTML = '当前模式：<span style="color:var(--accent-amber);">【严格模式】（仅限花名册内 ' + roster.length + ' 名学生登录）</span>';
+    }
+}
+
+function showAdminMsg(msg, type) {
+    var color = type === 'error' ? 'var(--accent-rose)' : type === 'warn' ? 'var(--accent-amber)' : 'var(--accent-emerald)';
+    var div = document.createElement('div');
+    div.style.cssText = 'position:fixed;bottom:30px;right:30px;background:var(--bg-card);border:1.5px solid '+color+';color:'+color+';padding:12px 22px;border-radius:12px;font-size:13.5px;font-weight:700;z-index:9998;box-shadow:var(--shadow-lg);max-width:380px;';
+    div.textContent = msg;
+    document.body.appendChild(div);
+    setTimeout(function(){ div.remove(); }, 3500);
+}
+</script>
+</body>
+</html>

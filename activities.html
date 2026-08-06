@@ -1,0 +1,1693 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>PBL实战活动中心 - 创新创业课程 OBE 教学平台</title>
+    <script src="js/all.min.js" defer></script>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        /* ── 活动页面专属样式 (亮色主题) ── */
+
+        /* 活动徽章颜色 */
+        .act-badge-submit {
+            background: var(--green-bg);
+            color: var(--green-text);
+            border: 1px solid var(--green-border);
+        }
+        .act-badge-think {
+            background: var(--amber-bg);
+            color: var(--amber-text);
+            border: 1px solid var(--amber-border);
+        }
+        .act-badge-help {
+            background: var(--rose-bg);
+            color: var(--rose-text);
+            border: 1px solid var(--rose-border);
+        }
+
+        /* 三角色流程呼吸灯动画 */
+        @keyframes role-pulse-glow {
+            0%   { border-color: rgba(217, 119, 6, 0.4); box-shadow: 0 0 4px rgba(217, 119, 6, 0.15); }
+            50%  { border-color: #D97706; box-shadow: 0 0 16px rgba(217, 119, 6, 0.4); }
+            100% { border-color: rgba(217, 119, 6, 0.4); box-shadow: 0 0 4px rgba(217, 119, 6, 0.15); }
+        }
+        .role-glowing-active {
+            animation: role-pulse-glow 2s infinite ease-in-out;
+            background: var(--amber-bg);
+            border-width: 1.5px;
+        }
+
+        /* 组别芯片卡 */
+        .group-chip {
+            padding: 8px 10px;
+            border-radius: 10px;
+            font-size: 12px;
+            font-weight: 800;
+            text-align: center;
+            cursor: pointer;
+            user-select: none;
+            transition: var(--transition-normal);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+        }
+        .group-chip:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-sm);
+        }
+        .group-chip.status-submit { background: var(--green-bg); color: var(--green-text); border: 1px solid var(--green-border); }
+        .group-chip.status-think  { background: var(--amber-bg); color: var(--amber-text); border: 1px solid var(--amber-border); }
+        .group-chip.status-help   { background: var(--rose-bg); color: var(--rose-text); border: 1px solid var(--rose-border); }
+
+        /* 组别悬停提示 */
+        .group-chip-tooltip {
+            visibility: hidden;
+            opacity: 0;
+            width: 200px;
+            background: var(--bg-card);
+            color: var(--text-main);
+            text-align: left;
+            border-radius: 10px;
+            padding: 10px 12px;
+            position: absolute;
+            z-index: 100;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--border-hover);
+            font-weight: 400;
+            font-size: 11px;
+            line-height: 1.45;
+            transition: opacity 0.25s ease, visibility 0.25s ease;
+            pointer-events: none;
+        }
+        .group-chip-tooltip::after {
+            content: "";
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            margin-left: -5px;
+            border-width: 5px;
+            border-style: solid;
+            border-color: var(--bg-card) transparent transparent transparent;
+        }
+        .group-chip:hover .group-chip-tooltip {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        /* 评分按钮 */
+        .score-btn {
+            border: 1px solid var(--border-color);
+            background: var(--bg-subtle);
+            color: var(--text-muted);
+            padding: 6px 14px;
+            border-radius: 10px;
+            font-size: 12px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: var(--transition-normal);
+        }
+        .score-btn:hover {
+            background: var(--bg-hover);
+            border-color: var(--border-hover);
+        }
+        .score-btn.active-grade {
+            transform: scale(1.06);
+            box-shadow: 0 0 10px rgba(217, 119, 6, 0.3);
+        }
+        .score-btn.btn-grade-95.active-grade  { background: var(--green-bg); border-color: var(--accent-emerald); color: var(--green-text); }
+        .score-btn.btn-grade-85.active-grade  { background: var(--amber-bg); border-color: var(--accent-amber); color: var(--amber-text); }
+        .score-btn.btn-grade-75.active-grade  { background: var(--blue-bg); border-color: var(--primary-blue); color: var(--blue-text); }
+        .score-btn.btn-grade-redo.active-grade { background: var(--rose-bg); border-color: var(--accent-rose); color: var(--rose-text); }
+
+        /* 活动卡片专属微调 */
+        .activity-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 22px;
+            box-shadow: var(--shadow-sm);
+            transition: var(--transition-normal);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .activity-card:hover {
+            box-shadow: var(--shadow-md);
+            border-color: var(--primary-blue);
+            transform: translateY(-3px);
+        }
+        .activity-tag {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 800;
+            background: var(--primary-light);
+            color: var(--primary-blue);
+            border: 1px solid var(--border-accent);
+        }
+        .activity-timing {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 800;
+            background: var(--rose-bg);
+            color: var(--rose-text);
+            border: 1px solid var(--rose-border);
+        }
+        .activity-deliverable {
+            font-size: 12px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            background: var(--amber-bg);
+            color: var(--amber-text);
+            padding: 6px 10px;
+            border-radius: 6px;
+            border-left: 3px solid var(--accent-amber);
+        }
+
+        /* 小组配置区域 */
+        .group-config-section {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 20px 24px;
+            margin-bottom: 20px;
+            box-shadow: var(--shadow-sm);
+        }
+        .group-config-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        .group-config-controls {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .group-count-select {
+            padding: 6px 12px;
+            border-radius: var(--radius-sm);
+            border: 1.5px solid var(--border-color);
+            background: var(--bg-card);
+            color: var(--text-main);
+            font-size: var(--text-sm);
+            font-weight: 700;
+            outline: none;
+            transition: var(--transition-normal);
+            min-width: 80px;
+        }
+        .group-count-select:focus {
+            border-color: var(--primary-blue);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+        }
+        .groups-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 10px;
+        }
+
+        /* 小组状态卡片 */
+        .group-status-card {
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 12px 14px;
+            text-align: center;
+            transition: var(--transition-normal);
+            cursor: default;
+        }
+        .group-status-card:hover {
+            border-color: var(--border-hover);
+            box-shadow: var(--shadow-sm);
+        }
+        .group-status-card.status-submit { background: var(--green-bg); border-color: var(--green-border); }
+        .group-status-card.status-think  { background: var(--amber-bg); border-color: var(--amber-border); }
+        .group-status-card.status-help   { background: var(--rose-bg); border-color: var(--rose-border); }
+
+        /* 模态框亮色覆盖 */
+        .act-modal-content {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            border-radius: var(--radius-xl);
+            max-width: 860px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            padding: 30px;
+            box-shadow: var(--shadow-xl);
+            position: relative;
+        }
+        .act-modal-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            z-index: 2147483647;
+            background: rgba(15, 23, 42, 0.45);
+            backdrop-filter: blur(6px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .act-modal-info-box {
+            background: var(--bg-subtle);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 16px;
+            margin-bottom: 18px;
+        }
+        .act-modal-flow-card {
+            border-radius: 12px;
+            padding: 12px;
+            border: 1px solid;
+        }
+        .act-modal-flow-card.teacher { background: var(--blue-bg); border-color: var(--blue-border); }
+        .act-modal-flow-card.student { background: var(--green-bg); border-color: var(--green-border); }
+        .act-modal-flow-card.group   { background: var(--purple-bg); border-color: var(--purple-border); }
+
+        /* AI 质问模态框 */
+        .ai-q-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            z-index: 2147483648;
+            background: rgba(15, 23, 42, 0.5);
+            backdrop-filter: blur(8px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .ai-q-card {
+            background: var(--bg-card);
+            border: 1px solid var(--purple-border);
+            border-radius: var(--radius-xl);
+            padding: 26px 30px;
+            max-width: 580px;
+            width: 100%;
+            box-shadow: var(--shadow-xl);
+            position: relative;
+        }
+
+        /* 页脚 */
+        .footer-grid {
+            display: grid;
+            grid-template-columns: 1.5fr 1fr 1fr 1.2fr;
+            gap: 36px;
+        }
+        @media (max-width: 768px) {
+            .footer-grid { grid-template-columns: 1fr 1fr; }
+            .group-config-header { flex-direction: column; align-items: flex-start; }
+        }
+        @media (max-width: 480px) {
+            .footer-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- 粒子背景 -->
+<canvas id="particles-canvas"></canvas>
+
+<!-- ========== 统一导航栏 ========== -->
+<header class="site-header">
+    <div class="header-inner">
+        <a href="index.html" class="brand-logo">
+            <div class="brand-icon"><i class="fas fa-graduation-cap"></i></div>
+            <div>
+                <div class="brand-title">创新创业课程 OBE 智慧教学与评估平台</div>
+                <div class="brand-subtitle">Innovation & Entrepreneurship Mapping Engine v4.0</div>
+            </div>
+        </a>
+        <button class="nav-toggle" onclick="document.querySelector('.main-nav').classList.toggle('open')">
+            <i class="fas fa-bars"></i>
+        </button>
+        <nav class="main-nav">
+            <a href="index.html" class="nav-item"><i class="fas fa-compass"></i> 首页</a>
+            <a href="map.html" class="nav-item"><i class="fas fa-map"></i> 课程地图</a>
+            <a href="knowledge_graph.html" class="nav-item"><i class="fas fa-sitemap"></i> 知识图谱</a>
+            <a href="student.html" class="nav-item"><i class="fas fa-user-graduate"></i> 能力矩阵</a>
+            <a href="activities.html" class="nav-item active"><i class="fas fa-tasks"></i> PBL实战</a>
+            <a href="chat.html" class="nav-item"><i class="fas fa-robot"></i> AI导师</a>
+            <a href="admin.html" class="nav-item"><i class="fas fa-chart-line"></i> 学情看板</a>
+        </nav>
+        <div class="nav-actions">
+            <a href="admin.html" class="btn-nav"><i class="fas fa-user-shield"></i> 教师/专家视图</a>
+        </div>
+    </div>
+</header>
+
+<!-- ========== 主内容区 ========== -->
+<main class="page-main">
+    <div class="app-container">
+
+        <!-- 页面标题 Banner -->
+        <div class="card" style="padding: 32px 30px; text-align: center; margin-bottom: 24px; border-left: 3px solid var(--primary-blue);">
+            <span class="section-tag"><i class="fas fa-bolt"></i> PBL 实战活动库</span>
+            <h1 class="section-title" style="margin-top: 8px;">课堂启发式活动中心</h1>
+            <p class="section-desc" style="max-width: 850px; margin: 8px auto 0;">
+                结合大纲 18 项核心 PBL 任务，扩展推出 24 项高互动课堂启发式实战活动。
+                每项活动配套<strong>活动规则</strong>、<strong>考核产出说明</strong>与<strong>三角色操作流程</strong>。
+            </p>
+        </div>
+
+        <!-- ===== 小组数量自定义区域 (NEW) ===== -->
+        <div class="group-config-section">
+            <div class="group-config-header">
+                <div>
+                    <h3 style="font-size: 16px; font-weight: 800; color: var(--text-main); margin: 0; display: flex; align-items: center; gap: 8px;">
+                        <i class="fas fa-users" style="color: var(--primary-blue);"></i> 课堂小组分配与进度概览
+                    </h3>
+                    <p style="color: var(--text-sub); font-size: 13px; margin: 4px 0 0 0;">
+                        设置小组数量后，可在下方查看各组当前状态，点击状态标签可快速切换
+                    </p>
+                </div>
+                <div class="group-config-controls">
+                    <label for="group-count-select" style="font-size: 13px; font-weight: 700; color: var(--text-muted);">小组数量：</label>
+                    <select id="group-count-select" class="group-count-select">
+                        <option value="2">2 组</option>
+                        <option value="3">3 组</option>
+                        <option value="4" selected>4 组</option>
+                        <option value="5">5 组</option>
+                        <option value="6">6 组</option>
+                        <option value="7">7 组</option>
+                        <option value="8">8 组</option>
+                        <option value="9">9 组</option>
+                        <option value="10">10 组</option>
+                        <option value="11">11 组</option>
+                        <option value="12">12 组</option>
+                    </select>
+                    <button onclick="applyGroupCount()" class="btn btn-primary btn-sm">应用设置</button>
+                </div>
+            </div>
+            <div id="groups-overview" class="groups-grid">
+                <!-- 动态渲染 -->
+            </div>
+        </div>
+
+        <!-- ===== 活动分类筛选 ===== -->
+        <div class="filter-bar" style="justify-content: center; margin-bottom: 24px;" id="act-filters">
+            <button class="filter-btn active" onclick="filterActivities('all', this)">全部活动 (24)</button>
+            <button class="filter-btn" onclick="filterActivities('team', this)">团队搭建 (4)</button>
+            <button class="filter-btn" onclick="filterActivities('painpoint', this)">痛点发散 (4)</button>
+            <button class="filter-btn" onclick="filterActivities('bm', this)">商业模式 (4)</button>
+            <button class="filter-btn" onclick="filterActivities('feasibility', this)">市场可行 (4)</button>
+            <button class="filter-btn" onclick="filterActivities('mvp', this)">精益验证 (4)</button>
+            <button class="filter-btn" onclick="filterActivities('competition', this)">大赛答辩 (4)</button>
+        </div>
+
+        <!-- ===== 活动卡片网格 ===== -->
+        <div id="activities-grid" class="grid-auto" style="gap: 20px;">
+            <!-- 动态渲染 -->
+        </div>
+
+    </div>
+</main>
+
+<!-- ========== 页脚 ========== -->
+<footer class="site-footer" style="padding: 48px 20px 32px;">
+    <div style="max-width: 1280px; margin: 0 auto;">
+        <div class="footer-grid">
+            <div>
+                <div style="font-size: 16px; font-weight: 800; color: var(--text-main); margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+                    <i class="fas fa-graduation-cap" style="color: var(--primary-blue);"></i>
+                    创新创业基础课程教学平台
+                </div>
+                <div style="font-size: 13px; color: var(--text-sub); line-height: 1.6; margin-bottom: 16px;">
+                    基于成果导向教育 (OBE) 理念设计，整合知识图谱、PBL 表现性评价与 AI 辅助教学，打造高校双创"学-练-评-改"闭环。
+                </div>
+                <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                    <span class="badge badge-green"><i class="fas fa-award"></i> 课程教学标准</span>
+                    <span class="badge badge-blue"><i class="fas fa-check-circle"></i> OBE 理念实践</span>
+                </div>
+            </div>
+
+            <div>
+                <div style="font-size: 14px; font-weight: 800; color: var(--text-main); margin-bottom: 16px;">课程核心体系</div>
+                <ul style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 10px; font-size: 13px;">
+                    <li><a href="index.html" style="color: var(--text-muted); text-decoration: none;"><i class="fas fa-angle-right" style="color: var(--primary-blue);"></i> 课程目标 (CLOs) 矩阵</a></li>
+                    <li><a href="knowledge_graph.html" style="color: var(--text-muted); text-decoration: none;"><i class="fas fa-angle-right" style="color: var(--primary-blue);"></i> 理论知识图谱</a></li>
+                    <li><a href="graph.html" style="color: var(--text-muted); text-decoration: none;"><i class="fas fa-angle-right" style="color: var(--primary-blue);"></i> 实战能力图谱</a></li>
+                    <li><a href="map.html" style="color: var(--text-muted); text-decoration: none;"><i class="fas fa-angle-right" style="color: var(--primary-blue);"></i> 18学时教学大纲地图</a></li>
+                    <li><a href="activities.html" style="color: var(--text-muted); text-decoration: none;"><i class="fas fa-angle-right" style="color: var(--primary-blue);"></i> PBL 实战任务流</a></li>
+                </ul>
+            </div>
+
+            <div>
+                <div style="font-size: 14px; font-weight: 800; color: var(--text-main); margin-bottom: 16px;">教学资源与评估</div>
+                <ul style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 10px; font-size: 13px;">
+                    <li><a href="chat.html" style="color: var(--text-muted); text-decoration: none;"><i class="fas fa-angle-right" style="color: var(--primary-blue);"></i> AI 导师智能体</a></li>
+                    <li><a href="admin.html" style="color: var(--text-muted); text-decoration: none;"><i class="fas fa-angle-right" style="color: var(--primary-blue);"></i> 学情与达成度看板</a></li>
+                    <li><a href="resources.html" style="color: var(--text-muted); text-decoration: none;"><i class="fas fa-angle-right" style="color: var(--primary-blue);"></i> 教学模版与资源下载</a></li>
+                    <li><a href="glossary.html" style="color: var(--text-muted); text-decoration: none;"><i class="fas fa-angle-right" style="color: var(--primary-blue);"></i> 双创与 AI 词典</a></li>
+                    <li><a href="exam.html" style="color: var(--text-muted); text-decoration: none;"><i class="fas fa-angle-right" style="color: var(--primary-blue);"></i> 综合自测与评分</a></li>
+                </ul>
+            </div>
+
+            <div>
+                <div style="font-size: 14px; font-weight: 800; color: var(--text-main); margin-bottom: 16px;">平台数据</div>
+                <div class="card" style="padding: 14px; font-size: 13px; line-height: 1.8;">
+                    <div><span style="color: var(--text-sub);">知识节点：</span> <strong style="color: var(--primary-blue);">28 个</strong></div>
+                    <div><span style="color: var(--text-sub);">能力指标：</span> <strong style="color: var(--accent-emerald);">36 项</strong></div>
+                    <div><span style="color: var(--text-sub);">PBL 任务：</span> <strong style="color: var(--accent-amber);">18 项</strong></div>
+                    <div><span style="color: var(--text-sub);">运行模式：</span> <strong style="color: var(--text-main);">本地离线运行</strong></div>
+                </div>
+            </div>
+        </div>
+
+        <div style="max-width: 1280px; margin: 36px auto 0; padding-top: 20px; border-top: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; font-size: 13px; color: var(--text-sub); flex-wrap: wrap; gap: 12px;">
+            <div>Copyright &copy; 2026 创新创业基础课程教学平台. All Rights Reserved.</div>
+            <div style="display: flex; align-items: center; gap: 16px;">
+                <span style="display: inline-flex; align-items: center; gap: 6px; color: var(--accent-emerald); font-weight: 600;">
+                    <span style="width: 8px; height: 8px; background: var(--accent-emerald); border-radius: 50%;"></span>
+                    系统运行正常
+                </span>
+                <a href="index.html" style="color: var(--text-sub); text-decoration: none;">首页</a>
+                <a href="help.html" style="color: var(--text-sub); text-decoration: none;">使用说明</a>
+                <a href="admin.html" style="color: var(--text-sub); text-decoration: none;">教师入口</a>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- ================================================================ -->
+<!-- 活动详情与三角色看板弹出 Modal                                      -->
+<!-- ================================================================ -->
+<div id="activity-detail-modal" class="act-modal-overlay" style="display: none;">
+    <div class="act-modal-content" id="activity-modal-content">
+        <!-- 动态渲染 -->
+    </div>
+</div>
+
+<!-- ================================================================ -->
+<!-- AI 投资人质问弹出 Modal                                            -->
+<!-- ================================================================ -->
+<div id="ai-question-modal" class="ai-q-overlay" style="display: none;">
+    <div class="ai-q-card">
+        <button onclick="closeAIQuestionModal()" style="position: absolute; top: 18px; right: 20px; background: none; border: none; color: var(--text-sub); font-size: 20px; cursor: pointer;">
+            <i class="fas fa-times"></i>
+        </button>
+        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 14px;">
+            <div style="width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, var(--accent-violet), #6D28D9); display: flex; align-items: center; justify-content: center; color: #fff; font-size: 18px;">
+                <i class="fas fa-robot"></i>
+            </div>
+            <div>
+                <h3 style="color: var(--text-main); font-size: 17px; font-weight: 900; margin: 0;">AI 投资人高压质问弹窗</h3>
+                <span style="font-size: 12px; color: var(--accent-violet); font-weight: 700;">模拟答辩场景 · 随机抽选质问卡</span>
+            </div>
+        </div>
+        <div id="ai-q-list" style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px;">
+            <!-- 动态渲染 -->
+        </div>
+        <div style="text-align: right;">
+            <button onclick="closeAIQuestionModal()" class="btn btn-primary" style="background: linear-gradient(135deg, var(--accent-violet), #6D28D9);">
+                已接收质问 (开始答辩)
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- ========== 脚本引入 ========== -->
+<script src="js/data.js"></script>
+<script src="js/activities.js"></script>
+<script src="js/modules/framework.js"></script>
+<script src="js/modules/main_framework.js"></script>
+<script src="js/modules/utils.js"></script>
+<script src="js/modules/presentation.js"></script>
+<script src="js/app.js"></script>
+
+<!-- ========== 页面主逻辑 ========== -->
+<script>
+let currentCategory = 'all';
+let activeActivityItem = null;
+let actTimerInterval = null;
+
+/* ── 小组数量与状态管理 ── */
+const GROUP_COUNT_KEY = 'act_group_count';
+
+function getGroupCount() {
+    const saved = localStorage.getItem(GROUP_COUNT_KEY);
+    const count = saved ? parseInt(saved, 10) : 4;
+    return Math.max(2, Math.min(12, count));
+}
+
+function saveGroupCount(count) {
+    localStorage.setItem(GROUP_COUNT_KEY, String(count));
+}
+
+function generateGroupStatus(count) {
+    const templates = [
+        { status: 1, time: '09:42', draft: '已完成活动产出，等待教师评估。' },
+        { status: 0, time: '--:--', draft: '正在进行组内讨论和资料整理。' },
+        { status: 1, time: '08:15', draft: '方案定稿：已完成核心问题分析。' },
+        { status: 0, time: '--:--', draft: '组内推演关键测算数据中。' },
+        { status: 1, time: '10:04', draft: '任务拆解完成，核心要素已确认。' },
+        { status: 1, time: '07:50', draft: '草案框架已通过组内走查。' },
+        { status: 2, time: '--:--', draft: '遇到瓶颈：需要教师协助指导关键概念。' },
+        { status: 1, time: '09:12', draft: '展示结构已就绪。' },
+        { status: 0, time: '--:--', draft: '对照评估指标自查中。' },
+        { status: 1, time: '08:30', draft: '已完成基础调研与交叉对比。' },
+        { status: 0, time: '--:--', draft: '正在收集相关资料和案例。' },
+        { status: 1, time: '09:55', draft: '已完成最终成果整理。' }
+    ];
+
+    const list = [];
+    for (let i = 1; i <= count; i++) {
+        const tpl = templates[(i - 1) % templates.length];
+        list.push({
+            id: i,
+            status: tpl.status,
+            time: tpl.time,
+            draft: tpl.draft
+        });
+    }
+    return list;
+}
+
+let groupsStatusState = generateGroupStatus(getGroupCount());
+
+function applyGroupCount() {
+    const select = document.getElementById('group-count-select');
+    const newCount = parseInt(select.value, 10);
+
+    if (newCount === groupsStatusState.length) return;
+
+    saveGroupCount(newCount);
+    groupsStatusState = generateGroupStatus(newCount);
+    renderGroupOverview();
+
+    showToast('小组数量已更新为 ' + newCount + ' 组');
+}
+
+function cycleGroupStatus(groupId) {
+    const g = groupsStatusState.find(g => g.id === groupId);
+    if (!g) return;
+    g.status = (g.status + 1) % 3;
+    if (g.status === 0) {
+        g.draft = '正在进行组内讨论和资料整理。';
+        g.time = '--:--';
+    } else if (g.status === 1) {
+        g.draft = '已完成活动产出，等待教师评估。';
+        g.time = new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' });
+    } else {
+        g.draft = '遇到瓶颈：需要教师协助指导。';
+        g.time = '--:--';
+    }
+    renderGroupOverview();
+}
+
+function renderGroupOverview() {
+    const container = document.getElementById('groups-overview');
+    if (!container) return;
+
+    const statusLabels = { 0: '思考中', 1: '已提交', 2: '需辅导' };
+    const statusClasses = { 0: 'status-think', 1: 'status-submit', 2: 'status-help' };
+    const statusIcons  = { 0: 'fa-lightbulb', 1: 'fa-check-circle', 2: 'fa-question-circle' };
+
+    container.innerHTML = groupsStatusState.map(g => {
+        const cls = statusClasses[g.status] || 'status-think';
+        return `
+            <div class="group-status-card ${cls}" onclick="cycleGroupStatus(${g.id})" title="点击切换状态">
+                <div style="font-weight: 800; font-size: 14px; color: var(--text-main); margin-bottom: 4px;">
+                    <i class="fas fa-users"></i> 第 ${g.id} 组
+                </div>
+                <div style="font-size: 12px; font-weight: 700; margin-bottom: 4px;">
+                    <i class="fas ${statusIcons[g.status]}"></i> ${statusLabels[g.status]}
+                </div>
+                <div style="font-size: 11px; color: var(--text-sub); line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+                    ${g.draft}
+                </div>
+                <div style="font-size: 11px; color: var(--text-sub); margin-top: 4px;">
+                    <i class="far fa-clock"></i> ${g.time}
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+/* ── Toast 提示 ── */
+function showToast(msg) {
+    let toast = document.getElementById('act-toast');
+    if (!toast) {
+        toast = document.createElement('div');
+        toast.id = 'act-toast';
+        toast.style.cssText = 'position:fixed;bottom:30px;left:50%;transform:translateX(-50%);background:var(--text-main);color:var(--bg-card);padding:10px 24px;border-radius:20px;font-size:14px;font-weight:700;z-index:99999;opacity:0;transition:opacity 0.3s ease;pointer-events:none;';
+        document.body.appendChild(toast);
+    }
+    toast.textContent = msg;
+    toast.style.opacity = '1';
+    clearTimeout(toast._tid);
+    toast._tid = setTimeout(() => { toast.style.opacity = '0'; }, 2000);
+}
+
+/* ── 活动卡片渲染 ── */
+function renderActivitiesGrid() {
+    const container = document.getElementById('activities-grid');
+    if (!container || !window.ACTIVITIES_DATA) return;
+
+    const list = currentCategory === 'all'
+        ? window.ACTIVITIES_DATA
+        : window.ACTIVITIES_DATA.filter(a => a.category === currentCategory);
+
+    container.innerHTML = list.map(a => {
+        const isDone = localStorage.getItem('pbl_task_' + a.id + '_completed') === 'true';
+        return `
+        <div class="activity-card" style="${isDone ? 'border-color: var(--green-border); background: #f0fdf4;' : ''}">
+            <div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                    <span class="activity-tag" style="${isDone ? 'background: var(--green-bg); color: var(--green-text); border: 1px solid var(--green-border); font-weight: 800;' : ''}">
+                        ${isDone ? '<i class="fas fa-check-circle"></i> ???' : a.badge}
+                    </span>
+                    <span class="activity-timing"><i class="far fa-clock"></i> ${a.time}</span>
+                </div>
+                <h3 style="color: var(--text-main); font-size: 17px; font-weight: 800; margin-bottom: 8px;">${a.title}</h3>
+                <div style="color: var(--primary-blue); font-size: 12px; font-weight: 700; margin-bottom: 10px;">
+                    <i class="fas fa-link"></i> ${a.pblNode}
+                </div>
+                <p style="color: var(--text-muted); font-size: 13px; line-height: 1.6; margin-bottom: 12px;">${a.desc}</p>
+                <div class="activity-deliverable">
+                    <i class="fas fa-file-signature"></i> ?????${a.deliverable || '?? 1 ???????????????'}
+                </div>
+            </div>
+
+            <div style="border-top: 1px dashed var(--border-color); padding-top: 14px; display: flex; justify-content: space-between; align-items: center;">
+                <span style="color: var(--text-sub); font-size: 12px; font-weight: 600;">
+                    <i class="fas fa-layer-group"></i> ${a.categoryName}
+                </span>
+                <button onclick="openActivityDetail('${a.id}')" class="btn ${isDone ? 'btn-outline' : 'btn-primary'} btn-sm" style="${isDone ? 'border-color: var(--accent-emerald); color: var(--accent-emerald); font-weight: 700;' : ''}">
+                    <i class="fas ${isDone ? 'fa-check' : 'fa-play-circle'}"></i> ${isDone ? '??/????' : '????'}
+                </button>
+            </div>
+        </div>
+        `;
+    }).join('');
+}
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>PBL实战活动中心 - 创新创业课程 OBE 教学平台</title>
+    <script src="js/all.min.js" defer></script>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        /* ── 活动页面专属样式 (亮色主题) ── */
+
+        /* 活动徽章颜色 */
+        .act-badge-submit {
+            background: var(--green-bg);
+            color: var(--green-text);
+            border: 1px solid var(--green-border);
+        }
+        .act-badge-think {
+            background: var(--amber-bg);
+            color: var(--amber-text);
+            border: 1px solid var(--amber-border);
+        }
+        .act-badge-help {
+            background: var(--rose-bg);
+            color: var(--rose-text);
+            border: 1px solid var(--rose-border);
+        }
+
+        /* 三角色流程呼吸灯动画 */
+        @keyframes role-pulse-glow {
+            0%   { border-color: rgba(217, 119, 6, 0.4); box-shadow: 0 0 4px rgba(217, 119, 6, 0.15); }
+            50%  { border-color: #D97706; box-shadow: 0 0 16px rgba(217, 119, 6, 0.4); }
+            100% { border-color: rgba(217, 119, 6, 0.4); box-shadow: 0 0 4px rgba(217, 119, 6, 0.15); }
+        }
+        .role-glowing-active {
+            animation: role-pulse-glow 2s infinite ease-in-out;
+            background: var(--amber-bg);
+            border-width: 1.5px;
+        }
+
+        /* 组别芯片卡 */
+        .group-chip {
+            padding: 8px 10px;
+            border-radius: 10px;
+            font-size: 12px;
+            font-weight: 800;
+            text-align: center;
+            cursor: pointer;
+            user-select: none;
+            transition: var(--transition-normal);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+        }
+        .group-chip:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-sm);
+        }
+        .group-chip.status-submit { background: var(--green-bg); color: var(--green-text); border: 1px solid var(--green-border); }
+        .group-chip.status-think  { background: var(--amber-bg); color: var(--amber-text); border: 1px solid var(--amber-border); }
+        .group-chip.status-help   { background: var(--rose-bg); color: var(--rose-text); border: 1px solid var(--rose-border); }
+
+        /* 组别悬停提示 */
+        .group-chip-tooltip {
+            visibility: hidden;
+            opacity: 0;
+            width: 200px;
+            background: var(--bg-card);
+            color: var(--text-main);
+            text-align: left;
+            border-radius: 10px;
+            padding: 10px 12px;
+            position: absolute;
+            z-index: 100;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--border-hover);
+            font-weight: 400;
+            font-size: 11px;
+            line-height: 1.45;
+            transition: opacity 0.25s ease, visibility 0.25s ease;
+            pointer-events: none;
+        }
+        .group-chip-tooltip::after {
+            content: "";
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            margin-left: -5px;
+            border-width: 5px;
+            border-style: solid;
+            border-color: var(--bg-card) transparent transparent transparent;
+        }
+        .group-chip:hover .group-chip-tooltip {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        /* 评分按钮 */
+        .score-btn {
+            border: 1px solid var(--border-color);
+            background: var(--bg-subtle);
+            color: var(--text-muted);
+            padding: 6px 14px;
+            border-radius: 10px;
+            font-size: 12px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: var(--transition-normal);
+        }
+        .score-btn:hover {
+            background: var(--bg-hover);
+            border-color: var(--border-hover);
+        }
+        .score-btn.active-grade {
+            transform: scale(1.06);
+            box-shadow: 0 0 10px rgba(217, 119, 6, 0.3);
+        }
+        .score-btn.btn-grade-95.active-grade  { background: var(--green-bg); border-color: var(--accent-emerald); color: var(--green-text); }
+        .score-btn.btn-grade-85.active-grade  { background: var(--amber-bg); border-color: var(--accent-amber); color: var(--amber-text); }
+        .score-btn.btn-grade-75.active-grade  { background: var(--blue-bg); border-color: var(--primary-blue); color: var(--blue-text); }
+        .score-btn.btn-grade-redo.active-grade { background: var(--rose-bg); border-color: var(--accent-rose); color: var(--rose-text); }
+
+        /* 活动卡片专属微调 */
+        .activity-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 22px;
+            box-shadow: var(--shadow-sm);
+            transition: var(--transition-normal);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .activity-card:hover {
+            box-shadow: var(--shadow-md);
+            border-color: var(--primary-blue);
+            transform: translateY(-3px);
+        }
+        .activity-tag {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 800;
+            background: var(--primary-light);
+            color: var(--primary-blue);
+            border: 1px solid var(--border-accent);
+        }
+        .activity-timing {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 800;
+            background: var(--rose-bg);
+            color: var(--rose-text);
+            border: 1px solid var(--rose-border);
+        }
+        .activity-deliverable {
+            font-size: 12px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            background: var(--amber-bg);
+            color: var(--amber-text);
+            padding: 6px 10px;
+            border-radius: 6px;
+            border-left: 3px solid var(--accent-amber);
+        }
+
+        /* 小组配置区域 */
+        .group-config-section {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 20px 24px;
+            margin-bottom: 20px;
+            box-shadow: var(--shadow-sm);
+        }
+        .group-config-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        .group-config-controls {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .group-count-select {
+            padding: 6px 12px;
+            border-radius: var(--radius-sm);
+            border: 1.5px solid var(--border-color);
+            background: var(--bg-card);
+            color: var(--text-main);
+            font-size: var(--text-sm);
+            font-weight: 700;
+            outline: none;
+            transition: var(--transition-normal);
+            min-width: 80px;
+        }
+        .group-count-select:focus {
+            border-color: var(--primary-blue);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+        }
+        .groups-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 10px;
+        }
+
+        /* 小组状态卡片 */
+        .group-status-card {
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 12px 14px;
+            text-align: center;
+            transition: var(--transition-normal);
+            cursor: default;
+        }
+        .group-status-card:hover {
+            border-color: var(--border-hover);
+            box-shadow: var(--shadow-sm);
+        }
+        .group-status-card.status-submit { background: var(--green-bg); border-color: var(--green-border); }
+        .group-status-card.status-think  { background: var(--amber-bg); border-color: var(--amber-border); }
+        .group-status-card.status-help   { background: var(--rose-bg); border-color: var(--rose-border); }
+
+        /* 模态框亮色覆盖 */
+        .act-modal-content {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            border-radius: var(--radius-xl);
+            max-width: 860px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            padding: 30px;
+            box-shadow: var(--shadow-xl);
+            position: relative;
+        }
+        .act-modal-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            z-index: 2147483647;
+            background: rgba(15, 23, 42, 0.45);
+            backdrop-filter: blur(6px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .act-modal-info-box {
+            background: var(--bg-subtle);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 16px;
+            margin-bottom: 18px;
+        }
+        .act-modal-flow-card {
+            border-radius: 12px;
+            padding: 12px;
+            border: 1px solid;
+        }
+        .act-modal-flow-card.teacher { background: var(--blue-bg); border-color: var(--blue-border); }
+        .act-modal-flow-card.student { background: var(--green-bg); border-color: var(--green-border); }
+        .act-modal-flow-card.group   { background: var(--purple-bg); border-color: var(--purple-border); }
+
+        /* AI 质问模态框 */
+        .ai-q-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            z-index: 2147483648;
+            background: rgba(15, 23, 42, 0.5);
+            backdrop-filter: blur(8px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .ai-q-card {
+            background: var(--bg-card);
+            border: 1px solid var(--purple-border);
+            border-radius: var(--radius-xl);
+            padding: 26px 30px;
+            max-width: 580px;
+            width: 100%;
+            box-shadow: var(--shadow-xl);
+            position: relative;
+        }
+
+        /* 页脚 */
+        .footer-grid {
+            display: grid;
+            grid-template-columns: 1.5fr 1fr 1fr 1.2fr;
+            gap: 36px;
+        }
+        @media (max-width: 768px) {
+            .footer-grid { grid-template-columns: 1fr 1fr; }
+            .group-config-header { flex-direction: column; align-items: flex-start; }
+        }
+        @media (max-width: 480px) {
+            .footer-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- 粒子背景 -->
+<canvas id="particles-canvas"></canvas>
+
+<!-- ========== 统一导航栏 ========== -->
+<header class="site-header">
+    <div class="header-inner">
+        <a href="index.html" class="brand-logo">
+            <div class="brand-icon"><i class="fas fa-graduation-cap"></i></div>
+            <div>
+                <div class="brand-title">创新创业课程 OBE 智慧教学与评估平台</div>
+                <div class="brand-subtitle">Innovation & Entrepreneurship Mapping Engine v4.0</div>
+            </div>
+        </a>
+        <button class="nav-toggle" onclick="document.querySelector('.main-nav').classList.toggle('open')">
+            <i class="fas fa-bars"></i>
+        </button>
+        <nav class="main-nav">
+            <a href="index.html" class="nav-item"><i class="fas fa-compass"></i> 首页</a>
+            <a href="map.html" class="nav-item"><i class="fas fa-map"></i> 课程地图</a>
+            <a href="knowledge_graph.html" class="nav-item"><i class="fas fa-sitemap"></i> 知识图谱</a>
+            <a href="student.html" class="nav-item"><i class="fas fa-user-graduate"></i> 能力矩阵</a>
+            <a href="activities.html" class="nav-item active"><i class="fas fa-tasks"></i> PBL实战</a>
+            <a href="chat.html" class="nav-item"><i class="fas fa-robot"></i> AI导师</a>
+            <a href="admin.html" class="nav-item"><i class="fas fa-chart-line"></i> 学情看板</a>
+        </nav>
+        <div class="nav-actions">
+            <a href="admin.html" class="btn-nav"><i class="fas fa-user-shield"></i> 教师/专家视图</a>
+        </div>
+    </div>
+</header>
+
+<!-- ========== 主内容区 ========== -->
+<main class="page-main">
+    <div class="app-container">
+
+        <!-- 页面标题 Banner -->
+        <div class="card" style="padding: 32px 30px; text-align: center; margin-bottom: 24px; border-left: 3px solid var(--primary-blue);">
+            <span class="section-tag"><i class="fas fa-bolt"></i> PBL 实战活动库</span>
+            <h1 class="section-title" style="margin-top: 8px;">课堂启发式活动中心</h1>
+            <p class="section-desc" style="max-width: 850px; margin: 8px auto 0;">
+                结合大纲 18 项核心 PBL 任务，扩展推出 24 项高互动课堂启发式实战活动。
+                每项活动配套<strong>活动规则</strong>、<strong>考核产出说明</strong>与<strong>三角色操作流程</strong>。
+            </p>
+        </div>
+
+        <!-- ===== 小组数量自定义区域 (NEW) ===== -->
+        <div class="group-config-section">
+            <div class="group-config-header">
+                <div>
+                    <h3 style="font-size: 16px; font-weight: 800; color: var(--text-main); margin: 0; display: flex; align-items: center; gap: 8px;">
+                        <i class="fas fa-users" style="color: var(--primary-blue);"></i> 课堂小组分配与进度概览
+                    </h3>
+                    <p style="color: var(--text-sub); font-size: 13px; margin: 4px 0 0 0;">
+                        设置小组数量后，可在下方查看各组当前状态，点击状态标签可快速切换
+                    </p>
+                </div>
+                <div class="group-config-controls">
+                    <label for="group-count-select" style="font-size: 13px; font-weight: 700; color: var(--text-muted);">小组数量：</label>
+                    <select id="group-count-select" class="group-count-select">
+                        <option value="2">2 组</option>
+                        <option value="3">3 组</option>
+                        <option value="4" selected>4 组</option>
+                        <option value="5">5 组</option>
+                        <option value="6">6 组</option>
+                        <option value="7">7 组</option>
+                        <option value="8">8 组</option>
+                        <option value="9">9 组</option>
+                        <option value="10">10 组</option>
+                        <option value="11">11 组</option>
+                        <option value="12">12 组</option>
+                    </select>
+                    <button onclick="applyGroupCount()" class="btn btn-primary btn-sm">应用设置</button>
+                </div>
+            </div>
+            <div id="groups-overview" class="groups-grid">
+                <!-- 动态渲染 -->
+            </div>
+        </div>
+
+        <!-- ===== 活动分类筛选 ===== -->
+        <div class="filter-bar" style="justify-content: center; margin-bottom: 24px;" id="act-filters">
+            <button class="filter-btn active" onclick="filterActivities('all', this)">全部活动 (24)</button>
+            <button class="filter-btn" onclick="filterActivities('team', this)">团队搭建 (4)</button>
+            <button class="filter-btn" onclick="filterActivities('painpoint', this)">痛点发散 (4)</button>
+            <button class="filter-btn" onclick="filterActivities('bm', this)">商业模式 (4)</button>
+            <button class="filter-btn" onclick="filterActivities('feasibility', this)">市场可行 (4)</button>
+            <button class="filter-btn" onclick="filterActivities('mvp', this)">精益验证 (4)</button>
+            <button class="filter-btn" onclick="filterActivities('competition', this)">大赛答辩 (4)</button>
+        </div>
+
+        <!-- ===== 活动卡片网格 ===== -->
+        <div id="activities-grid" class="grid-auto" style="gap: 20px;">
+            <!-- 动态渲染 -->
+        </div>
+
+    </div>
+</main>
+
+<!-- ========== 页脚 ========== -->
+<footer class="site-footer" style="padding: 48px 20px 32px;">
+    <div style="max-width: 1280px; margin: 0 auto;">
+        <div class="footer-grid">
+            <div>
+                <div style="font-size: 16px; font-weight: 800; color: var(--text-main); margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+                    <i class="fas fa-graduation-cap" style="color: var(--primary-blue);"></i>
+                    创新创业基础课程教学平台
+                </div>
+                <div style="font-size: 13px; color: var(--text-sub); line-height: 1.6; margin-bottom: 16px;">
+                    基于成果导向教育 (OBE) 理念设计，整合知识图谱、PBL 表现性评价与 AI 辅助教学，打造高校双创"学-练-评-改"闭环。
+                </div>
+                <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                    <span class="badge badge-green"><i class="fas fa-award"></i> 课程教学标准</span>
+                    <span class="badge badge-blue"><i class="fas fa-check-circle"></i> OBE 理念实践</span>
+                </div>
+            </div>
+
+            <div>
+                <div style="font-size: 14px; font-weight: 800; color: var(--text-main); margin-bottom: 16px;">课程核心体系</div>
+                <ul style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 10px; font-size: 13px;">
+                    <li><a href="index.html" style="color: var(--text-muted); text-decoration: none;"><i class="fas fa-angle-right" style="color: var(--primary-blue);"></i> 课程目标 (CLOs) 矩阵</a></li>
+                    <li><a href="knowledge_graph.html" style="color: var(--text-muted); text-decoration: none;"><i class="fas fa-angle-right" style="color: var(--primary-blue);"></i> 理论知识图谱</a></li>
+                    <li><a href="graph.html" style="color: var(--text-muted); text-decoration: none;"><i class="fas fa-angle-right" style="color: var(--primary-blue);"></i> 实战能力图谱</a></li>
+                    <li><a href="map.html" style="color: var(--text-muted); text-decoration: none;"><i class="fas fa-angle-right" style="color: var(--primary-blue);"></i> 18学时教学大纲地图</a></li>
+                    <li><a href="activities.html" style="color: var(--text-muted); text-decoration: none;"><i class="fas fa-angle-right" style="color: var(--primary-blue);"></i> PBL 实战任务流</a></li>
+                </ul>
+            </div>
+
+            <div>
+                <div style="font-size: 14px; font-weight: 800; color: var(--text-main); margin-bottom: 16px;">教学资源与评估</div>
+                <ul style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 10px; font-size: 13px;">
+                    <li><a href="chat.html" style="color: var(--text-muted); text-decoration: none;"><i class="fas fa-angle-right" style="color: var(--primary-blue);"></i> AI 导师智能体</a></li>
+                    <li><a href="admin.html" style="color: var(--text-muted); text-decoration: none;"><i class="fas fa-angle-right" style="color: var(--primary-blue);"></i> 学情与达成度看板</a></li>
+                    <li><a href="resources.html" style="color: var(--text-muted); text-decoration: none;"><i class="fas fa-angle-right" style="color: var(--primary-blue);"></i> 教学模版与资源下载</a></li>
+                    <li><a href="glossary.html" style="color: var(--text-muted); text-decoration: none;"><i class="fas fa-angle-right" style="color: var(--primary-blue);"></i> 双创与 AI 词典</a></li>
+                    <li><a href="exam.html" style="color: var(--text-muted); text-decoration: none;"><i class="fas fa-angle-right" style="color: var(--primary-blue);"></i> 综合自测与评分</a></li>
+                </ul>
+            </div>
+
+            <div>
+                <div style="font-size: 14px; font-weight: 800; color: var(--text-main); margin-bottom: 16px;">平台数据</div>
+                <div class="card" style="padding: 14px; font-size: 13px; line-height: 1.8;">
+                    <div><span style="color: var(--text-sub);">知识节点：</span> <strong style="color: var(--primary-blue);">28 个</strong></div>
+                    <div><span style="color: var(--text-sub);">能力指标：</span> <strong style="color: var(--accent-emerald);">36 项</strong></div>
+                    <div><span style="color: var(--text-sub);">PBL 任务：</span> <strong style="color: var(--accent-amber);">18 项</strong></div>
+                    <div><span style="color: var(--text-sub);">运行模式：</span> <strong style="color: var(--text-main);">本地离线运行</strong></div>
+                </div>
+            </div>
+        </div>
+
+        <div style="max-width: 1280px; margin: 36px auto 0; padding-top: 20px; border-top: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; font-size: 13px; color: var(--text-sub); flex-wrap: wrap; gap: 12px;">
+            <div>Copyright &copy; 2026 创新创业基础课程教学平台. All Rights Reserved.</div>
+            <div style="display: flex; align-items: center; gap: 16px;">
+                <span style="display: inline-flex; align-items: center; gap: 6px; color: var(--accent-emerald); font-weight: 600;">
+                    <span style="width: 8px; height: 8px; background: var(--accent-emerald); border-radius: 50%;"></span>
+                    系统运行正常
+                </span>
+                <a href="index.html" style="color: var(--text-sub); text-decoration: none;">首页</a>
+                <a href="help.html" style="color: var(--text-sub); text-decoration: none;">使用说明</a>
+                <a href="admin.html" style="color: var(--text-sub); text-decoration: none;">教师入口</a>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- ================================================================ -->
+<!-- 活动详情与三角色看板弹出 Modal                                      -->
+<!-- ================================================================ -->
+<div id="activity-detail-modal" class="act-modal-overlay" style="display: none;">
+    <div class="act-modal-content" id="activity-modal-content">
+        <!-- 动态渲染 -->
+    </div>
+</div>
+
+<!-- ================================================================ -->
+<!-- AI 投资人质问弹出 Modal                                            -->
+<!-- ================================================================ -->
+<div id="ai-question-modal" class="ai-q-overlay" style="display: none;">
+    <div class="ai-q-card">
+        <button onclick="closeAIQuestionModal()" style="position: absolute; top: 18px; right: 20px; background: none; border: none; color: var(--text-sub); font-size: 20px; cursor: pointer;">
+            <i class="fas fa-times"></i>
+        </button>
+        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 14px;">
+            <div style="width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, var(--accent-violet), #6D28D9); display: flex; align-items: center; justify-content: center; color: #fff; font-size: 18px;">
+                <i class="fas fa-robot"></i>
+            </div>
+            <div>
+                <h3 style="color: var(--text-main); font-size: 17px; font-weight: 900; margin: 0;">AI 投资人高压质问弹窗</h3>
+                <span style="font-size: 12px; color: var(--accent-violet); font-weight: 700;">模拟答辩场景 · 随机抽选质问卡</span>
+            </div>
+        </div>
+        <div id="ai-q-list" style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px;">
+            <!-- 动态渲染 -->
+        </div>
+        <div style="text-align: right;">
+            <button onclick="closeAIQuestionModal()" class="btn btn-primary" style="background: linear-gradient(135deg, var(--accent-violet), #6D28D9);">
+                已接收质问 (开始答辩)
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- ========== 脚本引入 ========== -->
+<script src="js/data.js"></script>
+<script src="js/activities.js"></script>
+<script src="js/modules/framework.js"></script>
+<script src="js/modules/main_framework.js"></script>
+<script src="js/modules/utils.js"></script>
+<script src="js/modules/presentation.js"></script>
+<script src="js/app.js"></script>
+
+<!-- ========== 页面主逻辑 ========== -->
+<script>
+let currentCategory = 'all';
+let activeActivityItem = null;
+let actTimerInterval = null;
+
+/* ── 小组数量与状态管理 ── */
+const GROUP_COUNT_KEY = 'act_group_count';
+
+function getGroupCount() {
+    const saved = localStorage.getItem(GROUP_COUNT_KEY);
+    const count = saved ? parseInt(saved, 10) : 4;
+    return Math.max(2, Math.min(12, count));
+}
+
+function saveGroupCount(count) {
+    localStorage.setItem(GROUP_COUNT_KEY, String(count));
+}
+
+function generateGroupStatus(count) {
+    const templates = [
+        { status: 1, time: '09:42', draft: '已完成活动产出，等待教师评估。' },
+        { status: 0, time: '--:--', draft: '正在进行组内讨论和资料整理。' },
+        { status: 1, time: '08:15', draft: '方案定稿：已完成核心问题分析。' },
+        { status: 0, time: '--:--', draft: '组内推演关键测算数据中。' },
+        { status: 1, time: '10:04', draft: '任务拆解完成，核心要素已确认。' },
+        { status: 1, time: '07:50', draft: '草案框架已通过组内走查。' },
+        { status: 2, time: '--:--', draft: '遇到瓶颈：需要教师协助指导关键概念。' },
+        { status: 1, time: '09:12', draft: '展示结构已就绪。' },
+        { status: 0, time: '--:--', draft: '对照评估指标自查中。' },
+        { status: 1, time: '08:30', draft: '已完成基础调研与交叉对比。' },
+        { status: 0, time: '--:--', draft: '正在收集相关资料和案例。' },
+        { status: 1, time: '09:55', draft: '已完成最终成果整理。' }
+    ];
+
+    const list = [];
+    for (let i = 1; i <= count; i++) {
+        const tpl = templates[(i - 1) % templates.length];
+        list.push({
+            id: i,
+            status: tpl.status,
+            time: tpl.time,
+            draft: tpl.draft
+        });
+    }
+    return list;
+}
+
+let groupsStatusState = generateGroupStatus(getGroupCount());
+
+function applyGroupCount() {
+    const select = document.getElementById('group-count-select');
+    const newCount = parseInt(select.value, 10);
+
+    if (newCount === groupsStatusState.length) return;
+
+    saveGroupCount(newCount);
+    groupsStatusState = generateGroupStatus(newCount);
+    renderGroupOverview();
+
+    showToast('小组数量已更新为 ' + newCount + ' 组');
+}
+
+function cycleGroupStatus(groupId) {
+    const g = groupsStatusState.find(g => g.id === groupId);
+    if (!g) return;
+    g.status = (g.status + 1) % 3;
+    if (g.status === 0) {
+        g.draft = '正在进行组内讨论和资料整理。';
+        g.time = '--:--';
+    } else if (g.status === 1) {
+        g.draft = '已完成活动产出，等待教师评估。';
+        g.time = new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' });
+    } else {
+        g.draft = '遇到瓶颈：需要教师协助指导。';
+        g.time = '--:--';
+    }
+    renderGroupOverview();
+}
+
+function renderGroupOverview() {
+    const container = document.getElementById('groups-overview');
+    if (!container) return;
+
+    const statusLabels = { 0: '思考中', 1: '已提交', 2: '需辅导' };
+    const statusClasses = { 0: 'status-think', 1: 'status-submit', 2: 'status-help' };
+    const statusIcons  = { 0: 'fa-lightbulb', 1: 'fa-check-circle', 2: 'fa-question-circle' };
+
+    container.innerHTML = groupsStatusState.map(g => {
+        const cls = statusClasses[g.status] || 'status-think';
+        return `
+            <div class="group-status-card ${cls}" onclick="cycleGroupStatus(${g.id})" title="点击切换状态">
+                <div style="font-weight: 800; font-size: 14px; color: var(--text-main); margin-bottom: 4px;">
+                    <i class="fas fa-users"></i> 第 ${g.id} 组
+                </div>
+                <div style="font-size: 12px; font-weight: 700; margin-bottom: 4px;">
+                    <i class="fas ${statusIcons[g.status]}"></i> ${statusLabels[g.status]}
+                </div>
+                <div style="font-size: 11px; color: var(--text-sub); line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+                    ${g.draft}
+                </div>
+                <div style="font-size: 11px; color: var(--text-sub); margin-top: 4px;">
+                    <i class="far fa-clock"></i> ${g.time}
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+/* ── Toast 提示 ── */
+function showToast(msg) {
+    let toast = document.getElementById('act-toast');
+    if (!toast) {
+        toast = document.createElement('div');
+        toast.id = 'act-toast';
+        toast.style.cssText = 'position:fixed;bottom:30px;left:50%;transform:translateX(-50%);background:var(--text-main);color:var(--bg-card);padding:10px 24px;border-radius:20px;font-size:14px;font-weight:700;z-index:99999;opacity:0;transition:opacity 0.3s ease;pointer-events:none;';
+        document.body.appendChild(toast);
+    }
+    toast.textContent = msg;
+    toast.style.opacity = '1';
+    clearTimeout(toast._tid);
+    toast._tid = setTimeout(() => { toast.style.opacity = '0'; }, 2000);
+}
+
+/* ── 活动卡片渲染 ── */
+function renderActivitiesGrid() {
+    const container = document.getElementById('activities-grid');
+    if (!container || !window.ACTIVITIES_DATA) return;
+
+    const list = currentCategory === 'all'
+        ? window.ACTIVITIES_DATA
+        : window.ACTIVITIES_DATA.filter(a => a.category === currentCategory);
+
+    container.innerHTML = list.map(a => `
+        <div class="activity-card">
+            <div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                    <span class="activity-tag">${a.badge}</span>
+                    <span class="activity-timing"><i class="far fa-clock"></i> ${a.time}</span>
+                </div>
+                <h3 style="color: var(--text-main); font-size: 17px; font-weight: 800; margin-bottom: 8px;">${a.title}</h3>
+                <div style="color: var(--primary-blue); font-size: 12px; font-weight: 700; margin-bottom: 10px;">
+                    <i class="fas fa-link"></i> ${a.pblNode}
+                </div>
+                <p style="color: var(--text-muted); font-size: 13px; line-height: 1.6; margin-bottom: 12px;">${a.desc}</p>
+                <div class="activity-deliverable">
+                    <i class="fas fa-file-signature"></i> 考核产出：${a.deliverable || '提交 1 份标准组内讨论记录与成果产出物'}
+                </div>
+            </div>
+
+            <div style="border-top: 1px dashed var(--border-color); padding-top: 14px; display: flex; justify-content: space-between; align-items: center;">
+                <span style="color: var(--text-sub); font-size: 12px; font-weight: 600;">
+                    <i class="fas fa-layer-group"></i> ${a.categoryName}
+                </span>
+                <button onclick="openActivityDetail('${a.id}')" class="btn btn-primary btn-sm">
+                    <i class="fas fa-play-circle"></i> 启动活动
+                </button>
+            </div>
+        </div>
+    `).join('');
+}
+
+/* ── 筛选 ── */
+function filterActivities(cat, btn) {
+    currentCategory = cat;
+    document.querySelectorAll('#act-filters .filter-btn').forEach(b => b.classList.remove('active'));
+    if (btn) btn.classList.add('active');
+    renderActivitiesGrid();
+}
+
+/* ── 活动详情弹窗 ── */
+function openActivityDetail(id) {
+    const item = window.ACTIVITIES_DATA.find(a => a.id === id);
+    if (!item) return;
+    activeActivityItem = item;
+
+    const modal = document.getElementById('activity-detail-modal');
+    const content = document.getElementById('activity-modal-content');
+    if (!modal || !content) return;
+
+    renderModalInnerHTML(item);
+    modal.style.display = 'flex';
+}
+
+function safeEscape(str) {
+    if (!str) return '';
+    return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
+
+function savePBLTaskProgress(id) {
+    const q1Input = document.getElementById('qa1-' + id);
+    const q2Input = document.getElementById('qa2-' + id);
+    if (q1Input) localStorage.setItem('pbl_task_' + id + '_q1', q1Input.value);
+    if (q2Input) localStorage.setItem('pbl_task_' + id + '_q2', q2Input.value);
+    showToast('?? ????????????????');
+}
+
+function copyPBLTaskResults(id, title) {
+    savePBLTaskProgress(id);
+    const q1 = localStorage.getItem('pbl_task_' + id + '_q1') || '????';
+    const q2 = localStorage.getItem('pbl_task_' + id + '_q2') || '????';
+    const text = `??????????? - ${title}?\n????? / ?????\n${q1}\n\n?????? / ?????\n${q2}`;
+    
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(() => {
+            alert('?? ?????????????????????????? Word ????');
+        }).catch(() => {
+            prompt('????????????', text);
+        });
+    } else {
+        prompt('????????????', text);
+    }
+}
+
+function unlockNextPBLStage(id) {
+    savePBLTaskProgress(id);
+    localStorage.setItem('pbl_task_' + id + '_completed', 'true');
+    showToast('? ?????????????????');
+    closeActivityDetail();
+    renderActivitiesGrid();
+}
+
+function copyAIPrompt(title) {
+    const promptText = `?????????????????????????${title || '?????????'}??? 3 ???????????????????CAC/LTV ?????????????????`;
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(promptText).then(() => {
+            alert('????? AI ??????????????????? AI ????????\n\n' + promptText);
+        }).catch(() => {
+            prompt('??? AI ?????????????', promptText);
+        });
+    } else {
+        prompt('??? AI ?????????????', promptText);
+    }
+}
+
+function renderModalInnerHTML(item) {
+    const content = document.getElementById('activity-modal-content');
+    if (!content) return;
+
+    const isCompleted = localStorage.getItem('pbl_task_' + item.id + '_completed') === 'true';
+    const savedQ1 = localStorage.getItem('pbl_task_' + item.id + '_q1') || '';
+    const savedQ2 = localStorage.getItem('pbl_task_' + item.id + '_q2') || '';
+    const chk1 = localStorage.getItem('pbl_task_' + item.id + '_chk1') === 'true';
+    const chk2 = localStorage.getItem('pbl_task_' + item.id + '_chk2') === 'true';
+    const chk3 = localStorage.getItem('pbl_task_' + item.id + '_chk3') === 'true';
+
+    content.innerHTML = `
+        <button onclick="closeActivityDetail()" style="position: absolute; top: 20px; right: 20px; background: none; border: none; color: var(--text-sub); font-size: 20px; cursor: pointer;">
+            <i class="fas fa-times"></i>
+        </button>
+
+        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px; flex-wrap: wrap;">
+            <span class="activity-tag" style="${isCompleted ? 'background: var(--green-bg); color: var(--green-text); border: 1px solid var(--green-border);' : ''}">
+                ${isCompleted ? '<i class="fas fa-check-circle"></i> ?????' : item.badge}
+            </span>
+            <span class="activity-timing"><i class="far fa-clock"></i> ????: ${item.time}</span>
+            <span class="badge ${isCompleted ? 'badge-green' : 'badge-blue'}">
+                <i class="fas ${isCompleted ? 'fa-check' : 'fa-lock-open'}"></i> ${isCompleted ? '???????' : '???????'}
+            </span>
+        </div>
+
+        <h2 style="color: var(--text-main); font-size: 22px; font-weight: 900; margin-bottom: 6px;">${item.title}</h2>
+        <div style="color: var(--primary-blue); font-size: 14px; font-weight: 700; margin-bottom: 14px;">
+            <i class="fas fa-link"></i> ?????${item.pblNode}
+        </div>
+
+        <!-- ????? 10 ??? Checklist -->
+        <div class="act-modal-info-box">
+            <div style="color: var(--primary-blue); font-weight: 900; font-size: 14px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;">
+                <span><i class="fas fa-clipboard-check"></i> ??????? (Rubrics) & ????</span>
+                <span style="font-size: 12px; color: var(--text-sub); font-weight: 400;">???? ? ?????</span>
+            </div>
+            <table class="data-table" style="font-size: 12px; margin-bottom: 10px;">
+                <thead>
+                    <tr>
+                        <th style="width: 22%;">????</th>
+                        <th>????????????</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td style="color: var(--green-text); font-weight: 800;">
+                            <i class="fas fa-medal"></i> ?? (85-100)
+                        </td>
+                        <td>???????????????????????????????????????????????</td>
+                    </tr>
+                    <tr>
+                        <td style="color: var(--blue-text); font-weight: 800;">
+                            <i class="fas fa-check-circle"></i> ?? (60-84)
+                        </td>
+                        <td>??????????????????????????????????</td>
+                    </tr>
+                    <tr>
+                        <td style="color: var(--amber-text); font-weight: 800;">
+                            <i class="fas fa-exclamation-triangle"></i> ??? (&lt;60)
+                        </td>
+                        <td style="color: var(--text-sub);">????????????????????????????????????</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <!-- ????? 10 ??? Checklist -->
+            <div style="background: rgba(255,255,255,0.7); border: 1px dashed var(--primary-blue); padding: 10px 12px; border-radius: var(--radius-sm);">
+                <div style="font-weight: 800; font-size: 12px; color: var(--primary-blue); margin-bottom: 6px;">
+                    <i class="fas fa-tasks"></i> ????? 10 ??? Checklist????????
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 6px; font-size: 12px; color: var(--text-main);">
+                    <label style="cursor: pointer; display: flex; align-items: center; gap: 6px;">
+                        <input type="checkbox" ${chk1 ? 'checked' : ''} onchange="localStorage.setItem('pbl_task_${item.id}_chk1', this.checked)">
+                        <span>1. ??????????????????????????????</span>
+                    </label>
+                    <label style="cursor: pointer; display: flex; align-items: center; gap: 6px;">
+                        <input type="checkbox" ${chk2 ? 'checked' : ''} onchange="localStorage.setItem('pbl_task_${item.id}_chk2', this.checked)">
+                        <span>2. ????/??????? 10 ???????????</span>
+                    </label>
+                    <label style="cursor: pointer; display: flex; align-items: center; gap: 6px;">
+                        <input type="checkbox" ${chk3 ? 'checked' : ''} onchange="localStorage.setItem('pbl_task_${item.id}_chk3', this.checked)">
+                        <span>3. ??????????????????????</span>
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <!-- ??????????????? -->
+        <div class="formative-assessment-card" style="background: var(--bg-subtle); border: 1.5px dashed var(--blue-border); padding: 16px; border-radius: var(--radius-lg); margin-bottom: 18px;">
+            <div style="color: var(--text-main); font-weight: 900; font-size: 14px; margin-bottom: 4px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 6px;">
+                <span><i class="fas fa-edit" style="color: var(--primary-blue);"></i> ?? ???????????????</span>
+                <span style="font-size: 11px; color: var(--green-text); font-weight: 700; background: var(--green-bg); padding: 2px 8px; border-radius: 10px;">
+                    <i class="fas fa-bolt"></i> ?????????
+                </span>
+            </div>
+            <p style="color: var(--text-sub); font-size: 12px; line-height: 1.5; margin: 0 0 12px 0;">
+                ? <strong>????</strong>???????????????????????????????????????????????????????????????????????????
+            </p>
+
+            <div style="margin-bottom: 10px;">
+                <label style="font-size: 12px; font-weight: 800; color: var(--text-main);">??? / ?????</label>
+                <input type="text" id="qa1-${item.id}" value="${safeEscape(savedQ1)}" placeholder="??????????????????????" style="width: 100%; padding: 8px 10px; margin-top: 4px; border: 1px solid var(--border-color); border-radius: var(--radius-sm); font-size: 12px; outline: none; background: #fff;">
+            </div>
+
+            <div style="margin-bottom: 12px;">
+                <label style="font-size: 12px; font-weight: 800; color: var(--text-main);">???? / ?????</label>
+                <textarea id="qa2-${item.id}" rows="3" placeholder="??????? 10 ????????????????..." style="width: 100%; padding: 8px 10px; margin-top: 4px; border: 1px solid var(--border-color); border-radius: var(--radius-sm); font-size: 12px; outline: none; background: #fff; resize: vertical;">${safeEscape(savedQ2)}</textarea>
+            </div>
+
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                <button onclick="copyPBLTaskResults('${item.id}', '${safeEscape(item.title)}')" class="btn btn-secondary btn-sm" style="background: #fff; border: 1px solid var(--primary-blue); color: var(--primary-blue);">
+                    <i class="far fa-copy"></i> ?? ???????????????/?????
+                </button>
+                <button onclick="savePBLTaskProgress('${item.id}')" class="btn btn-primary btn-sm">
+                    <i class="far fa-save"></i> ?? ??????
+                </button>
+            </div>
+        </div>
+
+        <!-- 3 ?????? -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; margin-bottom: 20px;">
+            <div class="act-modal-flow-card teacher">
+                <div style="color: var(--blue-text); font-weight: 900; font-size: 13px; margin-bottom: 6px;">
+                    <i class="fas fa-chalkboard-teacher"></i> ??????
+                </div>
+                <div style="font-size: 12px; color: var(--text-muted); line-height: 1.5;">
+                    ${item.workflows ? item.workflows.teacher : '???? ? ???? ? ???? ? ????'}
+                </div>
+            </div>
+            <div class="act-modal-flow-card student">
+                <div style="color: var(--green-text); font-weight: 900; font-size: 13px; margin-bottom: 6px;">
+                    <i class="fas fa-user-graduate"></i> ??????
+                </div>
+                <div style="font-size: 12px; color: var(--text-muted); line-height: 1.5;">
+                    ${item.workflows ? item.workflows.student : '?????? ? ???? ? ???? ? ????'}
+                </div>
+            </div>
+            <div class="act-modal-flow-card group">
+                <div style="color: var(--purple-text); font-weight: 900; font-size: 13px; margin-bottom: 6px;">
+                    <i class="fas fa-users"></i> ??????
+                </div>
+                <div style="font-size: 12px; color: var(--text-muted); line-height: 1.5;">
+                    ${item.workflows ? item.workflows.group : '?????? ? ???? ? ???? ? ?????'}
+                </div>
+            </div>
+        </div>
+
+        <!-- ????? -->
+        <div style="display: flex; justify-content: space-between; align-items: center; background: var(--bg-subtle); padding: 14px; border-radius: var(--radius-md); gap: 10px; flex-wrap: wrap;">
+            <button onclick="triggerAIInvestorModal('${item.id}', '${safeEscape(item.title)}')" class="btn" style="background: linear-gradient(135deg, var(--accent-violet), #6D28D9); color: #fff;">
+                <i class="fas fa-robot"></i> ?? AI ????? (5??????)
+            </button>
+            <button onclick="unlockNextPBLStage('${item.id}')" class="btn" style="background: linear-gradient(135deg, var(--accent-emerald), #047857); color: #fff;">
+                <i class="fas fa-check-double"></i> ?????????????
+            </button>
+        </div>
+    `;
+}
+
+function closeActivityDetail() {
+    clearInterval(actTimerInterval);
+    const roleGroupCard = document.getElementById('role-group-card');
+    if (roleGroupCard) roleGroupCard.classList.remove('role-glowing-active');
+
+    const modal = document.getElementById('activity-detail-modal');
+    if (modal) modal.style.display = 'none';
+}
+
+/* ?? AI ??????? ?? */
+function triggerAIInvestorModal(id, title) {
+    const modal = document.getElementById('ai-question-modal');
+    const listEl = document.getElementById('ai-q-list');
+    if (!modal || !listEl) return;
+
+    const targetTitle = title || (activeActivityItem ? activeActivityItem.title : '?????????');
+
+    const questions = [
+        { title: '??? ?????????', q: '?????????????????????????????????', i: 'fa-shield-alt' },
+        { title: '?? ?????? (CAC / LTV)', q: '???????? (CAC) ????????????? LTV/CAC ???? > 3.0?', i: 'fa-calculator' },
+        { title: '?? ?????????', q: '????????????????????????? 10 ????????????', i: 'fa-lock' },
+        { title: '?? ?????????', q: '?????????????????? 3 ???????????????????', i: 'fa-coins' },
+        { title: '?? ?????????', q: '??????????????????????? 80%??? 10 ??????????', i: 'fa-exclamation-triangle' }
+    ];
+
+    listEl.innerHTML = `
+        <div style="margin-bottom: 12px; text-align: center; color: var(--text-sub); font-size: 13px;">
+            ?????<strong style="color: var(--primary-blue);">${safeEscape(targetTitle)}</strong>???? 5 ?????????????
+        </div>
+        ${questions.map((item, i) => `
+            <div style="background: var(--purple-bg); border: 1px solid var(--purple-border); border-radius: var(--radius-md); padding: 12px 14px; display: flex; align-items: flex-start; gap: 10px;">
+                <div style="color: var(--purple-text); font-size: 18px; flex-shrink: 0; margin-top: 2px;">
+                    <i class="fas ${item.i}"></i>
+                </div>
+                <div>
+                    <div style="color: var(--purple-text); font-size: 12px; font-weight: 800; margin-bottom: 2px;">
+                        #${i + 1} ${item.title}
+                    </div>
+                    <div style="color: var(--text-main); font-size: 13px; font-weight: 600; line-height: 1.5;">${item.q}</div>
+                </div>
+            </div>
+        `).join('')}
+        <button onclick="copyAIPrompt('${safeEscape(targetTitle)}')" class="btn btn-outline btn-sm" style="border: 1px solid var(--accent-violet); color: var(--accent-violet); width: 100%; margin-top: 10px; font-weight: 700; background: #fff;">
+            <i class="far fa-copy"></i> ?? ???? AI ???? Prompt?????? AI ???????
+        </button>
+    `;
+
+    modal.style.display = 'flex';
+}
+function closeAIQuestionModal() {
+    const modal = document.getElementById('ai-question-modal');
+    if (modal) modal.style.display = 'none';
+}
+
+/* ── 点击弹窗背景关闭 ── */
+document.addEventListener('click', function(e) {
+    if (e.target.id === 'activity-detail-modal') closeActivityDetail();
+    if (e.target.id === 'ai-question-modal') closeAIQuestionModal();
+});
+
+/* ── 初始化 ── */
+window.addEventListener('DOMContentLoaded', () => {
+    const savedCount = getGroupCount();
+    groupsStatusState = generateGroupStatus(savedCount);
+    const select = document.getElementById('group-count-select');
+    if (select) select.value = String(savedCount);
+
+    renderGroupOverview();
+    renderActivitiesGrid();
+});
+</script>
+
+</body>
+</html>

@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>知识图谱 - 创新创业课程核心理论系统</title>
+    <script src="js/all.min.js" defer></script>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        /* ── 知识图谱页面特定样式 ── */
+
+        /* 主体区域：全高填充导航栏以下 */
+        .graph-container {
+            height: calc(100vh - var(--nav-height));
+            overflow: hidden;
+        }
+
+        /* 图谱两栏布局 */
+        #pane-graph {
+            display: flex;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        .graph-viewport {
+            flex: 1;
+            min-width: 0;
+            height: 100%;
+            position: relative;
+            background: var(--bg-card);
+        }
+
+        #graph-canvas {
+            width: 100%;
+            height: 100%;
+            min-height: 450px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* 科技网格背景（亮色版） */
+        .graph-bg-grid {
+            position: absolute;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+            opacity: 0.06;
+            background-image:
+                linear-gradient(rgba(37, 99, 235, 0.25) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(37, 99, 235, 0.25) 1px, transparent 1px);
+            background-size: 40px 40px;
+        }
+
+        /* 视角选择器 */
+        .graph-system-selector {
+            position: absolute;
+            top: 16px;
+            left: 16px;
+            z-index: 100;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 10px 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: var(--shadow-md);
+        }
+
+        .graph-system-selector label {
+            font-weight: 700;
+            font-size: 12.5px;
+            color: var(--text-muted);
+            white-space: nowrap;
+        }
+
+        .graph-system-selector select {
+            background: var(--bg-subtle);
+            color: var(--text-main);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            padding: 6px 10px;
+            font-size: var(--text-sm);
+            font-weight: 600;
+            cursor: pointer;
+            outline: none;
+        }
+
+        .graph-system-selector select:focus {
+            border-color: var(--primary-blue);
+        }
+
+        /* 搜索框 */
+        .graph-search-wrap {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            z-index: 100;
+            width: 260px;
+        }
+
+        .graph-search-wrap input {
+            width: 100%;
+            padding: 9px 14px 9px 38px;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border-color);
+            background: var(--bg-card);
+            color: var(--text-main);
+            font-size: var(--text-sm);
+            box-shadow: var(--shadow-sm);
+            outline: none;
+            transition: var(--transition-normal);
+        }
+
+        .graph-search-wrap input:focus {
+            border-color: var(--primary-blue);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+        }
+
+        .graph-search-wrap input::placeholder {
+            color: var(--text-sub);
+        }
+
+        .graph-search-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-sub);
+            font-size: 14px;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        #graph-search-results {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            margin-top: 4px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            box-shadow: var(--shadow-lg);
+            max-height: 200px;
+            overflow-y: auto;
+            display: none;
+            z-index: 200;
+        }
+
+        /* 底部控制按钮组 */
+        .graph-controls {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 100;
+            background: var(--bg-card);
+            backdrop-filter: blur(12px);
+            padding: 6px 14px;
+            border-radius: 30px;
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow-lg);
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .graph-controls button {
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            white-space: nowrap;
+            transition: var(--transition-normal);
+        }
+
+        .graph-controls .btn-expert {
+            background: var(--amber-bg);
+            border: 1px solid var(--amber-border);
+            color: var(--amber-text);
+        }
+        .graph-controls .btn-expert:hover {
+            background: var(--amber-border);
+        }
+
+        .graph-controls .btn-palette {
+            background: var(--blue-bg);
+            border: 1px solid var(--blue-border);
+            color: var(--blue-text);
+        }
+        .graph-controls .btn-palette:hover {
+            background: var(--blue-border);
+        }
+
+        .graph-controls .btn-drawer {
+            background: var(--primary-light);
+            border: 1px solid var(--blue-border);
+            color: var(--primary-blue);
+        }
+        .graph-controls .btn-drawer:hover {
+            background: var(--blue-border);
+        }
+
+        .graph-controls .btn-reset {
+            background: var(--green-bg);
+            border: 1px solid var(--green-border);
+            color: var(--green-text);
+        }
+        .graph-controls .btn-reset:hover {
+            background: var(--green-border);
+        }
+
+        .graph-controls .btn-fullscreen {
+            background: var(--purple-bg);
+            border: 1px solid var(--purple-border);
+            color: var(--purple-text);
+        }
+        .graph-controls .btn-fullscreen:hover {
+            background: var(--purple-border);
+        }
+
+        /* 图例条 */
+        .graph-legend-bar {
+            position: absolute;
+            bottom: 90px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 100;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 6px 18px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            box-shadow: var(--shadow-sm);
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .graph-legend-bar .legend-label {
+            color: var(--text-muted);
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            color: var(--text-sub);
+            font-size: 11px;
+        }
+
+        .legend-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+
+        /* 信息侧边栏 */
+        .info-sidebar {
+            width: 340px;
+            min-width: 320px;
+            flex-shrink: 0;
+            height: 100%;
+            background: var(--bg-card);
+            border-left: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+
+        .sidebar-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .sidebar-header h2 {
+            margin: 0;
+            font-size: 17px;
+            font-weight: 800;
+            color: var(--primary-blue);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .close-sidebar-btn {
+            background: none;
+            border: none;
+            color: var(--text-sub);
+            cursor: pointer;
+            font-size: 18px;
+            padding: 4px 8px;
+            border-radius: var(--radius-sm);
+            transition: var(--transition-normal);
+        }
+
+        .close-sidebar-btn:hover {
+            background: var(--bg-subtle);
+            color: var(--text-main);
+        }
+
+        .sidebar-body {
+            padding: 20px;
+            flex: 1;
+        }
+
+        .sidebar-welcome-wrap {
+            text-align: center;
+            padding: 30px 10px;
+            color: var(--text-muted);
+        }
+
+        .sidebar-welcome-wrap .welcome-icon {
+            color: var(--primary-blue);
+            font-size: 42px;
+            margin-bottom: 15px;
+        }
+
+        .sidebar-welcome-wrap h3 {
+            font-size: 18px;
+            font-weight: 800;
+            margin-bottom: 12px;
+            color: var(--text-main);
+        }
+
+        .sidebar-welcome-wrap p {
+            font-size: 13px;
+            line-height: 1.75;
+            color: var(--text-sub);
+            margin: 0;
+        }
+
+        /* 知识图谱横幅提示条 */
+        .graph-info-banner {
+            background: var(--blue-bg);
+            border-bottom: 1px solid var(--blue-border);
+            padding: 8px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-shrink: 0;
+        }
+
+        .graph-info-banner .banner-tag {
+            background: var(--primary-light);
+            color: var(--primary-blue);
+            padding: 2px 8px;
+            border-radius: var(--radius-sm);
+            font-weight: 800;
+            font-size: 11px;
+        }
+
+        /* 按钮 */
+        .to-practical-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--primary-blue);
+            color: var(--text-on-primary);
+            padding: 10px 18px;
+            border-radius: var(--radius-sm);
+            border: none;
+            font-weight: 700;
+            font-size: 13.5px;
+            cursor: pointer;
+            margin-top: 15px;
+            text-decoration: none;
+            transition: var(--transition-normal);
+            width: 100%;
+            justify-content: center;
+        }
+
+        .to-practical-btn:hover {
+            background: var(--primary);
+            transform: translateY(-1px);
+        }
+
+        /* 竞赛维度标签 */
+        .comp-tag {
+            display: inline-block;
+            font-size: 11px;
+            font-weight: 800;
+            padding: 3px 8px;
+            border-radius: var(--radius-sm);
+            margin-right: 6px;
+            margin-bottom: 6px;
+        }
+
+        .comp-tag-c {
+            background: var(--blue-bg);
+            color: var(--blue-text);
+            border: 1px solid var(--blue-border);
+        }
+
+        .comp-tag-t {
+            background: var(--green-bg);
+            color: var(--green-text);
+            border: 1px solid var(--green-border);
+        }
+
+        /* 模态弹窗页面特定 */
+        #academic-modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(15, 23, 42, 0.45);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            z-index: 2000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.25s ease;
+        }
+
+        #academic-modal-overlay.open {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        /* 全屏提示 */
+        #fullscreen-hint {
+            display: none;
+            position: fixed;
+            bottom: 16px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 500;
+            background: var(--primary-light);
+            border: 1px solid var(--blue-border);
+            border-radius: 50px;
+            padding: 8px 24px;
+            font-size: 13px;
+            color: var(--primary-blue);
+            pointer-events: none;
+            font-weight: 700;
+        }
+
+        /* 响应式：移动端侧边栏抽屉 */
+        @media (max-width: 1024px) {
+            #pane-graph {
+                flex-direction: column;
+            }
+
+            .info-sidebar {
+                position: fixed;
+                right: 0;
+                top: var(--nav-height);
+                bottom: 0;
+                width: 100%;
+                max-width: 360px;
+                z-index: 999;
+                box-shadow: -10px 0 30px rgba(0, 0, 0, 0.1);
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+            }
+
+            .info-sidebar.visible {
+                transform: translateX(0);
+            }
+
+            .graph-system-selector {
+                display: none;
+            }
+
+            .graph-legend-bar {
+                bottom: 80px;
+                padding: 4px 10px;
+                gap: 8px;
+                font-size: 10px;
+            }
+
+            .graph-search-wrap {
+                width: 200px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<!-- 动态粒子背景画布 -->
+<canvas id="particles-canvas"></canvas>
+
+<!-- 统一导航栏 -->
+<header class="site-header">
+    <div class="header-inner">
+        <a href="index.html" class="brand-logo">
+            <div class="brand-icon"><i class="fas fa-graduation-cap"></i></div>
+            <div>
+                <div class="brand-title">创新创业课程 OBE 智慧教学与评估平台</div>
+                <div class="brand-subtitle">Innovation & Entrepreneurship Mapping Engine v4.0</div>
+            </div>
+        </a>
+        <button class="nav-toggle" onclick="document.querySelector('.main-nav').classList.toggle('open')"><i class="fas fa-bars"></i></button>
+        <nav class="main-nav">
+            <a href="index.html" class="nav-item"><i class="fas fa-compass"></i> 首页</a>
+            <a href="map.html" class="nav-item"><i class="fas fa-map"></i> 课程地图</a>
+            <a href="knowledge_graph.html" class="nav-item active"><i class="fas fa-sitemap"></i> 知识图谱</a>
+            <a href="student.html" class="nav-item"><i class="fas fa-user-graduate"></i> 能力矩阵</a>
+            <a href="activities.html" class="nav-item"><i class="fas fa-tasks"></i> PBL实战</a>
+            <a href="chat.html" class="nav-item"><i class="fas fa-robot"></i> AI导师</a>
+            <a href="admin.html" class="nav-item"><i class="fas fa-chart-line"></i> 学情看板</a>
+        </nav>
+        <div class="nav-actions">
+            <a href="admin.html" class="btn-nav"><i class="fas fa-user-shield"></i> 教师/专家视图</a>
+        </div>
+    </div>
+</header>
+
+<!-- 主内容区 -->
+<div id="app-root" class="light-mode">
+<main class="graph-container" style="display:flex; flex-direction:column;">
+
+    <!-- 图谱模式提示横幅 -->
+    <div class="graph-info-banner">
+        <div style="font-size:12.5px; color:var(--text-main); display:flex; align-items:center; gap:8px;">
+            <span class="banner-tag"><i class="fas fa-brain"></i> 知识域</span>
+            <span><strong>课程理论知识图谱：</strong>基于布鲁姆认知目标分类法，梳理核心理论知识点、国家标准与推导链条。</span>
+        </div>
+        <a href="graph.html" style="background:var(--amber-bg); border:1px solid var(--amber-border); color:var(--amber-text); padding:5px 14px; border-radius:12px; text-decoration:none; font-size:12px; font-weight:800; transition:var(--transition-normal);" onmouseover="this.style.background='var(--amber-border)';" onmouseout="this.style.background='var(--amber-bg)';">
+            <i class="fas fa-chart-radar"></i> 切换至【OBE 实战能力图谱】
+        </a>
+    </div>
+
+    <!-- 图谱两栏展示 -->
+    <div id="pane-graph">
+        <div class="graph-viewport">
+            <!-- 科技网格背景 -->
+            <div class="graph-bg-grid"></div>
+
+            <!-- 视角选择器 -->
+            <div class="graph-system-selector">
+                <i class="fas fa-layer-group" style="color:var(--primary-blue); font-size:14px;"></i>
+                <label for="graph-select">理论知识视角：</label>
+                <select id="graph-select" onchange="switchKnowledgeGraphData(this.value)">
+                    <option value="academic">18学时核心理论大纲视角 (认知层)</option>
+                    <option value="practical">理论应用与 AI 工具维度 (应用层)</option>
+                    <option value="competition">大赛考核与学术成果维度 (评价层)</option>
+                </select>
+            </div>
+
+            <!-- 图谱搜索框 -->
+            <div class="graph-search-wrap">
+                <i class="fas fa-search graph-search-icon"></i>
+                <input type="text" id="graph-search-input" placeholder="搜索理论知识节点..." autocomplete="off">
+                <div id="graph-search-results"></div>
+            </div>
+
+            <!-- 右下角控制面板 -->
+            <div class="graph-controls">
+                <button class="btn-expert" onclick="openExpertPanel()" title="国家级双创实战示范课专家评审视角">
+                    <i class="fas fa-user-graduate"></i> 专家视角
+                </button>
+                <button class="btn-palette" onclick="openCommandPalette()" title="Ctrl+K 专家命令罗盘">
+                    <i class="fas fa-terminal"></i> 罗盘 (Ctrl+K)
+                </button>
+                <button class="btn-drawer" onclick="document.getElementById('info-panel').classList.toggle('visible')" title="窄屏展开/收起理论解析抽屉">
+                    <i class="fas fa-bars"></i> 目录
+                </button>
+                <button class="btn-reset" onclick="if(window.myGraph)window.myGraph.dispatchAction({type:'restore'})" title="重置图谱缩放与平移视图">
+                    <i class="fas fa-crosshairs"></i> 重置
+                </button>
+                <button class="btn-fullscreen" onclick="toggleFullscreen()" title="全屏放映展示">
+                    <i id="fullscreen-icon" class="fas fa-expand"></i> 全屏
+                </button>
+            </div>
+
+            <!-- 图例条 -->
+            <div class="graph-legend-bar">
+                <span class="legend-label">理论模块：</span>
+                <span class="legend-item"><span class="legend-dot" style="background:#2563eb;"></span>M1 创业认知</span>
+                <span class="legend-item"><span class="legend-dot" style="background:#0284c7;"></span>M2 痛点识别</span>
+                <span class="legend-item"><span class="legend-dot" style="background:#059669;"></span>M3 用户画像</span>
+                <span class="legend-item"><span class="legend-dot" style="background:#d97706;"></span>M4 竞品分析</span>
+                <span class="legend-item"><span class="legend-dot" style="background:#7c3aed;"></span>M5 商业模式</span>
+                <span class="legend-item"><span class="legend-dot" style="background:#dc2626;"></span>M6 MVP验证</span>
+                <span class="legend-item"><span class="legend-dot" style="background:#4f46e5;"></span>M7 团队股权</span>
+                <span class="legend-item"><span class="legend-dot" style="background:#0891b2;"></span>M8 财务预测</span>
+                <span class="legend-item"><span class="legend-dot" style="background:#e11d48;"></span>M9 表达答辩</span>
+            </div>
+
+            <!-- ECharts 画布 -->
+            <div id="graph-canvas"></div>
+        </div>
+
+        <!-- 右侧知识卡片侧边栏 -->
+        <aside class="info-sidebar" id="info-panel">
+            <div class="sidebar-header">
+                <h2>
+                    <i class="fas fa-brain"></i> 理论知识点解析
+                </h2>
+                <button class="close-sidebar-btn" onclick="closeKnowledgeCard()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="sidebar-body">
+                <!-- 欢迎状态 -->
+                <div class="sidebar-welcome-wrap" id="sidebar-welcome">
+                    <i class="fas fa-book-bookmark welcome-icon"></i>
+                    <h3>点击理论节点进行导学</h3>
+                    <p>
+                        本图谱完全对接示范课核心理论节点。点击左侧节点，即可调取学术出处、法条依据与前置推导知识链。
+                    </p>
+                </div>
+                <!-- 动态详情渲染区 -->
+                <div id="sidebar-detail" style="display:none;"></div>
+            </div>
+        </aside>
+    </div>
+</main>
+</div>
+
+<!-- 底部全屏提示 -->
+<div id="fullscreen-hint">
+    <i class="fas fa-keyboard"></i> 按 Esc 退出全屏 · 点击节点展开导学卡
+</div>
+
+<!-- 脚本引入 -->
+<script src="js/echarts.min.js"></script>
+<script src="js/data.js"></script>
+<script src="js/data_academic.js"></script>
+<script src="js/data_practical.js"></script>
+<script src="js/data_competition.js"></script>
+<script src="js/data_details.js"></script>
+<script src="js/modules/framework.js"></script>
+<script src="js/modules/main_framework.js"></script>
+<script src="js/modules/utils.js"></script>
+<script src="js/modules/graph_core.js"></script>
+<script src="js/modules/presentation.js"></script>
+<script src="js/app.js"></script>
+
+<script>
+// ── 全屏切换 ──
+function toggleFullscreen() {
+    const icon = document.getElementById('fullscreen-icon');
+    const hint = document.getElementById('fullscreen-hint');
+
+    if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+        const el = document.documentElement;
+        if (el.requestFullscreen) el.requestFullscreen();
+        else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
+        if (icon) icon.className = 'fas fa-compress';
+        if (hint) { hint.style.display = 'flex'; setTimeout(function() { hint.style.display = 'none'; }, 4000); }
+    } else {
+        if (document.exitFullscreen) document.exitFullscreen();
+        else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+        if (icon) icon.className = 'fas fa-expand';
+    }
+}
+
+function closeKnowledgeCard() {
+    var sidebarPanel = document.getElementById('info-panel');
+    if (sidebarPanel) sidebarPanel.classList.remove('visible');
+    var welcome = document.getElementById('sidebar-welcome');
+    var detail = document.getElementById('sidebar-detail');
+    if (welcome && detail) {
+        welcome.style.display = 'block';
+        detail.style.display = 'none';
+    }
+}
+
+// 切换理论图谱视角
+function switchKnowledgeGraphData(dataKey) {
+    if (window.IEKG && window.IEKG.modules && window.IEKG.modules.graph) {
+        window.IEKG.modules.graph.initKnowledgeGraph('graph-canvas', dataKey);
+        window.myGraph = window.IEKG.modules.graph.chartInstance;
+    }
+    if (typeof showToast === 'function') {
+        var labels = { academic: '18学时核心理论', practical: '理论应用与 AI 工具', competition: '大赛考核与学术成果' };
+        showToast('已切换至：' + (labels[dataKey] || dataKey));
+    }
+}
+
+// ── OBE 专家视角：达成度热力图 ──
+function openExpertPanel() {
+    if (!window.myGraph) return;
+    var option = window.myGraph.getOption();
+    if (!option || !option.series || !option.series[0]) return;
+
+    var nodes = option.series[0].data.map(function(node, i) {
+        var score = (i % 3 === 0) ? 88 : (i % 3 === 1) ? 72 : 54;
+        var color = '#10b981';
+        var shadow = 'rgba(16, 185, 129, 0.7)';
+        if (score < 60) {
+            color = '#ef4444';
+            shadow = 'rgba(239, 68, 68, 0.7)';
+        } else if (score < 85) {
+            color = '#f59e0b';
+            shadow = 'rgba(245, 158, 11, 0.7)';
+        }
+        return Object.assign({}, node, {
+            itemStyle: Object.assign({}, node.itemStyle, {
+                color: color,
+                shadowBlur: 25,
+                shadowColor: shadow
+            })
+        });
+    });
+
+    option.series[0].data = nodes;
+    window.myGraph.setOption(option);
+    if (typeof showToast === 'function') {
+        showToast('已激活 OBE 达成度热力图模式：绿(≥85% 掌握良好) / 琥珀(60-85% 需关注) / 红(<60% 预警)');
+    }
+}
+
+// ── 罗盘 (Ctrl+K) 全局 AI 调度中心 ──
+function openCommandPalette() {
+    var query = prompt('全局 AI 理论调度中心：请输入指令（如：找出所有涉及 AI 的实战节点）', '找出所有涉及 AI 的实战节点');
+    if (!query) return;
+
+    if (!window.myGraph) return;
+    var option = window.myGraph.getOption();
+    if (!option || !option.series || !option.series[0]) return;
+
+    var q = query.trim().toLowerCase();
+    var nodes = option.series[0].data.map(function(node) {
+        var text = (node.name || '').toLowerCase();
+        var isMatch = text.indexOf('ai') !== -1 || text.indexOf('mvp') !== -1 || text.indexOf('aigc') !== -1 || text.indexOf(q) !== -1;
+        return Object.assign({}, node, {
+            itemStyle: Object.assign({}, node.itemStyle, {
+                opacity: isMatch ? 1 : 0.2,
+                shadowBlur: isMatch ? 30 : 5,
+                shadowColor: isMatch ? '#2563eb' : 'transparent'
+            })
+        });
+    });
+
+    option.series[0].data = nodes;
+    window.myGraph.setOption(option);
+    if (typeof showToast === 'function') {
+        showToast('已按 AI 指令高亮匹配理论节点：【' + query + '】');
+    }
+}
+
+// ── Ctrl+K 快捷键 ──
+document.addEventListener('keydown', function(e) {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+        e.preventDefault();
+        openCommandPalette();
+    }
+});
+
+// ── 页面初始化 ──
+window.addEventListener('DOMContentLoaded', function() {
+    setTimeout(function() {
+        switchKnowledgeGraphData('academic');
+        if (window.myGraph) window.myGraph.resize();
+    }, 200);
+});
+</script>
+
+<!-- 理论知识节点详情模态弹窗 -->
+<div class="modal-overlay" id="academic-modal-overlay">
+    <div class="modal-box" style="position:relative;">
+        <button class="modal-close" onclick="document.getElementById('academic-modal-overlay').classList.remove('open')"><i class="fas fa-times"></i></button>
+        <div id="academic-modal-body">
+            <!-- 动态填充学术解析内容 -->
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,919 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>学生登录与档案 - 《大学生创新创业基础》</title>
+    <script src="js/all.min.js" defer></script>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        main {
+            overflow-y: auto;
+            min-height: calc(100vh - var(--nav-height));
+            padding-bottom: 60px;
+        }
+        .student-page {
+            max-width: 980px;
+            margin: 0 auto;
+            padding: 28px 20px;
+        }
+
+        /* 登录卡片 */
+        .login-card {
+            max-width: 560px;
+            margin: 0 auto 30px;
+        }
+        .login-card h2 {
+            font-size: 22px;
+            font-weight: 900;
+            color: var(--text-main);
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .login-card .sub {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-bottom: 28px;
+        }
+        .form-row { margin-bottom: 16px; }
+        .form-row-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+        }
+        .btn-login {
+            width: 100%;
+            padding: 13px;
+            border-radius: 12px;
+            border: none;
+            background: var(--primary-blue);
+            color: #fff;
+            font-size: 15.5px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 8px;
+            box-shadow: 0 4px 12px rgba(37,99,235,0.3);
+        }
+        .btn-login:hover {
+            background: var(--primary);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(37,99,235,0.4);
+        }
+        .btn-login:active { transform: scale(0.98); }
+        .btn-login:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* 档案区域 */
+        .profile-section { display: none; }
+        .profile-section.active { display: block; }
+
+        .profile-header {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            padding: 24px 28px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-xl);
+            margin-bottom: 22px;
+            box-shadow: var(--shadow-sm);
+        }
+        .profile-avatar {
+            width: 72px;
+            height: 72px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--primary-blue));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            font-weight: 900;
+            color: #fff;
+            flex-shrink: 0;
+            box-shadow: 0 4px 12px rgba(37,99,235,0.3);
+        }
+        .profile-info h3 {
+            font-size: 21px;
+            font-weight: 900;
+            color: var(--text-main);
+            margin-bottom: 4px;
+        }
+        .profile-info .sid {
+            font-size: 13px;
+            color: var(--text-muted);
+            font-family: 'JetBrains Mono', monospace;
+            letter-spacing: 0.05em;
+        }
+        .profile-info .cls {
+            font-size: 13px;
+            color: var(--text-sub);
+            margin-top: 4px;
+        }
+        .profile-actions {
+            margin-left: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            align-items: flex-end;
+        }
+        .action-row {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+        }
+
+        /* 统计卡片 */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(175px, 1fr));
+            gap: 16px;
+            margin-bottom: 22px;
+        }
+        .stat-box {
+            padding: 20px 18px;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border-color);
+            background: var(--bg-card);
+            box-shadow: var(--shadow-sm);
+            text-align: center;
+            transition: all 0.25s ease;
+        }
+        .stat-box:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-md);
+            border-color: var(--primary-blue);
+        }
+        .stat-val {
+            font-size: 36px;
+            font-weight: 900;
+            font-family: 'JetBrains Mono', monospace;
+            line-height: 1;
+            margin-bottom: 6px;
+        }
+        .stat-label { font-size: 12.5px; color: var(--text-muted); font-weight: 600; }
+        .stat-sub { font-size: 11px; color: var(--text-muted); margin-top: 4px; }
+
+        /* OBE 成绩条 */
+        .obe-section {
+            padding: 22px 24px;
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border-color);
+            background: var(--bg-card);
+            box-shadow: var(--shadow-sm);
+            margin-bottom: 22px;
+        }
+        .obe-row {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 14px;
+        }
+        .obe-row:last-child { margin-bottom: 0; }
+        .obe-label {
+            width: 180px;
+            flex-shrink: 0;
+            font-size: 13px;
+            color: var(--text-sub);
+            font-weight: 600;
+        }
+        .obe-bar-track {
+            flex: 1;
+            height: 10px;
+            border-radius: 6px;
+            background: var(--bg-subtle);
+            overflow: hidden;
+        }
+        .obe-bar-fill {
+            height: 100%;
+            border-radius: 6px;
+            background: linear-gradient(90deg, var(--primary-blue), var(--accent-cyan));
+            transition: width 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .obe-score {
+            width: 60px;
+            text-align: right;
+            font-size: 14px;
+            font-weight: 800;
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--accent-cyan);
+        }
+
+        /* 成绩表格 */
+        .records-section {
+            padding: 22px 24px;
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border-color);
+            background: var(--bg-card);
+            box-shadow: var(--shadow-sm);
+            margin-bottom: 22px;
+        }
+        .records-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+        .records-table th {
+            background: var(--primary-light);
+            color: var(--primary-blue);
+            padding: 9px 12px;
+            text-align: left;
+            font-weight: 700;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .records-table td {
+            padding: 9px 12px;
+            border-bottom: 1px solid var(--bg-subtle);
+            color: var(--text-muted);
+        }
+        .score-badge {
+            display: inline-block;
+            padding: 2px 10px;
+            border-radius: 10px;
+            font-weight: 800;
+            font-size: 13px;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .score-a { background: var(--green-bg); color: var(--green-text); border: 1px solid var(--green-border); }
+        .score-b { background: var(--blue-bg); color: var(--blue-text); border: 1px solid var(--blue-border); }
+        .score-c { background: var(--amber-bg); color: var(--amber-text); border: 1px solid var(--amber-border); }
+        .score-d { background: var(--rose-bg); color: var(--rose-text); border: 1px solid var(--rose-border); }
+
+        /* 签到打卡 */
+        .checkin-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 10px;
+        }
+        .checkin-day {
+            padding: 3px 10px;
+            border-radius: 8px;
+            font-size: 12px;
+            background: var(--green-bg);
+            border: 1px solid var(--green-border);
+            color: var(--green-text);
+            font-weight: 700;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* 按钮扩展 */
+        .btn-green {
+            background: var(--green-bg);
+            color: var(--green-text);
+            border: 1px solid var(--green-border);
+        }
+        .btn-green:hover { background: #D1FAE5; }
+        .btn-orange {
+            background: var(--amber-bg);
+            color: var(--amber-text);
+            border: 1px solid var(--amber-border);
+        }
+        .btn-orange:hover { background: #FEF3C7; }
+        .btn-red {
+            background: var(--rose-bg);
+            color: var(--rose-text);
+            border: 1px solid var(--rose-border);
+        }
+        .btn-red:hover { background: #FEE2E2; }
+
+        /* 实时计时器 */
+        #live-timer {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+            color: var(--accent-cyan);
+            font-weight: 700;
+        }
+
+        .section-hdr {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 16px;
+            font-weight: 800;
+            color: var(--text-main);
+            margin-bottom: 14px;
+        }
+        .section-hdr i { color: var(--primary-blue); }
+
+        /* CLO 诊断看板 */
+        .clo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 16px;
+        }
+        .clo-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 16px;
+            box-shadow: var(--shadow-sm);
+        }
+        .clo-card-danger {
+            border-color: var(--rose-border);
+            background: var(--rose-bg);
+        }
+        .clo-card-warn {
+            border-color: var(--amber-border);
+            background: var(--amber-bg);
+        }
+        .clo-card-header {
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 8px;
+        }
+        .clo-card-danger .clo-card-header { color: var(--rose-text); }
+        .clo-card-warn .clo-card-header { color: var(--amber-text); }
+        .clo-bar-track {
+            background: var(--bg-subtle);
+            height: 8px;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .clo-bar-fill { height: 100%; border-radius: 4px; }
+        .clo-bar-green { background: var(--accent-emerald); }
+        .clo-bar-blue { background: var(--primary-blue); }
+        .clo-bar-rose { background: var(--accent-rose); }
+        .clo-bar-amber { background: var(--accent-amber); }
+
+        /* 响应式 */
+        @media (max-width: 640px) {
+            .profile-header { flex-direction: column; text-align: center; }
+            .profile-actions { margin-left: 0; align-items: center; }
+            .obe-label { width: 120px; font-size: 12px; }
+            .form-row-2 { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<header class="site-header">
+    <div class="header-inner">
+        <a href="index.html" class="brand-logo">
+            <div class="brand-icon"><i class="fas fa-graduation-cap"></i></div>
+            <div>
+                <div class="brand-title">创新创业课程 OBE 智慧教学与评估平台</div>
+                <div class="brand-subtitle">Innovation & Entrepreneurship Mapping Engine v4.0</div>
+            </div>
+        </a>
+        <button class="nav-toggle" onclick="document.querySelector('.main-nav').classList.toggle('open')"><i class="fas fa-bars"></i></button>
+        <nav class="main-nav">
+            <a href="index.html" class="nav-item"><i class="fas fa-compass"></i> 首页</a>
+            <a href="map.html" class="nav-item"><i class="fas fa-map"></i> 课程地图</a>
+            <a href="knowledge_graph.html" class="nav-item"><i class="fas fa-sitemap"></i> 知识图谱</a>
+            <a href="student.html" class="nav-item active"><i class="fas fa-user-graduate"></i> 能力矩阵</a>
+            <a href="activities.html" class="nav-item"><i class="fas fa-tasks"></i> PBL实战</a>
+            <a href="chat.html" class="nav-item"><i class="fas fa-robot"></i> AI导师</a>
+            <a href="admin.html" class="nav-item"><i class="fas fa-chart-line"></i> 学情看板</a>
+        </nav>
+        <div class="nav-actions">
+            <a href="admin.html" class="btn-nav"><i class="fas fa-user-shield"></i> 教师/专家视图</a>
+        </div>
+    </div>
+</header>
+
+<main>
+<div class="student-page">
+
+    <!-- 登录区域 -->
+    <div id="login-section">
+        <div class="card login-card">
+            <h2><i class="fas fa-user-graduate" style="color:var(--primary-blue);"></i> 学员身份登录</h2>
+            <div class="sub">使用学号和姓名登录，系统将自动记录您的学习学时、测评成绩与活动参与情况。</div>
+
+            <div class="form-row">
+                <label class="form-label"><span class="required">*</span> 学号 (Student ID)</label>
+                <input type="text" id="inp-sid" class="form-input" placeholder="请输入学号，如：20260719001" maxlength="30"/>
+            </div>
+            <div class="form-row">
+                <label class="form-label"><span class="required">*</span> 姓名 (Name)</label>
+                <input type="text" id="inp-name" class="form-input" placeholder="请输入您的真实姓名" maxlength="20"/>
+            </div>
+            <div class="form-row-2">
+                <div class="form-row" style="margin-bottom:0;">
+                    <label class="form-label">专业班级（选填）</label>
+                    <input type="text" id="inp-class" class="form-input" placeholder="如：双创01班" maxlength="30"/>
+                </div>
+                <div class="form-row" style="margin-bottom:0;">
+                    <label class="form-label">学院（选填）</label>
+                    <input type="text" id="inp-college" class="form-input" placeholder="如：工商管理学院" maxlength="30"/>
+                </div>
+            </div>
+
+            <button class="btn-login" id="btn-do-login" onclick="doLogin()">
+                <i class="fas fa-sign-in-alt"></i> 登录并开始学习计时
+            </button>
+
+            <div id="login-msg" style="margin-top:12px; font-size:13px; text-align:center; display:none;"></div>
+
+            <div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--border-color);text-align:center;font-size:12px;color:var(--text-muted);">
+                <i class="fas fa-info-circle" style="color:var(--primary-blue);margin-right:4px;"></i>
+                学号和姓名须与课程花名册匹配方可登录。
+                <a href="admin.html" style="color:var(--primary-blue);font-weight:700;margin-left:6px;">
+                    <i class="fas fa-shield-alt"></i> 教师管理后台
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- 档案区域 -->
+    <div id="profile-section" class="profile-section">
+
+        <!-- 档案头部 -->
+        <div class="profile-header">
+            <div class="profile-avatar" id="profile-avatar">张</div>
+            <div class="profile-info">
+                <h3 id="profile-name">张创业</h3>
+                <div class="sid" id="profile-sid"><i class="fas fa-id-card" style="margin-right:5px;"></i>学号：20260719001</div>
+                <div class="cls" id="profile-cls"><i class="fas fa-university" style="margin-right:5px;"></i>双创实战示范课01班 · 工商管理学院</div>
+                <div style="margin-top:6px; font-size:12px; color:var(--text-muted);">
+                    本次会话已学：<span id="live-timer">0 分钟</span>
+                </div>
+            </div>
+            <div class="profile-actions">
+                <div class="action-row">
+                    <button class="btn btn-sm btn-green" onclick="doCheckIn()"><i class="fas fa-check"></i> 今日签到</button>
+                    <button class="btn btn-sm btn-primary" onclick="window.IEKG.student.printReport()"><i class="fas fa-print"></i> 打印报告单</button>
+                </div>
+                <div class="action-row">
+                    <button class="btn btn-sm btn-orange" onclick="window.IEKG.student.exportCSV()"><i class="fas fa-file-csv"></i> 导出CSV</button>
+                    <button class="btn btn-sm btn-primary" onclick="window.IEKG.student.exportJSON()"><i class="fas fa-file-code"></i> 导出JSON</button>
+                    <button class="btn btn-sm btn-red" onclick="doLogout()"><i class="fas fa-sign-out-alt"></i> 退出</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 统计数字看板 -->
+        <div class="stats-grid" id="stats-grid">
+            <div class="stat-box">
+                <div class="stat-val" style="color:var(--accent-cyan);" id="stat-hours">0.0</div>
+                <div class="stat-label">累计学习学时 (h)</div>
+                <div class="stat-sub" id="stat-min">约 0 分钟</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-val" style="color:var(--accent-violet);" id="stat-nodes">0/18</div>
+                <div class="stat-label">PBL 节点探索完成</div>
+                <div class="stat-sub" id="stat-nodes-pct">完成率 0%</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-val" style="color:var(--accent-amber);" id="stat-best">--</div>
+                <div class="stat-label">综合测评最高分</div>
+                <div class="stat-sub" id="stat-exam-cnt">共测评 0 次</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-val" style="color:var(--accent-emerald);" id="stat-act">0</div>
+                <div class="stat-label">闪电活动参与次数</div>
+                <div class="stat-sub" id="stat-checkin">打卡签到 0 次</div>
+            </div>
+        </div>
+
+        
+        <!-- 五维双创能力雷达图卡片 -->
+        <div class="records-section" style="margin-top: 20px; background: var(--bg-card); border-radius: var(--radius-lg); padding: 20px; border: 1px solid var(--border-color);">
+            <div class="section-hdr" style="font-weight: 800; color: var(--text-main); margin-bottom: 15px;">
+                <i class="fas fa-spider" style="color: var(--primary-blue);"></i> 学生双创五维核心能力诊断与技能树
+            </div>
+            <div id="radar-chart-container" style="width: 100%; height: 320px;"></div>
+        </div>
+
+        <!-- OBE 成绩进度条 -->
+        <div class="obe-section">
+            <div class="section-hdr"><i class="fas fa-chart-radar"></i> OBE 成果导向三维成绩评估</div>
+            <div class="obe-row">
+                <div class="obe-label">学生自评与互评（20%）</div>
+                <div class="obe-bar-track"><div class="obe-bar-fill" id="bar-regular" style="width:0%;background:linear-gradient(90deg,var(--primary-blue),var(--accent-cyan));"></div></div>
+                <div class="obe-score" id="score-regular">--</div>
+            </div>
+            <div class="obe-row">
+                <div class="obe-label">教师与督导评价（50%）</div>
+                <div class="obe-bar-track"><div class="obe-bar-fill" id="bar-mid" style="width:0%;background:linear-gradient(90deg,var(--accent-violet),#c084fc);"></div></div>
+                <div class="obe-score" id="score-mid">--</div>
+            </div>
+            <div class="obe-row">
+                <div class="obe-label">企业与专家评审（30%）</div>
+                <div class="obe-bar-track"><div class="obe-bar-fill" id="bar-final" style="width:0%;background:linear-gradient(90deg,var(--accent-amber),#fbbf24);"></div></div>
+                <div class="obe-score" id="score-final">--</div>
+            </div>
+            <div class="obe-row" style="border-top:1px solid var(--border-color);padding-top:12px;margin-top:4px;">
+                <div class="obe-label" style="font-weight:900;color:var(--text-main);">OBE 综合总评</div>
+                <div class="obe-bar-track"><div class="obe-bar-fill" id="bar-total" style="width:0%;background:linear-gradient(90deg,var(--accent-emerald),#34d399);"></div></div>
+                <div class="obe-score" id="score-total" style="color:var(--accent-emerald);font-size:16px;">--</div>
+            </div>
+        </div>
+
+        <!-- 测评成绩历史 -->
+        <div class="records-section">
+            <div class="section-hdr"><i class="fas fa-list-alt"></i> 综合测评成绩历史记录</div>
+            <div id="exam-records-container">
+                <table class="records-table">
+                    <thead><tr><th>#</th><th>日期</th><th>维度</th><th>得分</th><th>等级</th></tr></thead>
+                    <tbody id="exam-records-tbody">
+                        <tr><td colspan="5" style="text-align:center;padding:20px;color:var(--text-muted);">暂无测评记录，前往<a href="exam.html" style="color:var(--primary-blue);margin:0 4px;">综合测评</a>页面完成测验。</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- 签到打卡记录 -->
+        <div class="records-section">
+            <div class="section-hdr"><i class="fas fa-calendar-check"></i> 签到打卡学习记录</div>
+            <div id="checkin-container">
+                <div style="font-size:13px;color:var(--text-muted);margin-bottom:10px;">共签到 <span id="checkin-total" style="color:var(--primary-blue);font-weight:800;">0</span> 天</div>
+                <div class="checkin-list" id="checkin-list">
+                    <span style="color:var(--text-muted);font-size:13px;">暂无签到记录</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 危险操作 -->
+        <div style="text-align:right; padding-top:10px;">
+            <button class="btn btn-sm btn-red" style="font-size:12px;" onclick="confirmClear()">
+                <i class="fas fa-trash"></i> 清空本机所有档案数据
+            </button>
+        </div>
+
+    </div>
+
+    <!-- CLO 诊断看板 -->
+    <div class="card" style="margin-top:24px; padding:24px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; padding-bottom:12px; border-bottom:1px solid var(--border-color); flex-wrap:wrap; gap:12px;">
+            <h3 style="color:var(--text-main); margin:0; font-size:18px;"><i class="fas fa-award" style="color:var(--primary-blue);"></i> OBE 6大课程学习成果 (CLOs) 个人达成度诊断看板</h3>
+            <button onclick="generateDiagnosticReport()" class="btn btn-primary">
+                <i class="fas fa-file-medical-alt"></i> 生成个人《学情诊断与补修建议报告》
+            </button>
+        </div>
+        <div class="clo-grid">
+            <div class="clo-card">
+                <div class="clo-card-header"><span>CLO1: 痛点与需求定义</span><span style="color:var(--accent-emerald);">88% (已达标)</span></div>
+                <div class="clo-bar-track"><div class="clo-bar-fill clo-bar-green" style="width:88%;"></div></div>
+            </div>
+            <div class="clo-card">
+                <div class="clo-card-header"><span>CLO2: 商业模式设计</span><span style="color:var(--primary-blue);">78% (达标)</span></div>
+                <div class="clo-bar-track"><div class="clo-bar-fill clo-bar-blue" style="width:78%;"></div></div>
+            </div>
+            <div class="clo-card-danger" style="padding:16px; border-radius:12px;">
+                <div class="clo-card-header"><span>CLO3: MVP构建与敏捷验证</span><span style="color:var(--accent-rose); font-weight:800;">52% (⚠ 需预警补修)</span></div>
+                <div class="clo-bar-track"><div class="clo-bar-fill clo-bar-rose" style="width:52%;"></div></div>
+            </div>
+            <div class="clo-card">
+                <div class="clo-card-header"><span>CLO4: 团队管理与股权治理</span><span style="color:var(--accent-emerald);">92% (优秀达标)</span></div>
+                <div class="clo-bar-track"><div class="clo-bar-fill clo-bar-green" style="width:92%;"></div></div>
+            </div>
+            <div class="clo-card-warn" style="padding:16px; border-radius:12px;">
+                <div class="clo-card-header"><span>CLO5: 财务测算与BP撰写</span><span style="color:var(--accent-amber); font-weight:800;">68% (⚠ 临界警戒)</span></div>
+                <div class="clo-bar-track"><div class="clo-bar-fill clo-bar-amber" style="width:68%;"></div></div>
+            </div>
+            <div class="clo-card">
+                <div class="clo-card-header"><span>CLO6: 路演表达与防守问答</span><span style="color:var(--primary-blue);">85% (良好达标)</span></div>
+                <div class="clo-bar-track"><div class="clo-bar-fill clo-bar-blue" style="width:85%;"></div></div>
+            </div>
+        </div>
+    </div>
+</div>
+</main>
+
+<footer style="background:var(--bg-card); border-top:1px solid var(--border-color); padding:48px 0 32px 0; margin-top:auto;">
+    <div style="max-width:1360px; margin:0 auto; padding:0 24px; display:grid; grid-template-columns:1.5fr 1fr 1fr 1.2fr; gap:36px;">
+        <div>
+            <div style="font-size:16px; font-weight:800; color:var(--text-main); margin-bottom:12px; display:flex; align-items:center; gap:8px;">
+                <i class="fas fa-graduation-cap" style="color:var(--primary-blue);"></i>
+                《大学生创新创业基础》智能体平台
+            </div>
+            <div style="font-size:13px; color:var(--text-sub); line-height:1.6; margin-bottom:16px;">
+                基于成果导向教育 (OBE) 理念设计，通过知识节点拓扑、PBL 表现性评价任务与 AI 专项导师，打造高校双创"学-练-评-改"闭环。
+            </div>
+            <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                <span style="display:inline-flex; align-items:center; gap:6px; padding:4px 10px; background:var(--green-bg); border:1px solid var(--green-border); border-radius:6px; font-size:12px; color:var(--green-text); font-weight:600;">
+                    <i class="fas fa-check-circle"></i> OBE 成果达成闭环认证
+                </span>
+                <span style="display:inline-flex; align-items:center; gap:6px; padding:4px 10px; background:var(--blue-bg); border:1px solid var(--blue-border); border-radius:6px; font-size:12px; color:var(--blue-text); font-weight:600;">
+                    <i class="fas fa-book"></i> 教学标准对齐
+                </span>
+            </div>
+        </div>
+
+        <div>
+            <div style="font-size:14px; font-weight:800; color:var(--text-main); margin-bottom:16px;">课程核心体系</div>
+            <ul style="list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:10px; font-size:13px;">
+                <li><a href="index.html" style="color:var(--text-muted); text-decoration:none;"><i class="fas fa-angle-right" style="color:var(--primary-blue);"></i> 课程目标 (CLOs) 矩阵</a></li>
+                <li><a href="knowledge_graph.html" style="color:var(--text-muted); text-decoration:none;"><i class="fas fa-angle-right" style="color:var(--primary-blue);"></i> 理论知识图谱</a></li>
+                <li><a href="graph.html" style="color:var(--text-muted); text-decoration:none;"><i class="fas fa-angle-right" style="color:var(--primary-blue);"></i> 实战能力图谱</a></li>
+                <li><a href="map.html" style="color:var(--text-muted); text-decoration:none;"><i class="fas fa-angle-right" style="color:var(--primary-blue);"></i> 课程大纲地图</a></li>
+                <li><a href="activities.html" style="color:var(--text-muted); text-decoration:none;"><i class="fas fa-angle-right" style="color:var(--primary-blue);"></i> PBL 实战任务流</a></li>
+            </ul>
+        </div>
+
+        <div>
+            <div style="font-size:14px; font-weight:800; color:var(--text-main); margin-bottom:16px;">教学资源与评估</div>
+            <ul style="list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:10px; font-size:13px;">
+                <li><a href="chat.html" style="color:var(--text-muted); text-decoration:none;"><i class="fas fa-angle-right" style="color:var(--primary-blue);"></i> AI 导师智能体</a></li>
+                <li><a href="admin.html" style="color:var(--text-muted); text-decoration:none;"><i class="fas fa-angle-right" style="color:var(--primary-blue);"></i> 学情与达成度看板</a></li>
+                <li><a href="resources.html" style="color:var(--text-muted); text-decoration:none;"><i class="fas fa-angle-right" style="color:var(--primary-blue);"></i> 教学模版与资源下载</a></li>
+                <li><a href="glossary.html" style="color:var(--text-muted); text-decoration:none;"><i class="fas fa-angle-right" style="color:var(--primary-blue);"></i> 双创与 AI 权威词典</a></li>
+                <li><a href="exam.html" style="color:var(--text-muted); text-decoration:none;"><i class="fas fa-angle-right" style="color:var(--primary-blue);"></i> 综合自测与 Rubrics 评分</a></li>
+            </ul>
+        </div>
+
+        <div>
+            <div style="font-size:14px; font-weight:800; color:var(--text-main); margin-bottom:16px;">实时学情与系统数据</div>
+            <div style="background:var(--bg-subtle); border:1px solid var(--border-color); border-radius:10px; padding:14px; font-size:12.5px; line-height:1.8; color:var(--text-sub);">
+                <div><span>知识节点拓扑：</span> <strong style="color:var(--primary-blue);">持续更新</strong></div>
+                <div><span>能力指标映射：</span> <strong style="color:var(--accent-emerald);">36 项</strong></div>
+                <div><span>对齐 PBL 任务：</span> <strong style="color:var(--accent-amber);">18 项</strong></div>
+                <div><span>系统计算模式：</span> <strong style="color:var(--text-main);">本地离线隐私保护</strong></div>
+            </div>
+        </div>
+    </div>
+
+    <div style="max-width:1360px; margin:36px auto 0 auto; padding:20px 24px 0 24px; border-top:1px solid var(--border-color); display:flex; align-items:center; justify-content:space-between; font-size:12.5px; color:var(--text-sub); flex-wrap:wrap; gap:12px;">
+        <div>Copyright (C) 2026 《大学生创新创业基础》课程智能体平台. All Rights Reserved.</div>
+        <div style="display:flex; align-items:center; gap:16px;">
+            <span style="display:inline-flex; align-items:center; gap:6px; color:var(--accent-emerald); font-weight:600;">
+                <span style="width:8px; height:8px; background:var(--accent-emerald); border-radius:50%;"></span>
+                Antigravity Engine 运行正常
+            </span>
+            <a href="index.html" style="color:var(--text-sub); text-decoration:none;">首页</a>
+            <a href="help.html" style="color:var(--text-sub); text-decoration:none;">使用说明</a>
+            <a href="admin.html" style="color:var(--text-sub); text-decoration:none;">教师入口</a>
+        </div>
+    </div>
+</footer>
+
+<!-- 脚本引入 -->
+<script src="js/data.js"></script>
+<script src="js/modules/utils.js"></script>
+<script src="js/modules/student.js"></script>
+<script src="js/app.js"></script>
+<script>
+
+// 页面初始化
+document.addEventListener('DOMContentLoaded', () => {
+    if (window.IEKG && window.IEKG.student && window.IEKG.student.isLoggedIn()) {
+        showProfileSection();
+    } else {
+        showLoginSection();
+    }
+
+    // 每分钟更新实时计时器
+    setInterval(updateLiveTimer, 30000);
+    updateLiveTimer();
+});
+
+// 登录操作
+function doLogin() {
+    const sid = document.getElementById('inp-sid').value.trim();
+    const name = document.getElementById('inp-name').value.trim();
+    const cls = document.getElementById('inp-class').value.trim();
+    const col = document.getElementById('inp-college').value.trim();
+
+    const msgEl = document.getElementById('login-msg');
+
+    if (!sid || !name) {
+        showMsg('请填写学号和姓名！', 'error');
+        return;
+    }
+    if (!/^[a-zA-Z0-9\u4e00-\u9fa5_-]{2,}$/.test(sid)) {
+        showMsg('学号格式不正确，请重新输入！', 'error');
+        return;
+    }
+
+    const btn = document.getElementById('btn-do-login');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 正在登录...';
+
+    setTimeout(() => {
+        const result = window.IEKG.student.login(sid, name, cls, col);
+
+        if (result.ok) {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-sign-in-alt"></i> 登录并开始学习计时';
+            showMsg(result.isNew
+                ? '欢迎，' + name + '！首次登录，已创建学情档案。'
+                : '欢迎回来，' + name + '！学习计时已恢复。', 'success');
+
+            setTimeout(() => { showProfileSection(); }, 800);
+        } else {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-sign-in-alt"></i> 登录并开始学习计时';
+            showMsg(result.msg, 'error');
+        }
+    }, 500);
+}
+
+function showMsg(msg, type) {
+    const el = document.getElementById('login-msg');
+    el.style.display = 'block';
+    el.style.color = type === 'error' ? 'var(--rose-text)' : 'var(--green-text)';
+    el.style.background = type === 'error' ? 'var(--rose-bg)' : 'var(--green-bg)';
+    el.style.padding = '10px 16px';
+    el.style.borderRadius = '8px';
+    el.style.border = type === 'error' ? '1px solid var(--rose-border)' : '1px solid var(--green-border)';
+    el.textContent = msg;
+}
+
+// 退出登录
+function doLogout() {
+    if (!confirm('确认退出当前登录状态？（学习数据不会丢失）')) return;
+    window.IEKG.student.logout();
+    showLoginSection();
+    if (typeof showToast === 'function') showToast('已退出登录，数据已保存。');
+}
+
+// 清空数据
+function confirmClear() {
+    if (!confirm('确认清空本机所有学情数据？此操作不可恢复！')) return;
+    localStorage.removeItem('iekg_student_v2');
+    localStorage.removeItem('iekg_session_start');
+    localStorage.removeItem('ag_student_id');
+    localStorage.removeItem('ag_student_name');
+    localStorage.removeItem('ag_explored_nodes');
+    localStorage.removeItem('ag_exam_score');
+    localStorage.removeItem('ag_activity_count');
+    location.reload();
+}
+
+// 签到打卡
+function doCheckIn() {
+    const result = window.IEKG.student.checkIn();
+    if (typeof showToast === 'function') {
+        showToast(result.ok ? result.msg : result.msg);
+    } else {
+        alert(result.msg);
+    }
+    if (result.ok) refreshProfileData();
+}
+
+// 显示登录区域
+function showLoginSection() {
+    document.getElementById('login-section').style.display = 'block';
+    document.getElementById('profile-section').classList.remove('active');
+}
+
+// 显示档案区域
+function showProfileSection() {
+    document.getElementById('login-section').style.display = 'none';
+    document.getElementById('profile-section').classList.add('active');
+    refreshProfileData();
+}
+
+// 刷新档案数据显示
+function refreshProfileData() {
+    const profile = window.IEKG.student.getProfile();
+    if (!profile) return;
+
+    const obe = window.IEKG.student.calcOBEScore(profile);
+    const totalMin = (profile.totalMinutes || 0) + window.IEKG.student.getCurrentSessionMinutes();
+    const explored = (profile.exploredNodes || []).length;
+    const bestScore = (profile.examRecords || []).length > 0
+        ? Math.max(...profile.examRecords.map(r => r.score)) : null;
+
+    // 头部信息
+    document.getElementById('profile-avatar').textContent = profile.name.charAt(0);
+    document.getElementById('profile-name').textContent = profile.name;
+    document.getElementById('profile-sid').innerHTML = '<i class="fas fa-id-card" style="margin-right:5px;"></i>学号：' + profile.studentId;
+    document.getElementById('profile-cls').innerHTML = '<i class="fas fa-university" style="margin-right:5px;"></i>' + (profile.className || '未填写班级') + ' · ' + (profile.college || '未填写学院');
+
+    // 统计卡片
+    document.getElementById('stat-hours').textContent = (totalMin / 60).toFixed(1);
+    document.getElementById('stat-min').textContent = '约 ' + totalMin + ' 分钟';
+    document.getElementById('stat-nodes').textContent = explored + '/18';
+    document.getElementById('stat-nodes-pct').textContent = '完成率 ' + Math.round((explored / 18) * 100) + '%';
+    document.getElementById('stat-best').textContent = bestScore !== null ? bestScore : '--';
+    document.getElementById('stat-exam-cnt').textContent = '共测评 ' + (profile.examRecords || []).length + ' 次';
+    document.getElementById('stat-act').textContent = profile.activityCount || 0;
+    document.getElementById('stat-checkin').textContent = '打卡签到 ' + ((profile.checkIns || []).length) + ' 次';
+
+    // OBE 进度条
+    setTimeout(() => {
+        setBar('bar-regular', 'score-regular', obe.regular);
+        setBar('bar-mid', 'score-mid', obe.mid);
+        setBar('bar-final', 'score-final', obe.final, '--');
+        setBar('bar-total', 'score-total', obe.total);
+        
+        // 动态渲染 6 大 CLO 得分与状态
+        const cloGrid = document.querySelector('.clo-grid');
+        if (cloGrid) {
+            const baseScore = obe.total > 0 ? obe.total : Math.round((explored / 18) * 100);
+            const clos = [
+                { name: 'CLO1: 痛点与需求定义', factor: 1.05 },
+                { name: 'CLO2: 商业模式设计', factor: 0.95 },
+                { name: 'CLO3: MVP构建与敏捷验证', factor: 0.85 },
+                { name: 'CLO4: 团队管理与股权治理', factor: 1.08 },
+                { name: 'CLO5: 财务测算与BP撰写', factor: 0.88 },
+                { name: 'CLO6: 路演表达与防守问答', factor: 1.02 }
+            ];
+            
+            cloGrid.innerHTML = clos.map(c => {
+                let score = Math.min(100, Math.max(20, Math.round(baseScore * c.factor)));
+                let statusText = score >= 90 ? '优秀达标' : score >= 75 ? '已达标' : score >= 60 ? '临界警戒' : '需预警补修';
+                let colorVar = score >= 90 ? 'var(--accent-emerald)' : score >= 75 ? 'var(--primary-blue)' : score >= 60 ? 'var(--accent-amber)' : 'var(--accent-rose)';
+                let barClass = score >= 90 ? 'clo-bar-green' : score >= 75 ? 'clo-bar-blue' : score >= 60 ? 'clo-bar-amber' : 'clo-bar-rose';
+                let cardClass = score < 60 ? 'clo-card-danger' : score < 75 ? 'clo-card-warn' : 'clo-card';
+                return `<div class="${cardClass}" style="${score < 75 ? 'padding:16px; border-radius:12px;' : ''}">
+                    <div class="clo-card-header"><span>${c.name}</span><span style="color:${colorVar}; font-weight:${score < 75 ? '800' : 'normal'};">${score}% (${score < 60 ? '⚠ ' : ''}${statusText})</span></div>
+                    <div class="clo-bar-track"><div class="clo-bar-fill ${barClass}" style="width:${score}%;"></div></div>
+                </div>`;
+            }).join('');
+        }
+    }, 100);
+
+    // 测评历史表格
+    const tbody = document.getElementById('exam-records-tbody');
+    const records = (profile.examRecords || []).slice().reverse();
+    if (records.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:20px;color:var(--text-muted);">暂无测评记录，前往<a href="exam.html" style="color:var(--primary-blue);margin:0 4px;">综合测评</a>页面完成测验。</td></tr>';
+    } else {
+        tbody.innerHTML = records.map((r, i) => {
+            const grade = r.score >= 90 ? 'A' : r.score >= 80 ? 'B' : r.score >= 70 ? 'C' : 'D';
+            const gradeLabel = { A: '优秀', B: '良好', C: '中等', D: '合格' };
+            const scoreClass = { A: 'score-a', B: 'score-b', C: 'score-c', D: 'score-d' };
+            return '<tr>' +
+                '<td style="color:var(--text-muted);">' + (records.length - i) + '</td>' +
+                '<td>' + r.date + '</td>' +
+                '<td>' + (r.dimension || '综合测评') + '</td>' +
+                '<td><span class="score-badge ' + scoreClass[grade] + '">' + r.score + ' 分</span></td>' +
+                '<td><span class="score-badge ' + scoreClass[grade] + '">' + grade + ' ' + gradeLabel[grade] + '</span></td>' +
+                '</tr>';
+        }).join('');
+    }
+
+    // 签到打卡记录
+    const checkIns = profile.checkIns || [];
+    document.getElementById('checkin-total').textContent = checkIns.length;
+    const listEl = document.getElementById('checkin-list');
+    if (checkIns.length === 0) {
+        listEl.innerHTML = '<span style="color:var(--text-muted);font-size:13px;">暂无签到记录，点击上方"今日签到"按钮打卡。</span>';
+    } else {
+        listEl.innerHTML = checkIns.slice(-30).reverse().map(function(d) {
+            return '<span class="checkin-day"><i class="fas fa-check" style="margin-right:4px;"></i>' + d + '</span>';
+        }).join('');
+    }
+}
+
+// 设置 OBE 进度条
+function setBar(barId, scoreId, val, fallback) {
+    const barEl = document.getElementById(barId);
+    const scoreEl = document.getElementById(scoreId);
+    const displayVal = (val === 0 && fallback !== undefined) ? fallback : (val || '--');
+    if (barEl) barEl.style.width = (val || 0) + '%';
+    if (scoreEl) scoreEl.textContent = typeof displayVal === 'number' ? displayVal + '分' : displayVal;
+}
+
+// 实时计时器更新
+function updateLiveTimer() {
+    if (!window.IEKG || !window.IEKG.student) return;
+    const mins = window.IEKG.student.getCurrentSessionMinutes();
+    const el = document.getElementById('live-timer');
+    if (el) el.textContent = mins >= 60
+        ? Math.floor(mins / 60) + '小时' + (mins % 60) + '分钟'
+        : mins + ' 分钟';
+}
+
+// 生成诊断报告
+function generateDiagnosticReport() {
+    const profile = window.IEKG && window.IEKG.student ? window.IEKG.student.getProfile() : null;
+    const obe = profile ? window.IEKG.student.calcOBEScore(profile) : { regular: 80, mid: 80, final: 0, total: 64 };
+    const explored = profile ? (profile.exploredNodes || []).length : 0;
+    
+    let msg = `已为您生成《个人 OBE 学情诊断与能力补修建议报告》！\n\n`;
+    msg += `【当前综合诊断得分】：${obe.total}分\n`;
+    msg += `【节点探索进度】：${explored}/18\n\n`;
+    msg += `【针对性补修建议】：\n`;
+    if (explored < 10) {
+        msg += `1. 核心节点探索不足：建议前往 [知识图谱] 攻克前置理论节点。\n`;
+    }
+    if (obe.final === 0) {
+        msg += `2. 尚未进行综合测评：推荐前往 [综合测评] 检验学习效果。\n`;
+    } else if (obe.final < 75) {
+        msg += `2. 综合测评有待提升：建议针对错题集进行巩固。\n`;
+    }
+    msg += `\n【AI 导师专属指令】：可发送 [诊断报告补修] 至 AI 导师获取 1v1 专项辅导！`;
+    
+    if (typeof showToast === 'function') {
+        showToast('📋 学情诊断报告生成成功！');
+    }
+    alert(msg);
+}
+
+// Enter 键触发登录
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && document.getElementById('login-section').style.display !== 'none') {
+        doLogin();
+    }
+});
+</script>
+</body>
+</html>

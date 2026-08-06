@@ -1,0 +1,285 @@
+@charset "UTF-8";
+/* 
+ * 创新创业智能体大屏全景演播系统 CSS (v6.5 适配全屏无溢出版)
+ */
+
+:root {
+    --gz-bg: #050608;
+    --gz-card-bg: rgba(11, 15, 25, 0.92);
+    --gz-gold: #f59e0b;
+    --gz-gold-light: #fbbf24;
+    --gz-gold-glow: rgba(245, 158, 11, 0.35);
+    
+    --gz-cyan: #00f2fe;
+    --gz-cyan-glow: rgba(0, 242, 254, 0.35);
+    --gz-purple: #c084fc;
+    --gz-purple-glow: rgba(192, 132, 252, 0.35);
+    --gz-green: #34d399;
+    --gz-green-glow: rgba(52, 211, 153, 0.35);
+    
+    --gz-text-main: #ffffff;
+    --gz-text-sub: #e2e8f0;
+    --gz-text-muted: #94a3b8;
+}
+
+body {
+    background-color: var(--gz-bg) !important;
+    color: var(--gz-text-main) !important;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif !important;
+    overflow: hidden !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    height: 100vh !important;
+    width: 100vw !important;
+}
+
+/* 全景大屏容器 (精细匹配 100vh 满屏无溢出) */
+.guizang-slide-box {
+    max-width: 1600px !important;
+    width: 94vw !important;
+    height: calc(100vh - 100px) !important;
+    max-height: calc(100vh - 100px) !important;
+    margin: 60px auto 0 auto !important;
+    text-align: left !important;
+    background: var(--gz-card-bg) !important;
+    backdrop-filter: blur(28px) !important;
+    -webkit-backdrop-filter: blur(28px) !important;
+    border: 1.5px solid rgba(245, 158, 11, 0.4) !important;
+    border-radius: 24px !important;
+    padding: 24px 40px !important;
+    box-shadow: 0 25px 70px rgba(0, 0, 0, 0.95), 0 0 35px var(--gz-gold-glow) !important;
+    position: relative !important;
+    overflow: hidden !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: space-between !important;
+    box-sizing: border-box !important;
+}
+
+/* 顶栏四色流光线 */
+.guizang-slide-box::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #f59e0b 0%, #00f2fe 33%, #c084fc 66%, #f59e0b 100%);
+    box-shadow: 0 0 16px #f59e0b;
+}
+
+/* 标题样式 - 精准匹配高度 */
+.guizang-title-gold {
+    font-size: 2.1rem !important;
+    font-weight: 900 !important;
+    background: linear-gradient(135deg, #ffffff 10%, #ffe082 60%, #f59e0b 100%) !important;
+    -webkit-background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+    line-height: 1.2 !important;
+    margin-bottom: 10px !important;
+    letter-spacing: -0.5px !important;
+    filter: drop-shadow(0 0 16px rgba(245, 158, 11, 0.3));
+}
+
+.guizang-title-cyan {
+    font-size: 2.1rem !important;
+    font-weight: 900 !important;
+    background: linear-gradient(135deg, #ffffff 10%, #7dd3fc 60%, #00f2fe 100%) !important;
+    -webkit-background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+    line-height: 1.2 !important;
+    margin-bottom: 10px !important;
+    filter: drop-shadow(0 0 16px rgba(0, 242, 254, 0.3));
+}
+
+.guizang-title-purple {
+    font-size: 2.1rem !important;
+    font-weight: 900 !important;
+    background: linear-gradient(135deg, #ffffff 10%, #e879f9 60%, #c084fc 100%) !important;
+    -webkit-background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+    line-height: 1.2 !important;
+    margin-bottom: 10px !important;
+    filter: drop-shadow(0 0 16px rgba(192, 132, 252, 0.3));
+}
+
+.guizang-title-green {
+    font-size: 2.1rem !important;
+    font-weight: 900 !important;
+    background: linear-gradient(135deg, #ffffff 10%, #6ee7b7 60%, #34d399 100%) !important;
+    -webkit-background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+    line-height: 1.2 !important;
+    margin-bottom: 10px !important;
+    filter: drop-shadow(0 0 16px rgba(52, 211, 153, 0.3));
+}
+
+/* 高亮勋章 */
+.guizang-badge {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    background: rgba(245, 158, 11, 0.15) !important;
+    border: 1.5px solid rgba(245, 158, 11, 0.5) !important;
+    color: #fbbf24 !important;
+    padding: 5px 14px !important;
+    border-radius: 20px !important;
+    font-size: 12.5px !important;
+    font-weight: 800 !important;
+    margin-bottom: 8px !important;
+    box-shadow: 0 0 14px rgba(245, 158, 11, 0.2) !important;
+}
+
+/* Bento 3栏网格 */
+.bento-grid-3 {
+    display: grid !important;
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 14px !important;
+    flex: 1 !important;
+    margin-top: 10px !important;
+}
+
+.bento-grid-2 {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 14px !important;
+    flex: 1 !important;
+    margin-top: 10px !important;
+}
+
+/* Bento Card 卡片容器 - 紧凑不溢出 */
+.bento-card {
+    background: rgba(255, 255, 255, 0.04) !important;
+    border: 1.5px solid rgba(255, 255, 255, 0.12) !important;
+    border-radius: 16px !important;
+    padding: 16px 20px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: flex-start !important;
+    gap: 8px !important;
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+    position: relative !important;
+    overflow: hidden !important;
+}
+
+.bento-card:hover {
+    background: rgba(255, 255, 255, 0.08) !important;
+    border-color: rgba(245, 158, 11, 0.5) !important;
+    transform: translateY(-3px) !important;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5), 0 0 20px rgba(245, 158, 11, 0.25) !important;
+}
+
+.bento-card-icon {
+    font-size: 1.8rem !important;
+    color: #fbbf24 !important;
+    margin-bottom: 6px !important;
+}
+
+.bento-card-title {
+    font-size: 1.15rem !important;
+    font-weight: 800 !important;
+    color: #ffffff !important;
+    margin-bottom: 4px !important;
+}
+
+.bento-card-desc {
+    font-size: 13.5px !important;
+    color: #cbd5e1 !important;
+    line-height: 1.6 !important;
+}
+
+/* 数字强调 */
+.guizang-metric-num {
+    font-size: 2.6rem !important;
+    font-weight: 900 !important;
+    background: linear-gradient(135deg, #ffffff 20%, #fbbf24 80%) !important;
+    -webkit-background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+    line-height: 1 !important;
+    filter: drop-shadow(0 0 16px rgba(245, 158, 11, 0.3));
+    margin-bottom: 4px !important;
+}
+
+/* 名言引用块 */
+.guizang-quote {
+    font-size: 1.05rem !important;
+    font-style: italic !important;
+    line-height: 1.55 !important;
+    color: #fffbeb !important;
+    background: linear-gradient(90deg, rgba(245, 158, 11, 0.18), rgba(15, 23, 42, 0.5)) !important;
+    padding: 12px 20px !important;
+    border-left: 5px solid #fbbf24 !important;
+    border-radius: 0 14px 14px 0 !important;
+    margin-top: 10px !important;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3) !important;
+}
+
+/* ============================================================
+   大屏与全屏 Deck 全端自适应响应式系统 (Mobile, Tablet, Desktop)
+   解决小屏幕 / 窄高屏下 Slide 内容裁剪溢出与页头被遮挡问题
+   ============================================================ */
+
+/* 中屏幕 / 平板 / 低分辨率大屏 (宽度 <= 1200px 或 高度 <= 850px) */
+@media (max-width: 1200px), (max-height: 850px) {
+    .deck-header-bar {
+        position: relative !important;
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        padding: 10px 16px !important;
+        flex-wrap: wrap !important;
+        background: rgba(11, 15, 25, 0.95) !important;
+        border-bottom: 1.5px solid rgba(245, 158, 11, 0.4) !important;
+        z-index: 100 !important;
+    }
+    .guizang-slide-box {
+        width: 98vw !important;
+        height: auto !important;
+        min-height: calc(100vh - 120px) !important;
+        max-height: none !important;
+        padding: 16px 20px !important;
+        margin: 10px auto !important;
+        overflow-y: auto !important;
+    }
+    .guizang-title-gold, .guizang-title-cyan, .guizang-title-purple, .guizang-title-green {
+        font-size: 1.6rem !important;
+        line-height: 1.25 !important;
+        margin-bottom: 8px !important;
+    }
+    .bento-grid-3, .bento-grid-2 {
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)) !important;
+        gap: 10px !important;
+    }
+    .guizang-metric-num {
+        font-size: 2.2rem !important;
+    }
+}
+
+/* 手机超小屏 (宽度 <= 768px 或 高度 <= 680px) */
+@media (max-width: 768px), (max-height: 680px) {
+    .deck-header-bar {
+        padding: 8px 12px !important;
+        gap: 6px !important;
+    }
+    .deck-header-bar a, .deck-header-bar span, .deck-header-bar select {
+        font-size: 12px !important;
+        padding: 4px 8px !important;
+    }
+    .guizang-slide-box {
+        width: 99vw !important;
+        padding: 12px 14px !important;
+        margin-top: 5px !important;
+        border-radius: 14px !important;
+    }
+    .guizang-title-gold, .guizang-title-cyan, .guizang-title-purple, .guizang-title-green {
+        font-size: 1.3rem !important;
+    }
+    .bento-card {
+        padding: 12px 14px !important;
+    }
+    .bento-card-title {
+        font-size: 1rem !important;
+    }
+    .bento-card-desc {
+        font-size: 12.5px !important;
+    }
+}
+

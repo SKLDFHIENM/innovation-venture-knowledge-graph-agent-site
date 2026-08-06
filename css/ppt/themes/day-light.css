@@ -1,0 +1,27 @@
+@charset "UTF-8";
+/* theme: day-light (全站统一日间亮色主题) */
+:root {
+  --bg: #F8FAFC;
+  --bg-soft: #F1F5F9;
+  --surface: #FFFFFF;
+  --surface-2: #F8FAFC;
+  --border: #E2E8F0;
+  --border-strong: #CBD5E1;
+  --text-1: #0F172A;
+  --text-2: #334155;
+  --text-3: #64748B;
+  --accent: #2563EB;
+  --accent-2: #7C3AED;
+  --accent-3: #0284C7;
+  --good: #16A34A;
+  --warn: #D97706;
+  --bad: #DC2626;
+  --grad: linear-gradient(135deg, #2563EB, #7C3AED 55%, #0284C7);
+  --grad-soft: linear-gradient(135deg, #FFFFFF, #F8FAFC);
+  --radius: 12px;
+  --radius-sm: 8px;
+  --radius-lg: 20px;
+  --shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.08);
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Hiragino Sans GB", sans-serif;
+}
