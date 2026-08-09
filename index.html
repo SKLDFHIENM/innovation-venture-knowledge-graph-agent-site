@@ -1,0 +1,1176 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>创新创业课程知识图谱智能体 - OBE成果导向教学平台</title>
+    <script src="js/echarts.min.js"></script>
+    <script src="js/all.min.js" defer></script>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        /* ============================================================
+           Index 页面 CSS 变量（白色系简约风）
+           ============================================================ */
+        :root {
+            --bg-card: #ffffff;
+            --bg-subtle: #f8fafc;
+            --border-color: #e2e8f0;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --text-sub: #475569;
+            --primary-blue: #2563eb;
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.06);
+            --radius-lg: 12px;
+            --radius-sm: 8px;
+            --transition-normal: all 0.25s ease;
+
+            /* Semantic */
+            --green-text: #16a34a;
+            --green-bg: #f0fdf4;
+            --green-border: #bbf7d0;
+            --amber-text: #d97706;
+            --amber-bg: #fffbeb;
+            --amber-border: #fde68a;
+            --blue-text: #2563eb;
+            --blue-bg: #eff6ff;
+            --blue-border: #bfdbfe;
+
+            /* Accent colors */
+            --accent-amber: #f59e0b;
+            --accent-emerald: #10b981;
+            --accent-rose: #f43f5e;
+            --accent-cyan: #06b6d4;
+        }
+
+        /* ============================================================
+           Hero 区域
+           ============================================================ */
+        .hero-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 32px;
+            align-items: center;
+            min-height: 420px;
+        }
+        .hero-title {
+            font-size: 28px;
+            font-weight: 900;
+            color: var(--text-main);
+            line-height: 1.35;
+            margin: 0 0 16px 0;
+        }
+        .hero-subtitle {
+            font-size: 15px;
+            color: var(--text-muted);
+            line-height: 1.7;
+            margin: 0 0 24px 0;
+        }
+        .hero-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        .hero-actions { display: flex; gap: 12px; flex-wrap: wrap; }
+
+        /* Hero 区域背景：白色底+极淡蓝渐变 */
+        .section-wrapper:first-of-type {
+            background: linear-gradient(180deg, #ffffff 0%, #f0f7ff 100%);
+        }
+
+        /* 统计数字卡片样式 */
+        .hero-stats-grid .stat-card {
+            background: var(--bg-card);
+            border: 1px solid var(--blue-border);
+            border-radius: var(--radius-lg);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            padding: 14px 12px;
+            transition: var(--transition-normal);
+        }
+        .hero-stats-grid .stat-card:hover {
+            box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+            transform: translateY(-2px);
+        }
+
+        /* ============================================================
+           Section 系统
+           ============================================================ */
+        .section-wrapper { padding: 48px 0; background: #ffffff; }
+        .section-wrapper:nth-child(even) { background: var(--bg-subtle); }
+        .section-inner { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+
+        /* Section 排版 */
+        .section-tag {
+            background: var(--blue-bg);
+            color: var(--blue-text);
+            border-radius: 999px;
+            padding: 6px 16px;
+            font-size: 13px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .section-title {
+            font-weight: 800;
+            color: var(--text-main);
+            font-size: 24px;
+        }
+        .section-desc {
+            color: var(--text-muted);
+            font-size: 15px;
+        }
+
+        /* ============================================================
+           卡片系统 - 统一白色主题
+           ============================================================ */
+        .step-node-card,
+        .agent-card,
+        .pbl-task-card,
+        .res-download-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+            transition: var(--transition-normal);
+        }
+        .step-node-card:hover,
+        .agent-card:hover,
+        .pbl-task-card:hover,
+        .res-download-card:hover {
+            box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+            transform: translateY(-2px);
+            border-color: var(--blue-border);
+        }
+        .case-card {
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+            overflow: hidden;
+            transition: var(--transition-normal);
+        }
+        .case-card:hover {
+            box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+            transform: translateY(-2px);
+            border-color: var(--blue-border);
+        }
+
+        /* CLO Stepper */
+        .clo-stepper { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
+        .step-node-card {
+            padding: 18px;
+            border-left: 3px solid var(--border-color);
+        }
+        .step-node-card.active { border-left-color: var(--primary-blue); }
+        .step-idx { font-size: 12px; font-weight: 800; color: var(--primary-blue); margin-bottom: 6px; }
+        .step-title { font-size: 16px; font-weight: 800; color: var(--text-main); }
+
+        /* PBL Grid */
+        .pbl-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
+        .pbl-task-card { padding: 20px; }
+
+        /* Cases Grid */
+        .cases-grid-2x2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; }
+        .case-card-body {
+            background: var(--bg-card);
+        }
+
+        /* Agents Grid */
+        .agents-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
+        .agent-card {
+            padding: 20px; text-align: center;
+        }
+
+        /* Resources Grid */
+        .resources-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; }
+        .res-download-card {
+            padding: 20px;
+            display: flex; flex-direction: column; justify-content: space-between;
+        }
+
+        /* ============================================================
+           表格 (data-table)
+           ============================================================ */
+        .data-table thead th {
+            background: #f1f5f9;
+            color: #334155;
+        }
+        .data-table tbody tr:nth-child(odd) {
+            background: #ffffff;
+        }
+        .data-table tbody tr:nth-child(even) {
+            background: #f8fafc;
+        }
+        .data-table,
+        .data-table th,
+        .data-table td {
+            border-color: var(--border-color);
+        }
+
+        /* ============================================================
+           Chat Demo 区域
+           ============================================================ */
+        .chat-widget-box {
+            background: var(--bg-card); border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg); padding: 20px;
+            display: flex; flex-direction: column; gap: 14px; height: 340px;
+        }
+        .chat-input-field {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            transition: var(--transition-normal);
+        }
+        .chat-input-field:focus {
+            border-color: var(--primary-blue);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+        .msg-bubble.msg-ai {
+            background: var(--blue-bg);
+            color: var(--text-main);
+        }
+        .msg-bubble.msg-user {
+            background: var(--primary-blue);
+            color: #ffffff;
+        }
+
+        /* ============================================================
+           学情看板
+           ============================================================ */
+        .analytics-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+
+        /* ============================================================
+           三方评价
+           ============================================================ */
+        .ci-cycle-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+
+        /* ============================================================
+           知识图谱预览
+           ============================================================ */
+        .graph-preview-section {
+            min-height: 500px; position: relative;
+            background: var(--bg-card); border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg); overflow: hidden;
+            display: flex; flex-direction: column;
+        }
+        .graph-compass-toolbar { position: absolute; top: 16px; right: 16px; z-index: 10; display: flex; flex-direction: column; gap: 8px; }
+        .compass-btn {
+            width: 38px; height: 38px; background: var(--bg-card); border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm); color: var(--text-muted);
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; transition: var(--transition-normal);
+        }
+        .compass-btn:hover { border-color: var(--primary-blue); color: var(--primary-blue); box-shadow: var(--shadow-sm); }
+
+        /* ============================================================
+           按钮 hover 增强
+           ============================================================ */
+        .btn:hover {
+            filter: brightness(1.05);
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.15);
+        }
+
+        /* ============================================================
+           页脚
+           ============================================================ */
+        footer {
+            background: var(--bg-subtle) !important;
+            border-top-color: var(--border-color) !important;
+        }
+        footer a {
+            color: var(--text-muted);
+            text-decoration: none;
+            transition: var(--transition-normal);
+        }
+        footer a:hover {
+            color: var(--primary-blue);
+        }
+
+        /* ============================================================
+           .card 组件白色主题覆盖
+           ============================================================ */
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+        }
+
+        /* ============================================================
+           响应式（保持现有断点不变）
+           ============================================================ */
+        @media (max-width: 1024px) {
+            .hero-grid { grid-template-columns: 1fr; }
+            .clo-stepper { grid-template-columns: repeat(2, 1fr); }
+            .cases-grid-2x2 { grid-template-columns: 1fr; }
+            .agents-grid { grid-template-columns: repeat(2, 1fr); }
+            .analytics-grid { grid-template-columns: 1fr; }
+            .resources-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (max-width: 640px) {
+            .hero-stats-grid { grid-template-columns: repeat(2, 1fr); }
+            .clo-stepper { grid-template-columns: 1fr; }
+            .ci-cycle-grid { grid-template-columns: 1fr; }
+            .resources-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body class="day-mode">
+
+<header class="site-header">
+    <div class="header-inner">
+        <a href="index.html" class="brand-logo">
+            <div class="brand-icon"><i class="fas fa-graduation-cap"></i></div>
+            <div>
+                <div class="brand-title">创新创业课程 OBE 智慧教学与评估平台</div>
+                <div class="brand-subtitle">Innovation & Entrepreneurship Mapping Engine v4.0</div>
+            </div>
+        </a>
+        <button class="nav-toggle" onclick="document.querySelector('.main-nav').classList.toggle('open')"><i class="fas fa-bars"></i></button>
+        <nav class="main-nav" aria-label="主导航">
+            <a href="index.html" class="nav-item active"><i class="fas fa-compass"></i> 首页</a>
+            <a href="map.html" class="nav-item"><i class="fas fa-map"></i> 课程地图</a>
+            <a href="knowledge_graph.html" class="nav-item"><i class="fas fa-sitemap"></i> 知识图谱</a>
+            <a href="competition.html" class="nav-item"><i class="fas fa-trophy"></i> 大赛专区</a>
+            <a href="gold_cases.html" class="nav-item"><i class="fas fa-award"></i> 示范案例</a>
+            <a href="student.html" class="nav-item"><i class="fas fa-user-graduate"></i> 能力矩阵</a>
+            <a href="activities.html" class="nav-item"><i class="fas fa-tasks"></i> PBL实战</a>
+            <a href="yunnan_qujing_startup.html" class="nav-item"><i class="fas fa-mountain"></i> 留滇留曲</a>
+            <a href="chat.html" class="nav-item"><i class="fas fa-robot"></i> AI导师</a>
+            <a href="admin.html" class="nav-item"><i class="fas fa-chart-line"></i> 学情看板</a>
+        
+            <button id="theme-toggle-btn" class="nav-theme-toggle-btn" title="切换白天/夜间主题" onclick="if(window.toggleTheme) window.toggleTheme();"><i class="fas fa-sun"></i> <span>风格切换</span></button>
+        </nav>
+        <div class="nav-actions">
+            <a href="admin.html" class="btn-nav"><i class="fas fa-user-shield"></i> 教师/专家视图</a>
+        </div>
+    </div>
+</header>
+
+<!-- SECTION 1: HERO -->
+<section class="section-wrapper" style="padding-top: 32px;">
+    <div class="section-inner">
+        <div class="hero-grid">
+            <div>
+                <div class="section-tag"><i class="fas fa-award"></i> OBE 成果导向教学 · 全过程评估</div>
+                <h1 class="hero-title">基于 OBE 理念的双创课程"成果-能力-任务"全闭环教学平台</h1>
+                <p class="hero-subtitle">
+                    将课程目标 (CLOs) 拆解为知识图谱节点与 PBL 实战任务，实现学生能力达成度的全过程量化诊断与持续改进。
+                </p>
+                <div class="hero-stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-num">6 大</div>
+                        <div class="stat-label">CLO 能力维度</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-num">9 课</div>
+                        <div class="stat-label">核心课程模块</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-num">18 项</div>
+                        <div class="stat-label">PBL 实战任务</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-num">全过程</div>
+                        <div class="stat-label">学习留痕</div>
+                    </div>
+                </div>
+                <div class="hero-actions">
+                    <a href="knowledge_graph.html" class="btn btn-primary btn-lg">
+                        <i class="fas fa-network-wired"></i> 进入交互式知识图谱
+                    </a>
+                    <a href="map.html" class="btn btn-outline btn-lg">
+                        <i class="fas fa-file-alt"></i> 查看 18 学时大纲地图
+                    </a>
+                </div>
+            </div>
+            <div class="card" style="height: 380px; position: relative;">
+                <div style="font-size: 14px; font-weight: 800; color: var(--text-main); margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between;">
+                    <span><i class="fas fa-chart-pie"></i> 全班 CLO 核心能力达成度雷达看板</span>
+                    <span class="badge badge-green">实时计算</span>
+                </div>
+                <div id="hero-radar-chart" style="width: 100%; height: 320px;"></div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- SECTION 2: 知识图谱预览 -->
+<section class="section-wrapper">
+    <div class="section-inner">
+        <div class="section-header">
+            <div class="section-tag"><i class="fas fa-sitemap"></i> 交互式知识图谱</div>
+            <h2 class="section-title">交互式双创学科知识图谱预览</h2>
+            <p class="section-desc">基于 ECharts 力导向物理引擎，可视化展示知识节点与前置依赖关系。</p>
+        </div>
+        <div class="graph-preview-section">
+            <div class="graph-compass-toolbar">
+                <button class="compass-btn" onclick="zoomGraph(1.2)" title="放大"><i class="fas fa-search-plus"></i></button>
+                <button class="compass-btn" onclick="zoomGraph(0.8)" title="缩小"><i class="fas fa-search-minus"></i></button>
+                <button class="compass-btn" onclick="resetGraph()" title="复位"><i class="fas fa-sync-alt"></i></button>
+                <a href="knowledge_graph.html" class="compass-btn" title="全屏" style="text-decoration:none;"><i class="fas fa-expand"></i></a>
+            </div>
+            <div id="index-knowledge-graph" style="width: 100%; height: 500px;"></div>
+        </div>
+    </div>
+</section>
+
+<!-- SECTION 3: CLO 能力矩阵模块 (位于知识图谱模块之后) -->
+<section class="section-wrapper" id="clo-matrix-section">
+    <div class="section-inner">
+        <div class="section-header">
+            <div class="section-tag"><i class="fas fa-bullseye"></i> 课程学习成果与能力矩阵</div>
+            <h2 class="section-title">课程学习成果 (CLOs) 与知识-能力-评估对齐矩阵</h2>
+            <p class="section-desc">结合各维度能力雷达图与能力指标解读，实现知识点 (K) → 实践技能 (S) → 评估标准 (A) 的精准映射。</p>
+        </div>
+
+        <!-- 能力雷达图与六维度文字解读卡片（对齐知识图谱视觉风格） -->
+        <div class="card" style="margin-bottom: 24px; padding: 24px; border: 1px solid var(--border-color); background: var(--bg-card); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm);">
+            <div style="display: grid; grid-template-columns: 1fr 1.2fr; gap: 24px; align-items: center;">
+                <div>
+                    <div style="font-size: 16px; font-weight: 800; color: var(--text-main); margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between;">
+                        <span><i class="fas fa-chart-radar" style="color: var(--primary-blue); margin-right: 8px;"></i> CLO 六大核心能力维度雷达视角</span>
+                        <span class="badge badge-green">OBE 达标模型</span>
+                    </div>
+                    <p style="font-size: 13px; color: var(--text-sub); margin-bottom: 16px; line-height: 1.6;">
+                        采用蜘蛛网图（Radar Chart）可视化呈现学生在痛点、商机、商业模式、MVP、治理与答辩六个维度的能力数据。
+                    </p>
+                    <div id="matrix-radar-chart" style="width: 100%; height: 340px;"></div>
+                </div>
+
+                <!-- 六维度解读说明 -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                    <div style="background: var(--blue-bg); border: 1px solid var(--blue-border); border-radius: 10px; padding: 14px;">
+                        <div style="font-size: 14px; font-weight: 800; color: var(--primary-blue); margin-bottom: 4px; display: flex; align-items: center; gap: 6px;">
+                            <i class="fas fa-lightbulb"></i> CLO1 痛点挖掘
+                        </div>
+                        <div style="font-size: 12.5px; color: var(--text-sub); line-height: 1.5;">
+                            运用 SCAMPER/TRIZ 方法与 JTBD 访谈，精准识别真实需求与高频强痛点。
+                        </div>
+                    </div>
+                    <div style="background: var(--blue-bg); border: 1px solid var(--blue-border); border-radius: 10px; padding: 14px;">
+                        <div style="font-size: 14px; font-weight: 800; color: var(--primary-blue); margin-bottom: 4px; display: flex; align-items: center; gap: 6px;">
+                            <i class="fas fa-search-dollar"></i> CLO2 商机识别
+                        </div>
+                        <div style="font-size: 12.5px; color: var(--text-sub); line-height: 1.5;">
+                            结合 PEST 宏观环境模型与行业舆情监听，研判合规政策与商业可行机会。
+                        </div>
+                    </div>
+                    <div style="background: var(--amber-bg); border: 1px solid var(--amber-border); border-radius: 10px; padding: 14px;">
+                        <div style="font-size: 14px; font-weight: 800; color: var(--amber-text); margin-bottom: 4px; display: flex; align-items: center; gap: 6px;">
+                            <i class="fas fa-cubes"></i> CLO3 商业模式
+                        </div>
+                        <div style="font-size: 12.5px; color: var(--text-sub); line-height: 1.5;">
+                            绘制 9 宫格精益 BMC 画布，进行客户细分价值匹配与 LTV/CAC 单体经济精算。
+                        </div>
+                    </div>
+                    <div style="background: var(--amber-bg); border: 1px solid var(--amber-border); border-radius: 10px; padding: 14px;">
+                        <div style="font-size: 14px; font-weight: 800; color: var(--amber-text); margin-bottom: 4px; display: flex; align-items: center; gap: 6px;">
+                            <i class="fas fa-rocket"></i> CLO4 MVP敏捷验证
+                        </div>
+                        <div style="font-size: 12.5px; color: var(--text-sub); line-height: 1.5;">
+                            利用无代码/AI 工具 48 小时极速搭建 MVP 原型与 Landing Page 获得真实转化。
+                        </div>
+                    </div>
+                    <div style="background: var(--green-bg); border: 1px solid var(--green-border); border-radius: 10px; padding: 14px;">
+                        <div style="font-size: 14px; font-weight: 800; color: var(--green-text); margin-bottom: 4px; display: flex; align-items: center; gap: 6px;">
+                            <i class="fas fa-users-cog"></i> CLO5 团队治理
+                        </div>
+                        <div style="font-size: 12.5px; color: var(--text-sub); line-height: 1.5;">
+                            基于 Hacker-Hipster-Hustler 模型配置组队、股权绑定协议及模拟融资谈判。
+                        </div>
+                    </div>
+                    <div style="background: var(--green-bg); border: 1px solid var(--green-border); border-radius: 10px; padding: 14px;">
+                        <div style="font-size: 14px; font-weight: 800; color: var(--green-text); margin-bottom: 4px; display: flex; align-items: center; gap: 6px;">
+                            <i class="fas fa-file-contract"></i> CLO6 BP答辩
+                        </div>
+                        <div style="font-size: 12.5px; color: var(--text-sub); line-height: 1.5;">
+                            撰写符合国赛规范的商业计划书，并在模拟路演中展示说服力与答辩逻辑。
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="clo-stepper">
+            <div class="step-node-card active">
+                <div class="step-idx">阶段 01 · CLO 1 & 2</div>
+                <div class="step-title">识真问题与痛点发散</div>
+                <div style="font-size: 13px; color: var(--text-sub); margin-top: 6px;">运用 SCAMPER/TRIZ 识别高价值需求</div>
+            </div>
+            <div class="step-node-card">
+                <div class="step-idx">阶段 02 · CLO 3</div>
+                <div class="step-title">构建精益商业模式</div>
+                <div style="font-size: 13px; color: var(--text-sub); margin-top: 6px;">绘制 BMC 画布并测算 LTV/CAC</div>
+            </div>
+            <div class="step-node-card">
+                <div class="step-idx">阶段 03 · CLO 4</div>
+                <div class="step-title">MVP 敏捷验证与原型</div>
+                <div style="font-size: 13px; color: var(--text-sub); margin-top: 6px;">结合 AI 工具搭建落地页与原型</div>
+            </div>
+            <div class="step-node-card">
+                <div class="step-idx">阶段 04 · CLO 5 & 6</div>
+                <div class="step-title">股权治理与 BP 演说</div>
+                <div style="font-size: 13px; color: var(--text-sub); margin-top: 6px;">撰写商业计划书并完成路演答辩</div>
+            </div>
+        </div>
+
+        <div class="card" style="padding: 0; overflow: hidden;">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th style="width: 200px;">课程学习成果 (CLO)</th>
+                        <th>支撑的知识模块</th>
+                        <th style="width: 220px;">对应的 PBL 实战任务</th>
+                        <th style="width: 260px;">评价方式 (Rubric)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>
+                            <strong>CLO 1: 痛点识别与发散思维</strong><br>
+                            <span style="font-size: 12px; color: var(--green-text);">权重 15% | 预警线 0.70</span>
+                        </td>
+                        <td>模块一：双创思维与发现痛点<br>模块二：用户访谈与 JTBD 模型</td>
+                        <td><span class="tag">Task 01</span> 创客画像与组队<br><span class="tag">Task 02</span> 真实痛点访谈录</td>
+                        <td>过程性 Rubric 评分表 (访谈真实性 40% + 痛点精准度 60%)</td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <strong>CLO 2: 商机识别与环境研判</strong><br>
+                            <span style="font-size: 12px; color: var(--green-text);">权重 15% | 预警线 0.70</span>
+                        </td>
+                        <td>模块二：商机捕捉与舆情监听<br>模块三：宏观环境与合规分析</td>
+                        <td><span class="tag">Task 03</span> 商机发掘与监听<br><span class="tag">Task 04</span> 环境研判与合规</td>
+                        <td>分析报告 Rubric (数据来源 40% + 分析逻辑 60%)</td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <strong>CLO 3: 精益商业模式设计</strong><br>
+                            <span style="font-size: 12px; color: var(--green-text);">权重 20% | 预警线 0.70</span>
+                        </td>
+                        <td>模块四：用户画像与客户定位<br>模块五：精益商业模式画布 (BMC)</td>
+                        <td><span class="tag">Task 05</span> 同理心画像绘制<br><span class="tag">Task 06</span> BMC 画布绘制</td>
+                        <td>商业可行性 Rubric (逻辑闭环 50% + 财务严谨 50%)</td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <strong>CLO 4: MVP 敏捷验证</strong><br>
+                            <span style="font-size: 12px; color: var(--green-text);">权重 20% | 预警线 0.70</span>
+                        </td>
+                        <td>模块六：MVP 构建与原型<br>模块六：数据飞轮与种子转化</td>
+                        <td><span class="tag">Task 07</span> 原型快速搭建<br><span class="tag">Task 08</span> 种子用户转化测试</td>
+                        <td>原型体验与数据验证量表 (原型可用 60% + 数据真实 40%)</td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <strong>CLO 5: 团队治理与股权设计</strong><br>
+                            <span style="font-size: 12px; color: var(--green-text);">权重 15% | 预警线 0.70</span>
+                        </td>
+                        <td>模块七：股权绑定与团队治理<br>模块八：财务预算与融资谈判</td>
+                        <td><span class="tag">Task 09</span> 股权协议拟定<br><span class="tag">Task 10</span> 融资模拟谈判</td>
+                        <td>治理合规 Rubric (协议规范 50% + 谈判策略 50%)</td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <strong>CLO 6: BP 撰写与路演答辩</strong><br>
+                            <span style="font-size: 12px; color: var(--green-text);">权重 15% | 预警线 0.70</span>
+                        </td>
+                        <td>模块九：商业计划书撰写<br>模块九：路演答辩与表达</td>
+                        <td><span class="tag">Task 11</span> BP 大纲撰写<br><span class="tag">Task 12</span> 模拟路演答辩</td>
+                        <td>综合表现性 Rubric (BP 质量 50% + 路演表达 50%)</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+
+<!-- SECTION 4: PBL 任务 -->
+<section class="section-wrapper">
+    <div class="section-inner">
+        <div class="section-header">
+            <div class="section-tag"><i class="fas fa-tasks"></i> PBL 项目制实战任务</div>
+            <h2 class="section-title">PBL 项目制实战任务与过程性评价</h2>
+            <p class="section-desc">任务驱动教学，配套标准化 Rubrics 评分量规，保障评估客观可量化。</p>
+        </div>
+        <div class="pbl-grid">
+            <div class="pbl-task-card">
+                <span class="tag">TASK 01 · 识真问题</span>
+                <h3 style="font-size: 16px; color: var(--text-main); margin: 10px 0 8px 0;">创客自画像与团队匹配</h3>
+                <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 16px;">利用 Hacker-Hipster-Hustler 三色模型完成团队角色组建与技能互补。</p>
+                <button class="btn btn-outline btn-sm" onclick="openRubricModal('Task 01 评价规程', '<strong>优秀 (90-100分)</strong>：角色覆盖 3 类模型，技能互补度 90% 以上。<br><strong>合格 (60-89分)</strong>：基本完成组队但角色重叠。<br><strong>待改进 (&lt;60分)</strong>：单打独斗缺乏团队。')">
+                    <i class="fas fa-clipboard-check"></i> 查看评分 Rubric
+                </button>
+            </div>
+            <div class="pbl-task-card">
+                <span class="tag">TASK 02 · 需求访谈</span>
+                <h3 style="font-size: 16px; color: var(--text-main); margin: 10px 0 8px 0;">真实痛点挖掘访谈录</h3>
+                <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 16px;">深入目标用户进行 JTBD 访谈，产出用户痛点画像。</p>
+                <button class="btn btn-outline btn-sm" onclick="openRubricModal('Task 02 评价规程', '<strong>优秀 (90-100分)</strong>：包含真实录音与 10 份有效问卷，痛点场景精准。<br><strong>合格 (60-89分)</strong>：访谈样本不足 5 份。')">
+                    <i class="fas fa-clipboard-check"></i> 查看评分 Rubric
+                </button>
+            </div>
+            <div class="pbl-task-card">
+                <span class="tag">TASK 03 · 商业模式</span>
+                <h3 style="font-size: 16px; color: var(--text-main); margin: 10px 0 8px 0;">精益商业模式画布 (BMC)</h3>
+                <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 16px;">绘制 9 宫格商业模式画布，清晰定义客户细分与价值主张。</p>
+                <button class="btn btn-outline btn-sm" onclick="openRubricModal('Task 03 评价规程', '<strong>优秀 (90-100分)</strong>：9 模块逻辑严密闭环，成本收益对齐。<br><strong>待改进 (&lt;60分)</strong>：概念模糊未逻辑自洽。')">
+                    <i class="fas fa-clipboard-check"></i> 查看评分 Rubric
+                </button>
+            </div>
+            <div class="pbl-task-card">
+                <span class="tag">TASK 04 · 环境研判</span>
+                <h3 style="font-size: 16px; color: var(--text-main); margin: 10px 0 8px 0;">宏观环境与合规分析</h3>
+                <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 16px;">运用 PEST 模型研判项目政策合规与法律规范等宏观环境。</p>
+                <button class="btn btn-outline btn-sm" onclick="openRubricModal('Task 04 评价规程', '<strong>优秀 (90-100分)</strong>：PEST 分析全面，合规风险识别准确。<br><strong>合格 (60-89分)</strong>：基本完成分析但深度不足。')">
+                    <i class="fas fa-clipboard-check"></i> 查看评分 Rubric
+                </button>
+            </div>
+            <div class="pbl-task-card">
+                <span class="tag">TASK 05 · 用户画像</span>
+                <h3 style="font-size: 16px; color: var(--text-main); margin: 10px 0 8px 0;">种子用户同理心画像绘制</h3>
+                <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 16px;">细化描绘"听、看、想、说、做"的用户同理心画像。</p>
+                <button class="btn btn-outline btn-sm" onclick="openRubricModal('Task 05 评价规程', '<strong>优秀 (90-100分)</strong>：画像五维度完整，洞察深入。<br><strong>合格 (60-89分)</strong>：画像维度不全。')">
+                    <i class="fas fa-clipboard-check"></i> 查看评分 Rubric
+                </button>
+            </div>
+            <div class="pbl-task-card">
+                <span class="tag">TASK 06 · MVP 构建</span>
+                <h3 style="font-size: 16px; color: var(--text-main); margin: 10px 0 8px 0;">Low-Code/AI 原型快速搭建</h3>
+                <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 16px;">在 48 小时内搭建可交互的落地页或 AI 原型并上线测试。</p>
+                <button class="btn btn-outline btn-sm" onclick="openRubricModal('Task 06 评价规程', '<strong>优秀 (90-100分)</strong>：MVP 可跑通核心交易闭环，获得真实预约。')">
+                    <i class="fas fa-clipboard-check"></i> 查看评分 Rubric
+                </button>
+            </div>
+        </div>
+        <div style="text-align: center; margin-top: 24px;">
+            <a href="activities.html" class="btn btn-primary"><i class="fas fa-arrow-right"></i> 查看全部 18 项 PBL 任务</a>
+        </div>
+    </div>
+</section>
+
+<!-- SECTION 5: 优秀案例 -->
+<section class="section-wrapper">
+    <div class="section-inner">
+        <div class="section-header">
+            <div class="section-tag"><i class="fas fa-award"></i> 优秀案例教学拆解</div>
+            <h2 class="section-title">优秀创业案例库与 OBE 教学三段式拆解</h2>
+            <p class="section-desc">引入真实创业项目案例，按"痛点-试错-CLO对齐"拆解教学经验。</p>
+        </div>
+        <div class="cases-grid-2x2">
+            <div class="case-card">
+                <div class="case-card-header bg-green">
+                    <span class="badge badge-green">农业科技</span>
+                    <h3 class="case-title">智农芯云：AI 农产品供应链匹配平台</h3>
+                </div>
+                <div class="case-card-body">
+                    <p class="case-desc">针对农产品损耗较高的行业痛点，通过 MVP 验证完成农户试运行，验证匹配效率提升。</p>
+                    <div class="case-card-footer">
+                        <span class="clo-tag">CLO 2 & 3</span>
+                        <button class="btn btn-outline btn-sm" onclick="openCaseModal('case1')"><i class="fas fa-search-plus"></i> 教学拆解</button>
+                    </div>
+                </div>
+            </div>
+            <div class="case-card">
+                <div class="case-card-header bg-blue">
+                    <span class="badge badge-blue">医疗健康</span>
+                    <h3 class="case-title">医路同行：脑机接口康复机器人</h3>
+                </div>
+                <div class="case-card-body">
+                    <p class="case-desc">结合开源脑电模块构建原型，在康复中心收集患者主动训练反馈。</p>
+                    <div class="case-card-footer">
+                        <span class="clo-tag">CLO 1 & 4</span>
+                        <button class="btn btn-outline btn-sm" onclick="openCaseModal('case2')"><i class="fas fa-search-plus"></i> 教学拆解</button>
+                    </div>
+                </div>
+            </div>
+            <div class="case-card">
+                <div class="case-card-header bg-amber">
+                    <span class="badge badge-amber">绿色低碳</span>
+                    <h3 class="case-title">绿能未来：零碳高分子新材料产业化</h3>
+                </div>
+                <div class="case-card-body">
+                    <p class="case-desc">攻克石油基塑料无法降解痛点，完成小试试产并签订大厂试用协议。</p>
+                    <div class="case-card-footer">
+                        <span class="clo-tag">CLO 3 & 5</span>
+                        <button class="btn btn-outline btn-sm" onclick="openCaseModal('case3')"><i class="fas fa-search-plus"></i> 教学拆解</button>
+                    </div>
+                </div>
+            </div>
+            <div class="case-card">
+                <div class="case-card-header bg-purple">
+                    <span class="badge badge-purple">数字硬科技</span>
+                    <h3 class="case-title">文创智绘：工业级 3D 视觉无损检测</h3>
+                </div>
+                <div class="case-card-body">
+                    <p class="case-desc">部署 3D 传感器试运行，检出率高，支持 CLO 6 路演答辩教学。</p>
+                    <div class="case-card-footer">
+                        <span class="clo-tag">CLO 5 & 6</span>
+                        <button class="btn btn-outline btn-sm" onclick="openCaseModal('case4')"><i class="fas fa-search-plus"></i> 教学拆解</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- SECTION 6: AI 导师 -->
+<section class="section-wrapper">
+    <div class="section-inner">
+        <div class="section-header">
+            <div class="section-tag"><i class="fas fa-robot"></i> AI 辅导系统</div>
+            <h2 class="section-title">AI 双创导师与专项智能体辅助系统</h2>
+            <p class="section-desc">智能体辅助解答，提供痛点挖掘、财务测算、BP 撰写与模拟路演支持。</p>
+        </div>
+        <div class="agents-grid">
+            <div class="agent-card">
+                <i class="fas fa-lightbulb" style="font-size: 24px; color: var(--accent-amber); margin-bottom: 8px;"></i>
+                <div style="font-weight: 800; color: var(--text-main);">痛点挖掘 Agent</div>
+                <div style="font-size: 12px; color: var(--text-sub);">帮助验证需求真实性</div>
+            </div>
+            <div class="agent-card">
+                <i class="fas fa-calculator" style="font-size: 24px; color: var(--accent-emerald); margin-bottom: 8px;"></i>
+                <div style="font-weight: 800; color: var(--text-main);">财务精算 Agent</div>
+                <div style="font-size: 12px; color: var(--text-sub);">辅助测算 LTV / CAC</div>
+            </div>
+            <div class="agent-card">
+                <i class="fas fa-file-alt" style="font-size: 24px; color: var(--primary-blue); margin-bottom: 8px;"></i>
+                <div style="font-weight: 800; color: var(--text-main);">BP 撰写 Agent</div>
+                <div style="font-size: 12px; color: var(--text-sub);">辅助生成商业计划书框架</div>
+            </div>
+            <div class="agent-card">
+                <i class="fas fa-microphone-alt" style="font-size: 24px; color: var(--accent-rose); margin-bottom: 8px;"></i>
+                <div style="font-weight: 800; color: var(--text-main);">模拟路演 Agent</div>
+                <div style="font-size: 12px; color: var(--text-sub);">模拟评委提问训练</div>
+            </div>
+        </div>
+        <div class="chat-widget-box">
+            <div class="chat-history" id="demo-chat-history">
+                <div class="msg-bubble msg-ai">
+                    你好！我是 AI 双创导师智能体。请输入你的创业创意（例如："我想做高校二手教材循环利用平台"），我将为你拆解痛点与商业模式。
+                </div>
+            </div>
+            <div class="chat-input-row">
+                <input type="text" id="demo-chat-input" class="chat-input-field" placeholder="输入你的创业想法..." onkeypress="if(event.key==='Enter') sendDemoMsg()">
+                <button class="btn btn-primary btn-sm" onclick="sendDemoMsg()">发送</button>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- SECTION 7: 学情看板 -->
+<section class="section-wrapper">
+    <div class="section-inner">
+        <div class="section-header">
+            <div class="section-tag"><i class="fas fa-chart-line"></i> 学情分析</div>
+            <h2 class="section-title">多维度学情看板与能力达成度预警</h2>
+            <p class="section-desc">实时监控全班与个人 CLO 指标达成度，红线预警指导精准补教补学。</p>
+        </div>
+        <div class="analytics-grid">
+            <div class="card">
+                <h3 style="font-size: 16px; color: var(--text-main); margin: 0 0 16px 0;"><i class="fas fa-user-graduate" style="color: var(--primary-blue);"></i> 个人 CLO 达成度能力诊断</h3>
+                <div style="margin-bottom: 14px;">
+                    <div style="display:flex; justify-content:space-between; font-size:13px; margin-bottom:4px;">
+                        <span>CLO 1 痛点识别与需求验证</span>
+                        <span style="color: var(--green-text); font-weight:800;">0.88 (已达成)</span>
+                    </div>
+                    <div class="progress-bar"><div class="progress-bar-fill green" style="width: 88%;"></div></div>
+                </div>
+                <div style="margin-bottom: 14px;">
+                    <div style="display:flex; justify-content:space-between; font-size:13px; margin-bottom:4px;">
+                        <span>CLO 2 商机识别与环境研判</span>
+                        <span style="color: var(--amber-text); font-weight:800;">0.68 (接近红线)</span>
+                    </div>
+                    <div class="progress-bar"><div class="progress-bar-fill amber" style="width: 68%;"></div></div>
+                </div>
+                <div style="margin-bottom: 14px;">
+                    <div style="display:flex; justify-content:space-between; font-size:13px; margin-bottom:4px;">
+                        <span>CLO 3 精益商业模式设计</span>
+                        <span style="color: var(--green-text); font-weight:800;">0.82 (已达成)</span>
+                    </div>
+                    <div class="progress-bar"><div class="progress-bar-fill green" style="width: 82%;"></div></div>
+                </div>
+                <div>
+                    <div style="display:flex; justify-content:space-between; font-size:13px; margin-bottom:4px;">
+                        <span>CLO 4 MVP 敏捷原型搭建</span>
+                        <span style="color: var(--primary-blue); font-weight:800;">0.75 (已达成)</span>
+                    </div>
+                    <div class="progress-bar"><div class="progress-bar-fill" style="width: 75%;"></div></div>
+                </div>
+            </div>
+            <div class="card">
+                <h3 style="font-size: 16px; color: var(--text-main); margin: 0 0 16px 0;"><i class="fas fa-chalkboard-teacher" style="color: var(--accent-emerald);"></i> 班级宏观达成度与薄弱预警</h3>
+                <div style="font-size: 14px; color: var(--text-muted); line-height: 1.7;">
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <span>全班在 <strong>Task 04 单元经济模型测算</strong> 平均得分较低 (0.64)，低于 0.70 OBE 达标红线。</span>
+                    </div>
+                    <div class="alert alert-info">
+                        <i class="fas fa-lightbulb"></i>
+                        <span><strong>改进策略建议：</strong>建议下周课堂增加 1 学时的"精益财务 EXCEL 模版现场演练"，并开放 AI 财务 Agent 辅导。</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- SECTION 8: 三方评价 -->
+<section class="section-wrapper">
+    <div class="section-inner">
+        <div class="section-header">
+            <div class="section-tag"><i class="fas fa-sync-alt"></i> 持续改进机制</div>
+            <h2 class="section-title">三方教学质量持续改进机制</h2>
+            <p class="section-desc">形成"学生自评 - 教师督导 - 企业专家"三方评价闭环，推动教学质量持续提升。</p>
+        </div>
+        <div class="ci-cycle-grid">
+            <div class="card" style="text-align: center;">
+                <i class="fas fa-user-check" style="font-size: 32px; color: var(--primary-blue); margin-bottom: 12px;"></i>
+                <h3 style="font-size: 16px; color: var(--text-main); margin: 0 0 8px 0;">学生自评与互评 (20%)</h3>
+                <p style="font-size: 13px; color: var(--text-muted); margin: 0;">评价团队协作度与 PBL 任务完成质量</p>
+            </div>
+            <div class="card" style="text-align: center;">
+                <i class="fas fa-chalkboard-teacher" style="font-size: 32px; color: var(--accent-emerald); margin-bottom: 12px;"></i>
+                <h3 style="font-size: 16px; color: var(--text-main); margin: 0 0 8px 0;">教师与督导评价 (50%)</h3>
+                <p style="font-size: 13px; color: var(--text-muted); margin: 0;">按规范 Rubrics 标准评定知识点掌握</p>
+            </div>
+            <div class="card" style="text-align: center;">
+                <i class="fas fa-building" style="font-size: 32px; color: var(--accent-amber); margin-bottom: 12px;"></i>
+                <h3 style="font-size: 16px; color: var(--text-main); margin: 0 0 8px 0;">企业与专家盲审 (30%)</h3>
+                <p style="font-size: 13px; color: var(--text-muted); margin: 0;">从产业可行性与投资逻辑角度点评</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- SECTION 9: 教学资源 -->
+<section class="section-wrapper">
+    <div class="section-inner">
+        <div class="section-header">
+            <div class="section-tag"><i class="fas fa-download"></i> 资源中心</div>
+            <h2 class="section-title">教学资源与标准模版下载中心</h2>
+            <p class="section-desc">提供教学大纲、BMC 画布模版、精算 Excel 表与商业计划书框架下载。</p>
+        </div>
+        <div class="resources-grid">
+            <div class="res-download-card">
+                <div>
+                    <i class="fas fa-file-pdf" style="font-size: 28px; color: var(--accent-rose); margin-bottom: 10px;"></i>
+                    <h4 style="font-size: 15px; color: var(--text-main); margin: 0 0 6px 0;">OBE 课程教学大纲</h4>
+                    <p style="font-size: 12px; color: var(--text-sub); margin: 0;">包含 18 学时大纲与 6 大 CLO 对齐矩阵</p>
+                </div>
+                <a href="map.html" class="btn btn-outline btn-sm" style="margin-top: 14px;">查看大纲</a>
+            </div>
+            <div class="res-download-card">
+                <div>
+                    <i class="fas fa-file-excel" style="font-size: 28px; color: var(--accent-emerald); margin-bottom: 10px;"></i>
+                    <h4 style="font-size: 15px; color: var(--text-main); margin: 0 0 6px 0;">精益创业精算预测 Excel</h4>
+                    <p style="font-size: 12px; color: var(--text-sub); margin: 0;">内置 LTV/CAC 与单体经济自动测算公式</p>
+                </div>
+                <a href="resources.html" class="btn btn-outline btn-sm" style="margin-top: 14px;">下载模版</a>
+            </div>
+            <div class="res-download-card">
+                <div>
+                    <i class="fas fa-file-word" style="font-size: 28px; color: var(--primary-blue); margin-bottom: 10px;"></i>
+                    <h4 style="font-size: 15px; color: var(--text-main); margin: 0 0 6px 0;">商业计划书标准框架</h4>
+                    <p style="font-size: 12px; color: var(--text-sub); margin: 0;">符合竞赛评审标准参考框架</p>
+                </div>
+                <a href="resources.html" class="btn btn-outline btn-sm" style="margin-top: 14px;">下载框架</a>
+            </div>
+            <div class="res-download-card">
+                <div>
+                    <i class="fas fa-layer-group" style="font-size: 28px; color: var(--accent-cyan); margin-bottom: 10px;"></i>
+                    <h4 style="font-size: 15px; color: var(--text-main); margin: 0 0 6px 0;">BMC 画布矢量模版</h4>
+                    <p style="font-size: 12px; color: var(--text-sub); margin: 0;">支持 SVG / PPT 直接嵌入与编辑</p>
+                </div>
+                <a href="resources.html" class="btn btn-outline btn-sm" style="margin-top: 14px;">下载模版</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 页脚 -->
+<footer style="background:var(--bg-card); border-top:1px solid var(--border-color); padding:48px 0 32px 0; margin-top:auto;">
+    <div style="max-width:1360px; margin:0 auto; padding:0 24px; display:grid; grid-template-columns:1.5fr 1fr 1fr 1.2fr; gap:36px;">
+        <div>
+            <div style="font-size:16px; font-weight:800; color:var(--text-main); margin-bottom:12px; display:flex; align-items:center; gap:8px;">
+                <i class="fas fa-graduation-cap" style="color:var(--primary-blue);"></i>
+                《大学生创新创业基础》智能体平台
+            </div>
+            <div style="font-size:13px; color:var(--text-sub); line-height:1.6; margin-bottom:16px;">
+                基于成果导向教育 (OBE) 理念设计，通过知识节点拓扑、PBL 表现性评价任务与 AI 专项导师，打造高校双创"学-练-评-改"闭环。
+            </div>
+            <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                <span style="display:inline-flex; align-items:center; gap:6px; padding:4px 10px; background:var(--green-bg); border:1px solid var(--green-border); border-radius:6px; font-size:12px; color:var(--green-text); font-weight:600;">
+                    <i class="fas fa-check-circle"></i> OBE 成果达成闭环认证
+                </span>
+                <span style="display:inline-flex; align-items:center; gap:6px; padding:4px 10px; background:var(--blue-bg); border:1px solid var(--blue-border); border-radius:6px; font-size:12px; color:var(--blue-text); font-weight:600;">
+                    <i class="fas fa-book"></i> 教学标准对齐
+                </span>
+            </div>
+        </div>
+
+        <div>
+            <div style="font-size:14px; font-weight:800; color:var(--text-main); margin-bottom:16px;">课程核心体系</div>
+            <ul style="list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:10px; font-size:13px;">
+                <li><a href="index.html" style="color:var(--text-muted); text-decoration:none;"><i class="fas fa-angle-right" style="color:var(--primary-blue);"></i> 课程目标 (CLOs) 矩阵</a></li>
+                <li><a href="knowledge_graph.html" style="color:var(--text-muted); text-decoration:none;"><i class="fas fa-angle-right" style="color:var(--primary-blue);"></i> 理论知识图谱</a></li>
+                <li><a href="graph.html" style="color:var(--text-muted); text-decoration:none;"><i class="fas fa-angle-right" style="color:var(--primary-blue);"></i> 实战能力图谱</a></li>
+                <li><a href="map.html" style="color:var(--text-muted); text-decoration:none;"><i class="fas fa-angle-right" style="color:var(--primary-blue);"></i> 课程大纲地图</a></li>
+                <li><a href="activities.html" style="color:var(--text-muted); text-decoration:none;"><i class="fas fa-angle-right" style="color:var(--primary-blue);"></i> PBL 实战任务流</a></li>
+            </ul>
+        </div>
+
+        <div>
+            <div style="font-size:14px; font-weight:800; color:var(--text-main); margin-bottom:16px;">教学资源与评估</div>
+            <ul style="list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:10px; font-size:13px;">
+                <li><a href="yunnan_qujing_startup.html" style="color:var(--text-muted); text-decoration:none;"><i class="fas fa-angle-right" style="color:var(--primary-blue);"></i> 留滇留曲创业专区</a></li>
+                <li><a href="chat.html" style="color:var(--text-muted); text-decoration:none;"><i class="fas fa-angle-right" style="color:var(--primary-blue);"></i> AI 导师智能体</a></li>
+                <li><a href="admin.html" style="color:var(--text-muted); text-decoration:none;"><i class="fas fa-angle-right" style="color:var(--primary-blue);"></i> 学情与达成度看板</a></li>
+                <li><a href="resources.html" style="color:var(--text-muted); text-decoration:none;"><i class="fas fa-angle-right" style="color:var(--primary-blue);"></i> 教学模版与资源下载</a></li>
+                <li><a href="glossary.html" style="color:var(--text-muted); text-decoration:none;"><i class="fas fa-angle-right" style="color:var(--primary-blue);"></i> 双创与 AI 权威词典</a></li>
+                <li><a href="exam.html" style="color:var(--text-muted); text-decoration:none;"><i class="fas fa-angle-right" style="color:var(--primary-blue);"></i> 综合自测与 Rubrics 评分</a></li>
+            </ul>
+        </div>
+
+        <div>
+            <div style="font-size:14px; font-weight:800; color:var(--text-main); margin-bottom:16px;">实时学情与系统数据</div>
+            <div style="background:var(--bg-subtle); border:1px solid var(--border-color); border-radius:10px; padding:14px; font-size:12.5px; line-height:1.8; color:var(--text-sub);">
+                <div><span>知识节点拓扑：</span> <strong style="color:var(--primary-blue);">持续更新</strong></div>
+                <div><span>能力指标映射：</span> <strong style="color:var(--accent-emerald);">36 项</strong></div>
+                <div><span>对齐 PBL 任务：</span> <strong style="color:var(--accent-amber);">18 项</strong></div>
+                <div><span>系统计算模式：</span> <strong style="color:var(--text-main);">本地离线隐私保护</strong></div>
+            </div>
+        </div>
+    </div>
+
+    <div style="max-width:1360px; margin:36px auto 0 auto; padding:20px 24px 0 24px; border-top:1px solid var(--border-color); display:flex; align-items:center; justify-content:space-between; font-size:12.5px; color:var(--text-sub); flex-wrap:wrap; gap:12px;">
+        <div>Copyright (C) 2026 《大学生创新创业基础》课程智能体平台. All Rights Reserved.</div>
+        <div style="display:flex; align-items:center; gap:16px;">
+            <span style="display:inline-flex; align-items:center; gap:6px; color:var(--accent-emerald); font-weight:600;">
+                <span style="width:8px; height:8px; background:var(--accent-emerald); border-radius:50%;"></span>
+                Antigravity Engine 运行正常
+            </span>
+            <a href="index.html" style="color:var(--text-sub); text-decoration:none;">首页</a>
+            <a href="help.html" style="color:var(--text-sub); text-decoration:none;">使用说明</a>
+            <a href="admin.html" style="color:var(--text-sub); text-decoration:none;">教师入口</a>
+        </div>
+    </div>
+</footer>
+
+<!-- Case Modal -->
+<div id="caseModal" class="modal-overlay" onclick="if(event.target===this) closeCaseModal()">
+    <div class="modal-box" style="position: relative;">
+        <button class="modal-close" onclick="closeCaseModal()" aria-label="关闭">&times;</button>
+        <h3 id="modalTitle" class="modal-title"></h3>
+        <div id="modalBody" style="font-size: 14px; color: var(--text-muted); line-height: 1.7; margin-bottom: 16px;"></div>
+    </div>
+</div>
+
+<!-- Rubric Modal -->
+<div id="rubricModal" class="modal-overlay" onclick="if(event.target===this) closeRubricModal()">
+    <div class="modal-box" style="position: relative;">
+        <button class="modal-close" onclick="closeRubricModal()" aria-label="关闭">&times;</button>
+        <h3 id="rubricTitle" class="modal-title"><i class="fas fa-clipboard-check" style="color: var(--primary-blue);"></i> <span id="rubricTitleText"></span></h3>
+        <div id="rubricBody" style="font-size: 14px; color: var(--text-muted); line-height: 1.8; margin-bottom: 16px;"></div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    // 英雄区雷达图
+    const radarDom = document.getElementById('hero-radar-chart');
+    if (radarDom && typeof echarts !== 'undefined') {
+        const myRadar = echarts.init(radarDom);
+        myRadar.setOption({
+            backgroundColor: 'transparent',
+            tooltip: { trigger: 'item' },
+            legend: {
+                data: ['全班平均达成度', 'OBE 达标红线 (0.70)'],
+                bottom: 0, textStyle: { color: '#475569', fontSize: 11 }
+            },
+            radar: {
+                indicator: [
+                    { name: 'CLO1 痛点挖掘', max: 100 },
+                    { name: 'CLO2 商机识别', max: 100 },
+                    { name: 'CLO3 商业模式', max: 100 },
+                    { name: 'CLO4 MVP敏捷', max: 100 },
+                    { name: 'CLO5 团队治理', max: 100 },
+                    { name: 'CLO6 BP答辩', max: 100 }
+                ],
+                shape: 'circle',
+                splitNumber: 4,
+                axisName: { color: '#475569', fontSize: 11 },
+                splitLine: { lineStyle: { color: '#E2E8F0' } },
+                splitArea: { areaStyle: { color: ['rgba(37,99,235,0.03)', 'rgba(37,99,235,0.06)'] } },
+                axisLine: { lineStyle: { color: '#CBD5E1' } }
+            },
+            series: [{
+                name: '达成度分析',
+                type: 'radar',
+                data: [
+                    { value: [88, 72, 82, 75, 80, 78], name: '全班平均达成度',
+                      itemStyle: { color: '#2563EB' },
+                      areaStyle: { color: 'rgba(37, 99, 235, 0.15)' } },
+                    { value: [70, 70, 70, 70, 70, 70], name: 'OBE 达标红线 (0.70)',
+                      itemStyle: { color: '#DC2626' },
+                      lineStyle: { type: 'dashed', width: 2 } }
+                ]
+            }]
+        });
+        window.addEventListener('resize', () => myRadar.resize());
+    }
+
+    // 能力矩阵雷达图
+    const matrixRadarDom = document.getElementById('matrix-radar-chart');
+    if (matrixRadarDom && typeof echarts !== 'undefined') {
+        const matrixRadar = echarts.init(matrixRadarDom);
+        matrixRadar.setOption({
+            backgroundColor: 'transparent',
+            tooltip: { trigger: 'item' },
+            legend: {
+                data: ['优秀基准分值', '学生能力达成均值'],
+                bottom: 0,
+                textStyle: { color: '#475569', fontSize: 11 }
+            },
+            radar: {
+                indicator: [
+                    { name: '痛点挖掘 (CLO1)', max: 100 },
+                    { name: '商机识别 (CLO2)', max: 100 },
+                    { name: '商业模式 (CLO3)', max: 100 },
+                    { name: 'MVP敏捷 (CLO4)', max: 100 },
+                    { name: '团队治理 (CLO5)', max: 100 },
+                    { name: 'BP答辩 (CLO6)', max: 100 }
+                ],
+                shape: 'polygon',
+                splitNumber: 4,
+                axisName: { color: '#1E293B', fontWeight: 600, fontSize: 11 },
+                splitLine: { lineStyle: { color: '#CBD5E1' } },
+                splitArea: { areaStyle: { color: ['rgba(241,245,249,0.5)', 'rgba(255,255,255,0.8)'] } },
+                axisLine: { lineStyle: { color: '#94A3B8' } }
+            },
+            series: [{
+                name: '能力维度数据',
+                type: 'radar',
+                data: [
+                    {
+                        value: [90, 88, 92, 85, 90, 95],
+                        name: '优秀基准分值',
+                        itemStyle: { color: '#D97706' },
+                        lineStyle: { width: 2, type: 'dashed' },
+                        areaStyle: { color: 'rgba(217, 119, 6, 0.1)' }
+                    },
+                    {
+                        value: [84, 78, 86, 76, 82, 80],
+                        name: '学生能力达成均值',
+                        itemStyle: { color: '#2563EB' },
+                        lineStyle: { width: 2.5 },
+                        areaStyle: { color: 'rgba(37, 99, 235, 0.25)' }
+                    }
+                ]
+            }]
+        });
+        window.addEventListener('resize', () => matrixRadar.resize());
+    }
+
+    // 知识图谱预览
+    const graphDom = document.getElementById('index-knowledge-graph');
+    if (graphDom && typeof echarts !== 'undefined') {
+        const myGraph = echarts.init(graphDom);
+        myGraph.setOption({
+            backgroundColor: 'transparent',
+            tooltip: { formatter: '{b}' },
+            animationDuration: 1000,
+            series: [{
+                type: 'graph',
+                layout: 'force',
+                data: [
+                    { name: '双创导论 (CLO1)', symbolSize: 45, category: 0, itemStyle: { color: '#2563EB' } },
+                    { name: '痛点挖掘 (JTBD)', symbolSize: 35, category: 0, itemStyle: { color: '#0891B2' } },
+                    { name: '商机识别 (CLO2)', symbolSize: 40, category: 1, itemStyle: { color: '#059669' } },
+                    { name: '环境研判 (PEST)', symbolSize: 35, category: 1, itemStyle: { color: '#0891B2' } },
+                    { name: 'BMC 画布 (CLO3)', symbolSize: 40, category: 2, itemStyle: { color: '#2563EB' } },
+                    { name: '用户画像', symbolSize: 30, category: 2, itemStyle: { color: '#7C3AED' } },
+                    { name: 'MVP 构建 (CLO4)', symbolSize: 40, category: 3, itemStyle: { color: '#059669' } },
+                    { name: '股权分配协议', symbolSize: 35, category: 4, itemStyle: { color: '#D97706' } },
+                    { name: '融资谈判 (CLO5)', symbolSize: 38, category: 4, itemStyle: { color: '#D97706' } },
+                    { name: 'BP 撰写与路演 (CLO6)', symbolSize: 42, category: 5, itemStyle: { color: '#2563EB' } }
+                ],
+                links: [
+                    { source: '双创导论 (CLO1)', target: '痛点挖掘 (JTBD)' },
+                    { source: '痛点挖掘 (JTBD)', target: '商机识别 (CLO2)' },
+                    { source: '商机识别 (CLO2)', target: '环境研判 (PEST)' },
+                    { source: '商机识别 (CLO2)', target: 'BMC 画布 (CLO3)' },
+                    { source: 'BMC 画布 (CLO3)', target: '用户画像' },
+                    { source: 'BMC 画布 (CLO3)', target: 'MVP 构建 (CLO4)' },
+                    { source: 'MVP 构建 (CLO4)', target: '股权分配协议' },
+                    { source: '股权分配协议', target: '融资谈判 (CLO5)' },
+                    { source: 'MVP 构建 (CLO4)', target: 'BP 撰写与路演 (CLO6)' },
+                    { source: '融资谈判 (CLO5)', target: 'BP 撰写与路演 (CLO6)' }
+                ],
+                roam: true,
+                label: { show: true, position: 'right', color: '#475569', fontSize: 12 },
+                lineStyle: { color: '#CBD5E1', width: 1.5, curveness: 0.1 },
+                force: { repulsion: 250, edgeLength: 100, gravity: 0.1 }
+            }]
+        });
+        window.myGraphInstance = myGraph;
+        window.addEventListener('resize', () => myGraph.resize());
+    }
+});
+
+function zoomGraph(factor) {
+    if (window.myGraphInstance) { window.myGraphInstance.resize(); }
+}
+function resetGraph() {
+    if (window.myGraphInstance) { window.myGraphInstance.dispatchAction({ type: 'restore' }); }
+}
+
+const caseData = {
+    case1: { title: "智农芯云：AI 农产品供应链匹配 (教学拆解)", content: "<strong>【支撑 CLO】</strong>：CLO 2 (商机识别) & CLO 4 (MVP敏捷)<br><br><strong>【痛点与 MVP】</strong>：农产品损耗较高，团队搭出小程序并完成农户与超市试运行，验证匹配效率提升。<br><br><strong>【踩坑与反思】</strong>：初期主观设想农户会主动上传数据，后调整为通过微信语音由 AI 自动解析表单。" },
+    case2: { title: "医路同行：脑机接口康复机器人 (教学拆解)", content: "<strong>【支撑 CLO】</strong>：CLO 1 (需求挖掘) & CLO 4 (MVP敏捷)<br><br><strong>【痛点与 MVP】</strong>：康复师匮乏，利用开源脑电模块构建原型，在康复中心收集患者主动训练反馈。<br><br><strong>【教学对齐点】</strong>：深入理解医疗硬件合规风险与患者访谈量规。" },
+    case3: { title: "绿能未来：零碳高分子新材料 (教学拆解)", content: "<strong>【支撑 CLO】</strong>：CLO 3 (商业模式) & CLO 5 (团队治理)<br><br><strong>【痛点与 MVP】</strong>：石油基塑料不降解，完成小试并签订快递大厂试用协议。<br><br><strong>【教学对齐点】</strong>：完成 BMC 商业模式画布与动态股权绑定。" },
+    case4: { title: "文创智绘：工业级 3D 视觉无损检测 (教学拆解)", content: "<strong>【支撑 CLO】</strong>：CLO 5 (团队治理) & CLO 6 (路演答辩)<br><br><strong>【痛点与 MVP】</strong>：人工检测效率低，部署 3D 传感器试运行，检出率高。<br><br><strong>【教学对齐点】</strong>：Pitch Deck 路演表达与评委提问防御。" }
+};
+
+function openCaseModal(id) {
+    const item = caseData[id];
+    if (item) {
+        document.getElementById('modalTitle').innerHTML = '<i class="fas fa-search-plus" style="color: var(--primary-blue);"></i> ' + item.title;
+        document.getElementById('modalBody').innerHTML = item.content;
+        document.getElementById('caseModal').classList.add('open');
+    }
+}
+function closeCaseModal() { document.getElementById('caseModal').classList.remove('open'); }
+
+function openRubricModal(title, text) {
+    document.getElementById('rubricTitleText').innerText = title;
+    document.getElementById('rubricBody').innerHTML = text;
+    document.getElementById('rubricModal').classList.add('open');
+}
+function closeRubricModal() { document.getElementById('rubricModal').classList.remove('open'); }
+
+function sendDemoMsg() {
+    const input = document.getElementById('demo-chat-input');
+    const history = document.getElementById('demo-chat-history');
+    const txt = input.value.trim();
+    if (!txt) return;
+    const safeTxt = (window.escapeHTML || (s=>s))(txt);
+    const uDiv = document.createElement('div');
+    uDiv.className = 'msg-bubble msg-user';
+    uDiv.innerText = txt;
+    history.appendChild(uDiv);
+    input.value = '';
+    setTimeout(() => {
+        const aiDiv = document.createElement('div');
+        aiDiv.className = 'msg-bubble msg-ai';
+        aiDiv.innerHTML = '<strong>AI 导师分析：</strong><br>针对你提出的项目想法："' + safeTxt + '"，系统为你生成以下 OBE 拆解建议：<br>1. <strong>痛点验证 (CLO1)</strong>：建议先对目标受众进行访谈；<br>2. <strong>MVP 原型 (CLO4)</strong>：推荐使用零代码工具搭建测试落地页。<br>你可以前往 <a href="yunnan_qujing_startup.html" style="color:var(--primary-blue);"><i class="fas fa-mountain"></i> 留滇留曲</a> 或 <a href="chat.html" style="color:var(--primary-blue);">AI导师专属页面</a> 深入探讨。';
+        history.appendChild(aiDiv);
+        history.scrollTop = history.scrollHeight;
+    }, 600);
+}
+</script>
+</body>
+</html>

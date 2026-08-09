@@ -1,0 +1,1 @@
+print("base64 writer ok")

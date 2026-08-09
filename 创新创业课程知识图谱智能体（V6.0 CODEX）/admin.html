@@ -1,0 +1,966 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>教师管理后台 - 《大学生创新创业基础》</title>
+    <script src="js/all.min.js" defer></script>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        /* ── 整体布局 ── */
+        main {
+            overflow-y: auto !important;
+            height: calc(100vh - 70px) !important;
+            padding-bottom: 60px;
+        }
+        .admin-page { max-width: 1100px; margin: 0 auto; padding: 28px 20px; }
+
+        /* ── 密码锁屏层 (Mesh Gradient + Glassmorphism) ── */
+        #lock-screen {
+            position: fixed; inset: 0; z-index: 9999;
+            background: radial-gradient(circle at 50% 30%, rgba(0, 242, 254, 0.15), transparent 50%),
+                        radial-gradient(circle at 80% 80%, rgba(139, 92, 246, 0.18), transparent 40%),
+                        linear-gradient(135deg, #060b19 0%, #02040a 100%);
+            display: flex; align-items: center; justify-content: center;
+            flex-direction: column; gap: 24px;
+        }
+        .lock-box {
+            background: rgba(13, 22, 48, 0.88);
+            border: 1.5px solid rgba(0, 242, 254, 0.45);
+            border-radius: 28px;
+            padding: 44px 48px;
+            text-align: center;
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            box-shadow: 0 35px 90px rgba(0, 0, 0, 0.85), 0 0 40px rgba(0, 242, 254, 0.2);
+            width: 420px;
+            max-width: 92vw;
+            transition: all 0.25s ease;
+        }
+        .lock-box.shake-error {
+            animation: shakeError 0.4s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+            border-color: #ef4444 !important;
+            box-shadow: 0 0 40px rgba(239, 68, 68, 0.4) !important;
+        }
+        @keyframes shakeError {
+            10%, 90% { transform: translate3d(-2px, 0, 0); }
+            20%, 80% { transform: translate3d(4px, 0, 0); }
+            30%, 50%, 70% { transform: translate3d(-6px, 0, 0); }
+            40%, 60% { transform: translate3d(6px, 0, 0); }
+        }
+        .lock-icon-badge {
+            width: 68px; height: 68px; border-radius: 50%;
+            background: rgba(0, 242, 254, 0.12);
+            border: 1.5px solid rgba(0, 242, 254, 0.35);
+            color: #00f2fe; font-size: 30px;
+            display: inline-flex; align-items: center; justify-content: center;
+            margin-bottom: 16px;
+            box-shadow: 0 0 25px rgba(0, 242, 254, 0.3);
+        }
+        .lock-box h2 { color: #ffffff; font-size: 23px; font-weight: 900; margin: 0 0 8px; letter-spacing: 0.5px; }
+        .lock-box p  { color: #94a3b8; font-size: 13.5px; margin: 0 0 24px; line-height: 1.6; }
+        .lock-input {
+            width: 100%; padding: 13px 18px; border-radius: 14px;
+            border: 1.5px solid rgba(0, 242, 254, 0.3);
+            background: rgba(255, 255, 255, 0.04);
+            color: #ffffff; font-size: 16px; letter-spacing: 0.1em;
+            outline: none; box-sizing: border-box; margin-bottom: 16px;
+            text-align: center;
+            font-family: 'JetBrains Mono', 'Courier New', monospace;
+            transition: all 0.25s ease;
+        }
+        .lock-input:focus {
+            border-color: #00f2fe;
+            background: rgba(0, 242, 254, 0.06);
+            box-shadow: 0 0 0 3px rgba(0, 242, 254, 0.2), 0 0 20px rgba(0, 242, 254, 0.15);
+        }
+        .lock-btn {
+            width: 100%; padding: 14px; border-radius: 14px; border: none;
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: #050b18; font-size: 15.5px; font-weight: 900; cursor: pointer;
+            transition: all 0.2s ease; box-shadow: 0 8px 25px rgba(0, 242, 254, 0.35);
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+        }
+        .lock-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 32px rgba(0, 242, 254, 0.5);
+        }
+        .lock-btn:active {
+            transform: scale(0.97);
+        }
+        .lock-tip-bubble {
+            background: rgba(0, 242, 254, 0.08);
+            border: 1px dashed rgba(0, 242, 254, 0.3);
+            border-radius: 12px;
+            padding: 10px 14px;
+            font-size: 12px; color: #cbd5e1; margin-top: 18px; line-height: 1.5;
+            text-align: left;
+        }
+        .lock-demo-btn {
+            margin-top: 14px;
+            background: rgba(245, 158, 11, 0.15);
+            border: 1px solid rgba(245, 158, 11, 0.4);
+            color: #fbbf24;
+            padding: 8px 18px;
+            border-radius: 20px;
+            font-size: 12.5px; font-weight: 800;
+            cursor: pointer; transition: all 0.2s;
+            display: inline-flex; align-items: center; gap: 6px;
+        }
+        .lock-demo-btn:hover {
+            background: rgba(245, 158, 11, 0.25);
+            transform: translateY(-1.5px);
+            box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3);
+        }
+        #lock-error { color: #ef4444; font-size: 13px; font-weight: 700; margin-top: 8px; height: 18px; }
+
+
+        /* ── Tab 导航 ── */
+        .admin-tabs {
+            display: flex; gap: 6px; margin-bottom: 22px;
+            border-bottom: 1px solid var(--glass-border); padding-bottom: 0;
+        }
+        .admin-tab {
+            padding: 10px 20px; border-radius: 10px 10px 0 0;
+            font-size: 13.5px; font-weight: 700; cursor: pointer; border: none;
+            background: transparent; color: var(--text-muted);
+            transition: all 0.2s; border-bottom: 2px solid transparent;
+        }
+        .admin-tab.active {
+            color: var(--cyan); border-bottom: 2px solid var(--cyan);
+            background: rgba(0,194,224,0.06);
+        }
+        .admin-tab i { margin-right: 6px; }
+        .tab-pane { display: none; }
+        .tab-pane.active { display: block; }
+
+        /* ── 卡片 ── */
+        .card {
+            background: rgba(13,27,60,0.5);
+            border: 1.5px solid var(--glass-border);
+            border-radius: 18px; padding: 24px; margin-bottom: 20px;
+            backdrop-filter: blur(20px);
+        }
+        body.day-mode .card, body.dark-mode .card {
+            background: #ffffff !important; border-color: rgba(2,132,199,0.2) !important;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.04) !important;
+        }
+        .card-title {
+            font-size: 16px; font-weight: 800; color: var(--text-main);
+            margin-bottom: 14px; display: flex; align-items: center; gap: 8px;
+        }
+        .card-title i { color: var(--cyan); }
+
+        /* ── 花名册表格 ── */
+        .roster-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        .roster-table th {
+            background: rgba(0,194,224,0.1); color: var(--cyan);
+            padding: 9px 12px; text-align: left; font-weight: 700;
+            border-bottom: 1px solid var(--glass-border);
+        }
+        body.day-mode .roster-table th, body.dark-mode .roster-table th {
+            background: rgba(2,132,199,0.08) !important; color: #0284c7 !important;
+        }
+        .roster-table td {
+            padding: 8px 12px; border-bottom: 1px solid rgba(255,255,255,0.05);
+            color: var(--text-sub);
+        }
+        body.day-mode .roster-table td, body.dark-mode .roster-table td {
+            border-bottom-color: #e2e8f0 !important; color: #334155 !important;
+        }
+        .roster-table tr:hover td { background: rgba(0,194,224,0.04); }
+
+        /* ── 统计数字 ── */
+        .summary-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 14px; margin-bottom: 20px;
+        }
+        .summary-num {
+            padding: 16px; border-radius: 14px; text-align: center;
+            border: 1.5px solid var(--glass-border); background: rgba(255,255,255,0.04);
+        }
+        body.day-mode .summary-num, body.dark-mode .summary-num {
+            background: #fff !important; border-color: rgba(2,132,199,0.18) !important;
+        }
+        .summary-num .val {
+            font-size: 34px; font-weight: 900;
+            font-family: 'JetBrains Mono', monospace; line-height: 1;
+        }
+        .summary-num .lbl { font-size: 12px; color: var(--text-muted); margin-top: 5px; }
+
+        /* ── 表单 ── */
+        .form-input {
+            width: 100%; padding: 10px 14px; border-radius: 10px;
+            border: 1.5px solid var(--glass-border); background: rgba(255,255,255,0.06);
+            color: var(--text-main); font-size: 14px; outline: none;
+            box-sizing: border-box; transition: border-color 0.2s;
+            font-family: 'Inter', 'Noto Sans SC', sans-serif;
+        }
+        body.day-mode .form-input, body.dark-mode .form-input {
+            background: #f8fafc !important; border-color: rgba(2,132,199,0.25) !important;
+            color: #0f172a !important;
+        }
+        .form-input:focus { border-color: var(--cyan) !important; box-shadow: 0 0 0 3px rgba(0,194,224,0.12); }
+        textarea.form-input { min-height: 180px; resize: vertical; line-height: 1.5; font-size: 13px; }
+
+        /* ── 按钮 ── */
+        .btn {
+            padding: 9px 20px; border-radius: 10px; border: none;
+            font-size: 13px; font-weight: 700; cursor: pointer;
+            transition: all 0.2s; display: inline-flex; align-items: center; gap: 7px;
+        }
+        .btn-primary { background: linear-gradient(135deg,#0077b6,#00b4d8); color:#fff; box-shadow:0 4px 14px rgba(0,119,182,0.3); }
+        .btn-success { background: rgba(16,185,129,0.15); color:#10b981; border:1px solid rgba(16,185,129,0.3); }
+        .btn-orange  { background: rgba(245,158,11,0.15); color:#f59e0b; border:1px solid rgba(245,158,11,0.3); }
+        .btn-red     { background: rgba(239,68,68,0.10); color:#ef4444; border:1px solid rgba(239,68,68,0.25); }
+        .btn:hover   { transform: translateY(-1px); filter: brightness(1.08); }
+
+        .btn-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+
+        /* ── 导入提示 ── */
+        .csv-hint {
+            font-size: 12.5px; color: var(--text-muted); line-height: 1.7;
+            background: rgba(0,194,224,0.04); border: 1px dashed rgba(0,194,224,0.2);
+            border-radius: 10px; padding: 12px 16px; margin-bottom: 14px;
+        }
+        body.day-mode .csv-hint, body.dark-mode .csv-hint {
+            background: rgba(2,132,199,0.04) !important; border-color: rgba(2,132,199,0.2) !important;
+        }
+        code {
+            background: rgba(0,194,224,0.1); padding: 1px 6px; border-radius: 4px;
+            font-family: 'JetBrains Mono', monospace; font-size: 0.92em; color: var(--cyan);
+        }
+        body.day-mode code, body.dark-mode code { background: rgba(2,132,199,0.08) !important; color: #0284c7 !important; }
+
+        /* ── 成功标签 ── */
+        .tag-ok  { display: inline-block; padding:2px 8px; border-radius:6px; font-size:11px; font-weight:700; background:rgba(16,185,129,0.15); color:#10b981; border:1px solid rgba(16,185,129,0.3); }
+        .tag-warn{ display: inline-block; padding:2px 8px; border-radius:6px; font-size:11px; font-weight:700; background:rgba(245,158,11,0.15); color:#f59e0b; border:1px solid rgba(245,158,11,0.3); }
+
+        /* ── 密码修改区 ── */
+        .pwd-row { display: grid; grid-template-columns: 1fr 1fr auto; gap: 10px; align-items: end; }
+        @media(max-width:600px){ .pwd-row{ grid-template-columns:1fr; } }
+    </style>
+</head>
+<body id="app-root" class="dark-mode" style="background:#090D16; color:#f8fafc;">
+<canvas id="particles-canvas"></canvas>
+
+<!-- ══ Header ══ -->
+<header>
+    <div class="logo-area" style="display:flex; align-items:center; gap:12px;">
+        <img src="images/school_logo.png" alt="Logo" class="school-logo-img">
+        <div class="logo-text-group" style="display:flex; flex-direction:column; justify-content:center; line-height:1.25;">
+            <div class="logo-title" style="font-size:15px; font-weight:800; color:var(--text-primary, #f8fafc); letter-spacing:0.5px; display:flex; align-items:center; gap:4px; flex-wrap:wrap;">
+                <span class="logo-main-name" style="background:linear-gradient(90deg, #38bdf8, #818cf8); -webkit-background-clip:text; -webkit-text-fill-color:transparent; font-weight:800;">《大学生创新创业基础》</span>
+                <span class="logo-sub-name" style="font-size:13px; opacity:0.9; color:var(--text-muted, #94a3b8); font-weight:600;">· 课程知识图谱-课程智能体</span>
+            </div>
+            <div class="logo-slogan-wrap" style="display:flex; align-items:center; gap:8px; margin-top:2px;">
+                <div class="slogan-calligraphy-badge" style="display:inline-flex; align-items:center; height:24px; padding:2px 10px; border-radius:6px; background:linear-gradient(135deg, #ffffff 0%, #f0f9ff 100%); border:1px solid rgba(56,189,248,0.5); box-shadow:0 2px 8px rgba(0,0,0,0.2), 0 0 10px rgba(56,189,248,0.3); vertical-align:middle;">
+                    <img src="images/slogan_calligraphy.png" alt="敢闯会创" style="height:18px; width:auto; display:block; filter:drop-shadow(0 1px 2px rgba(15,23,42,0.3));">
+                </div>
+            </div>
+        <a href="help.html" class="logo-version-badge" title="查看使用说明与开发更新日志" style="text-decoration:none; display:inline-flex; align-items:center; gap:5px; background:rgba(0,194,224,0.12); border:1px solid rgba(0,194,224,0.25); color:var(--cyan, #38bdf8); font-size:11px; padding:3px 8px; border-radius:12px; font-weight:700; transition:all 0.2s;">
+            <span class="version-dot" style="width:6px; height:6px; background:#10b981; border-radius:50%; box-shadow:0 0 5px #10b981;"></span>
+            v6.0 Official
+        </a>
+    </div>
+        <a href="help.html" class="logo-version-badge" title="查看使用说明与开发更新日志" style="text-decoration:none; display:inline-flex; align-items:center; gap:5px; background:rgba(0,194,224,0.12); border:1px solid rgba(0,194,224,0.25); color:var(--cyan, #38bdf8); font-size:11px; padding:3px 8px; border-radius:12px; font-weight:700; transition:all 0.2s;">
+            <span class="version-dot" style="width:6px; height:6px; background:#10b981; border-radius:50%; box-shadow:0 0 5px #10b981;"></span>
+            v6.0 Official
+        </a>
+    </div>
+                        <div style="font-size:11px; color:#cbd5e1;">
+                            支持多模式主题调色盘 (赛博黑金/深海极光/霓虹紫罗兰/极简纯白/蓝图架构/日落霞光) 实时切换。
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+    </div>
+</main>
+
+
+
+
+
+
+<!-- 脚本 -->
+<script src="js/data.js"></script>
+<script src="js/modules/student.js"></script>
+<script src="js/modules/tools.js"></script>
+<script src="js/modules/utils.js"></script>
+<script src="js/app.js"></script>
+<script>
+'use strict';
+
+var adminUnlocked = false;
+
+// ─── 快捷填入初始密码 ───
+function quickFillPwd(pwd) {
+    var input = document.getElementById('lock-pwd');
+    if (input) {
+        input.value = pwd || 'admin2026';
+        input.focus();
+        showAdminMsg('已自动填入初始密码：' + (pwd || 'admin2026'), 'ok');
+    }
+}
+
+// ─── 评委 / 专家一键免密快速试用通道 ───
+function demoQuickLogin() {
+    adminUnlocked = true;
+    var lockScreen = document.getElementById('lock-screen');
+    if (lockScreen) lockScreen.style.display = 'none';
+    showAdminMsg('🔥 评委 / 专家免密通道已开启，高效解锁管理后台！', 'ok');
+    initAdminPage();
+}
+
+// ─── 解锁后台 ───
+function unlockAdmin() {
+    var pwd = document.getElementById('lock-pwd').value;
+    var errEl = document.getElementById('lock-error');
+    var card = document.getElementById('lock-box-card');
+
+    if (!pwd) {
+        errEl.textContent = '请输入密码！';
+        if (card) {
+            card.classList.remove('shake-error');
+            void card.offsetWidth;
+            card.classList.add('shake-error');
+        }
+        return;
+    }
+
+    if (!window.IEKG || !window.IEKG.student) {
+        errEl.textContent = '系统模块加载中，请稍候...'; return;
+    }
+
+    var ok = window.IEKG.student.admin.verify(pwd);
+
+    if (!window.IEKG.student.admin.hasPassword()) {
+        ok = (pwd === 'admin2026');
+        if (ok) {
+            window.IEKG.student.admin.setPassword('admin2026');
+        }
+    }
+
+    if (ok) {
+        adminUnlocked = true;
+        document.getElementById('lock-screen').style.display = 'none';
+        document.getElementById('lock-pwd').value = '';
+        errEl.textContent = '';
+        showAdminMsg('✅ 密码验证通过，欢迎进入教师管理控制台！', 'ok');
+        initAdminPage();
+    } else {
+        errEl.textContent = '❌ 密码错误，请重试！';
+        if (card) {
+            card.classList.remove('shake-error');
+            void card.offsetWidth;
+            card.classList.add('shake-error');
+        }
+        document.getElementById('lock-pwd').value = '';
+        document.getElementById('lock-pwd').focus();
+    }
+}
+
+
+// 回车解锁
+document.addEventListener('DOMContentLoaded', function() {
+    var lockPwd = document.getElementById('lock-pwd');
+    if (lockPwd) {
+        lockPwd.focus();
+        lockPwd.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') unlockAdmin();
+        });
+    }
+
+    // 粒子背景
+    initParticles();
+});
+
+// ─── Tab 切换 ───
+function switchTab(el) {
+    document.querySelectorAll('.admin-tab').forEach(function(t){ t.classList.remove('active'); });
+    document.querySelectorAll('.tab-pane').forEach(function(p){ p.classList.remove('active'); });
+    el.classList.add('active');
+    var targetId = el.getAttribute('data-tab');
+    var targetPane = document.getElementById(targetId);
+    if (targetPane) targetPane.classList.add('active');
+    if (targetId === 'tab-overview') renderOverview();
+    if (targetId === 'tab-groups') renderGroups();
+}
+
+
+// 全局撤销缓冲变量
+var pendingRemovedStudent = null;
+var pendingRemovedTimeout = null;
+
+// ─── 渲染花名册 (带实时搜索、学院筛选与格式校验) ───
+function renderRoster() {
+    var list   = window.IEKG.student.admin.getRoster();
+    var tbody  = document.getElementById('roster-tbody');
+    var badge  = document.getElementById('roster-count-badge');
+    var stBadge = document.getElementById('roster-status-badge');
+    var colSelect = document.getElementById('roster-college-filter');
+
+    if (!tbody || !badge) return;
+
+    badge.textContent = list.length + ' 人';
+
+    // 动态提取学院列表填入下拉框
+    if (colSelect) {
+        var currentSelected = colSelect.value || 'all';
+        var colleges = Array.from(new Set(list.map(function(s){ return s.college; }).filter(Boolean)));
+        colSelect.innerHTML = '<option value="all">全部分学院 (全部)</option>' + colleges.map(function(c){
+            return '<option value="' + c + '" ' + (currentSelected === c ? 'selected' : '') + '>' + c + '</option>';
+        }).join('');
+    }
+
+    if (list.length === 0) {
+        if (stBadge) stBadge.innerHTML = '<span class="tag-ok">开放模式（任意学号可登录）</span>';
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:24px;color:var(--text-muted);">暂无花名册数据，请导入。花名册为空时，任意学号均可登录。</td></tr>';
+        return;
+    }
+
+    if (stBadge) stBadge.innerHTML = '<span class="tag-warn">严格模式（仅名单内学号可登录）</span>';
+
+    // 过滤条件
+    var searchVal = (document.getElementById('roster-search-input')?.value || '').trim().toLowerCase();
+    var collegeVal = colSelect?.value || 'all';
+
+    var filteredList = list.filter(function(s) {
+        var matchSearch = !searchVal || (
+            s.studentId.toLowerCase().includes(searchVal) ||
+            s.name.toLowerCase().includes(searchVal) ||
+            (s.className && s.className.toLowerCase().includes(searchVal)) ||
+            (s.college && s.college.toLowerCase().includes(searchVal))
+        );
+        var matchCollege = (collegeVal === 'all') || (s.college === collegeVal);
+        return matchSearch && matchCollege;
+    });
+
+    if (filteredList.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:20px;color:var(--text-muted);">未找到符合搜索条件的学生条目</td></tr>';
+        return;
+    }
+
+    tbody.innerHTML = filteredList.map(function(s, i) {
+        // 校验学号规范（如是否为 8 位纯数字）
+        var isIdStandard = /^\d{8}$/.test(s.studentId);
+        var idBadge = isIdStandard 
+            ? '<span style="font-family:\'JetBrains Mono\',monospace;font-weight:700;">' + s.studentId + '</span>'
+            : '<span style="font-family:\'JetBrains Mono\',monospace;font-weight:700;color:#f59e0b;" title="建议核对8位规范学号">' + s.studentId + ' <span style="font-size:10px;background:rgba(245,158,11,0.2);padding:1px 4px;border-radius:4px;">⚠️ 异常</span></span>';
+
+        return '<tr>'
+            + '<td style="color:var(--text-muted);">' + (i+1) + '</td>'
+            + '<td>' + idBadge + '</td>'
+            + '<td style="font-weight:700;color:var(--text-main);">' + s.name + '</td>'
+            + '<td>' + (s.className||'--') + '</td>'
+            + '<td>' + (s.college||'--') + '</td>'
+            + '<td><button onclick="removeStudentWithUndo(\'' + s.studentId + '\')" style="background:rgba(239,68,68,0.1);color:#ef4444;border:1px solid rgba(239,68,68,0.25);padding:3px 10px;border-radius:6px;font-size:12px;cursor:pointer;font-weight:700;">移除</button></td>'
+            + '</tr>';
+    }).join('');
+}
+
+// ─── 导入花名册 (带终端实时日志) ───
+function importRoster() {
+    var text = document.getElementById('csv-input').value;
+    if (!text || !text.trim()) { showAdminMsg('请先粘贴或上传 CSV 内容！', 'warn'); return; }
+
+    var cleanText = text.replace(/，/g, ',');
+    var rawLines  = cleanText.trim().split(/\r?\n/).filter(function(l) { return l.trim(); });
+    
+    var list = window.IEKG.student.admin.parseCSV(cleanText);
+    
+    if (list.length === 0) { showAdminMsg('解析失败，请检查 CSV 格式！', 'error'); return; }
+
+    var firstCell = rawLines[0].split(',')[0].replace(/^"|"$/g,'').trim();
+    var hasHeader = isNaN(firstCell) && firstCell.length < 8;
+    var totalParsed = list.length;
+    var skippedHeader = hasHeader ? 1 : 0;
+
+    window.IEKG.student.admin.saveRoster(list);
+    document.getElementById('csv-input').value = '';
+    renderRoster();
+    updateValidationMode();
+
+    // 弹出日志终端弹窗
+    showImportTerminalLog(rawLines.length, totalParsed, skippedHeader);
+}
+
+// 终端日志展示弹窗
+function showImportTerminalLog(totalLines, parsedCount, skippedHeader) {
+    var logHtml = `
+        <div style="position:fixed; inset:0; background:rgba(2,4,10,0.85); backdrop-filter:blur(16px); z-index:9999; display:flex; align-items:center; justify-content:center;">
+            <div style="width:520px; background:#081228; border:1.5px solid #00f2fe; border-radius:18px; padding:24px; color:#fff; box-shadow:0 25px 60px rgba(0,0,0,0.8);">
+                <div style="font-size:16px; font-weight:800; color:#00f2fe; margin-bottom:12px; display:flex; align-items:center; gap:8px;">
+                    <i class="fas fa-terminal"></i> 花名册数据清洗与解析日志终端
+                </div>
+                <div style="background:#020617; border:1px solid rgba(255,255,255,0.1); border-radius:10px; padding:14px; font-family:'JetBrains Mono',monospace; font-size:12.5px; line-height:1.7; color:#34d399; margin-bottom:16px;">
+                    [System Log] 收到文本源数据: ${totalLines} 行<br/>
+                    [Data Clean] 全角逗号转半角修饰: 完毕<br/>
+                    ${skippedHeader ? '[Header Check] 自动跳过第一列表头说明行<br/>' : ''}
+                    [Deduplicate] 学号唯一性验证校验: 完成<br/>
+                    <strong style="color:#00f2fe;">[Status OK] 成功入库 ${parsedCount} 名学生。系统已切换至【严格验证模式】！</strong>
+                </div>
+                <button class="btn btn-primary" onclick="this.closest('div[style*=\"fixed\"]').remove()" style="width:100%; padding:10px;" aria-label="关闭">
+                    完成并关闭日志终端
+                </button>
+            </div>
+        </div>
+    `;
+    var container = document.createElement('div');
+    container.innerHTML = logHtml;
+    document.body.appendChild(container.firstElementChild);
+}
+
+// ─── 带有 5 秒撤销缓冲的单条记录移除 ───
+function removeStudentWithUndo(sid) {
+    var list = window.IEKG.student.admin.getRoster();
+    var target = list.find(function(s){ return s.studentId === sid; });
+    if (!target) return;
+
+    // 先隐藏列表
+    var newList = list.filter(function(s){ return s.studentId !== sid; });
+    window.IEKG.student.admin.saveRoster(newList);
+    renderRoster();
+    updateValidationMode();
+
+    pendingRemovedStudent = target;
+
+    showUndoToast(target.name, sid);
+}
+
+function showUndoToast(name, sid) {
+    var existing = document.getElementById('undo-toast');
+    if (existing) existing.remove();
+
+    var div = document.createElement('div');
+    div.id = 'undo-toast';
+    div.style.cssText = 'position:fixed; bottom:30px; right:30px; background:#0f172a; border:1.5px solid #f59e0b; color:#fff; padding:12px 20px; border-radius:12px; font-size:13.5px; font-weight:700; z-index:9998; display:flex; align-items:center; gap:12px; box-shadow:0 10px 30px rgba(0,0,0,0.6);';
+    div.innerHTML = `
+        <span>已移除学生：<strong>${name}</strong> (${sid})</span>
+        <button onclick="undoRemoveStudent()" style="background:#f59e0b; border:none; color:#0f172a; padding:4px 12px; border-radius:6px; font-weight:900; cursor:pointer;">
+            <i class="fas fa-undo"></i> 撤销 (Undo)
+        </button>
+    `;
+    document.body.appendChild(div);
+
+    if (pendingRemovedTimeout) clearTimeout(pendingRemovedTimeout);
+    pendingRemovedTimeout = setTimeout(function() {
+        if (div) div.remove();
+        pendingRemovedStudent = null;
+    }, 5000);
+}
+
+function undoRemoveStudent() {
+    if (!pendingRemovedStudent) return;
+    var list = window.IEKG.student.admin.getRoster();
+    list.push(pendingRemovedStudent);
+    window.IEKG.student.admin.saveRoster(list);
+    renderRoster();
+    updateValidationMode();
+    showAdminMsg('✅ 已恢复学生：' + pendingRemovedStudent.name, 'ok');
+    pendingRemovedStudent = null;
+    var toast = document.getElementById('undo-toast');
+    if (toast) toast.remove();
+}
+
+// ─── 清空花名册 (带有二次安全确认) ───
+function clearRoster() {
+    var confirmText = prompt('⚠️ 清空花名册后任意学号均可登录（开放模式）。\n请输入“确认清空”四个字以继续：');
+    if (confirmText !== '确认清空') {
+        showAdminMsg('操作已取消（安全文字校验未通过）', 'warn');
+        return;
+    }
+    window.IEKG.student.admin.clearRoster();
+    renderRoster();
+    updateValidationMode();
+    showAdminMsg('花名册已清空，系统切换为开放模式。', 'ok');
+}
+
+
+// ─── 更新验证模式状态 ───
+function updateValidationMode() {
+    var el = document.getElementById('validation-mode');
+    if (!el) return;
+    var enabled = window.IEKG.student.admin.isRosterEnabled();
+    el.innerHTML = enabled
+        ? '<span class="tag-warn">⚠️ 严格模式：花名册已启用（共 ' + window.IEKG.student.admin.getRoster().length + ' 名学生）</span>'
+        : '<span class="tag-ok">✅ 开放模式：花名册未启用，任意学号可登录</span>';
+}
+
+// ─── 渲染全班学情 ───
+function renderOverview() {
+    var profiles = window.IEKG.student.admin.getAllProfiles();
+    var summaryEl = document.getElementById('overview-summary');
+    var tbody     = document.getElementById('overview-tbody');
+
+    if (!summaryEl || !tbody) return;
+
+    var totalStu   = profiles.length;
+    var totalHours = profiles.reduce(function(s,p){ return s + (p.totalMinutes||0)/60; }, 0);
+    var avgScore   = totalStu > 0
+        ? Math.round(profiles.reduce(function(s,p){
+            var best = (p.examRecords||[]).length > 0 ? Math.max.apply(null, p.examRecords.map(function(r){ return r.score; })) : 0;
+            return s + best;
+        }, 0) / totalStu) : 0;
+    var checked = profiles.filter(function(p){ return (p.checkIns||[]).length > 0; }).length;
+
+    summaryEl.innerHTML = [
+        { val: totalStu,             lbl: '本机登录学生数',   color: 'var(--cyan)' },
+        { val: totalHours.toFixed(1),lbl: '总学时(h)',        color: '#8b5cf6' },
+        { val: avgScore + '分',      lbl: '平均测评分',       color: '#f59e0b' },
+        { val: checked,              lbl: '已签到学生数',      color: '#10b981' },
+    ].map(function(s) {
+        return '<div class="summary-num"><div class="val" style="color:'+s.color+';">'+s.val+'</div><div class="lbl">'+s.lbl+'</div></div>';
+    }).join('');
+
+    if (profiles.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="12" style="text-align:center;padding:24px;color:var(--text-muted);">暂无学情数据。</td></tr>';
+        return;
+    }
+
+    tbody.innerHTML = profiles.map(function(p, i) {
+        var obe      = window.IEKG.student.calcOBEScore(p);
+        var totalMin = p.totalMinutes || 0;
+        var best     = (p.examRecords||[]).length > 0 ? Math.max.apply(null, p.examRecords.map(function(r){ return r.score; })) : '--';
+        var gradeColor = obe.total >= 80 ? '#10b981' : obe.total >= 60 ? '#f59e0b' : '#ef4444';
+        var gradeText  = obe.total >= 90 ? 'A优' : obe.total >= 80 ? 'B良' : obe.total >= 70 ? 'C中' : obe.total >= 60 ? 'D合' : 'F';
+        return '<tr>'
+            + '<td style="color:var(--text-muted);">' + (i+1) + '</td>'
+            + '<td style="font-family:\'JetBrains Mono\',monospace;font-size:12px;">' + p.studentId + '</td>'
+            + '<td style="font-weight:700;color:var(--text-main);">' + p.name + '</td>'
+            + '<td style="font-size:12px;">' + (p.className||'--') + '</td>'
+            + '<td style="font-family:\'JetBrains Mono\',monospace;">' + (totalMin/60).toFixed(1) + '</td>'
+            + '<td>' + (p.exploredNodes||[]).length + '/18</td>'
+            + '<td>' + (p.examRecords||[]).length + '</td>'
+            + '<td style="font-weight:700;color:var(--cyan);">' + best + '</td>'
+            + '<td>' + (p.activityCount||0) + '</td>'
+            + '<td>' + (p.checkIns||[]).length + '</td>'
+            + '<td style="font-family:\'JetBrains Mono\',monospace;font-weight:900;color:' + gradeColor + ';">' + obe.total + '</td>'
+            + '<td><span style="font-weight:800;color:' + gradeColor + ';">' + gradeText + '</span></td>'
+            + '</tr>';
+    }).join('');
+}
+
+
+// ─── 导出全班 JSON ───
+function exportAllJSON() {
+    var profiles = window.IEKG.student.admin.getAllProfiles();
+    if (profiles.length === 0) { showAdminMsg('暂无学情数据！', 'warn'); return; }
+    var data = {
+        system: '《大学生创新创业基础》PBL金课智能体 v6.6 Refactored (2026.07.21)',
+        exportTime: new Date().toLocaleString('zh-CN'),
+        totalStudents: profiles.length,
+        students: profiles.map(function(p) {
+            var obe = window.IEKG.student.calcOBEScore(p);
+            return { studentId: p.studentId, name: p.name, className: p.className, obeTotal: obe.total };
+        })
+    };
+    var blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    var url  = URL.createObjectURL(blob);
+    var a    = document.createElement('a'); a.href = url;
+    a.download = '双创金课_全班数据_' + new Date().toISOString().slice(0,10) + '.json';
+    a.click(); URL.revokeObjectURL(url);
+}
+
+// ─── 打印全班成绩汇总 ───
+function printAllReport() {
+    var profiles = window.IEKG.student.admin.getAllProfiles();
+    if (profiles.length === 0) { showAdminMsg('暂无学情数据！', 'warn'); return; }
+    var win = window.open('', '_blank');
+    var rows = profiles.map(function(p, i) {
+        var obe  = window.IEKG.student.calcOBEScore(p);
+        var best = (p.examRecords||[]).length > 0 ? Math.max.apply(null, p.examRecords.map(function(r){ return r.score; })) : '--';
+        var gc   = obe.total >= 80 ? '#16a34a' : obe.total >= 60 ? '#ca8a04' : '#dc2626';
+        var gt   = obe.total >= 90 ? 'A优' : obe.total >= 80 ? 'B良' : obe.total >= 70 ? 'C中' : obe.total >= 60 ? 'D合' : 'F';
+        return '<tr><td>'+(i+1)+'</td><td>'+p.studentId+'</td><td><strong>'+p.name+'</strong></td><td>'+(p.className||'--')+'</td>'
+            + '<td>'+((p.totalMinutes||0)/60).toFixed(1)+'</td>'
+            + '<td>'+(p.exploredNodes||[]).length+'/18</td>'
+            + '<td>'+(p.examRecords||[]).length+'</td>'
+            + '<td>'+best+'</td>'
+            + '<td>'+(p.activityCount||0)+'</td>'
+            + '<td>'+(p.checkIns||[]).length+'</td>'
+            + '<td style="font-weight:900;color:'+gc+';">'+obe.total+'</td>'
+            + '<td style="font-weight:800;color:'+gc+';">'+gt+'</td></tr>';
+    }).join('');
+    win.document.write('<!DOCTYPE html><html><head><meta charset="UTF-8"><title>全班学情汇总</title><style>body{font-family:\'Microsoft YaHei\',sans-serif;font-size:13px;color:#0f172a;padding:20px;}h1{font-size:18px;border-bottom:2px solid #0284c7;padding-bottom:8px;margin-bottom:16px;}table{width:100%;border-collapse:collapse;}th{background:#0284c7;color:#fff;padding:7px 10px;text-align:left;font-size:12px;}td{padding:6px 10px;border:1px solid #e2e8f0;font-size:12px;}tr:nth-child(even){background:#f8fafc;}.foot{font-size:11px;color:#94a3b8;margin-top:16px;}@media print{button{display:none;}}</style></head><body>'
+        + '<h1>《大学生创新创业基础》全班学情成绩汇总表</h1>'
+        + '<p style="color:#64748b;font-size:12px;margin-bottom:14px;">导出时间：'+new Date().toLocaleString('zh-CN')+'　共 '+profiles.length+' 名学生</p>'
+        + '<table><tr><th>#</th><th>学号</th><th>姓名</th><th>班级</th><th>学时(h)</th><th>节点</th><th>测评次</th><th>最高分</th><th>活动</th><th>打卡</th><th>OBE总评</th><th>等级</th></tr>'
+        + rows + '</table>'
+        + '<div class="foot">本表由《大学生创新创业基础》PBL金课智能体系统自动生成。</div>'
+        + '<div style="text-align:center;margin-top:16px;"><button onclick="window.print()" style="background:#0284c7;color:#fff;border:none;padding:8px 24px;border-radius:6px;cursor:pointer;font-size:13px;font-weight:700;">🖨️ 打印</button></div>'
+        + '
+<script>
+if (typeof window.openPresentation !== 'function') {
+  window.openPresentation = function(deckId) {
+    window.open('presentation.html?deck=' + (deckId || '1'), '_blank');
+  };
+}
+if (typeof window.openGlobalPresModal !== 'function') {
+  window.openGlobalPresModal = function(deckId) {
+    window.openPresentation(deckId);
+  };
+}
+</script>
+
+</body></html>');
+    win.document.close();
+}
+
+// ─── 导出未登录学生 ───
+function exportMissingList() {
+    var roster   = window.IEKG.student.admin.getRoster();
+    var profiles = window.IEKG.student.admin.getAllProfiles();
+    if (roster.length === 0) { showAdminMsg('花名册为空，请先导入花名册！', 'warn'); return; }
+    var loggedIds = profiles.map(function(p){ return p.studentId; });
+    var missing   = roster.filter(function(s){ return !loggedIds.includes(s.studentId); });
+    if (missing.length === 0) { showAdminMsg('全部学生均已登录，太棒了！', 'ok'); return; }
+    var csv = '\uFEFF学号,姓名,专业班级,学院\n' + missing.map(function(s){
+        return [s.studentId, s.name, s.className||'', s.college||''].join(',');
+    }).join('\n');
+    var blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+    var url  = URL.createObjectURL(blob);
+    var a    = document.createElement('a'); a.href = url;
+    a.download = '双创金课_未登录学生_' + new Date().toISOString().slice(0,10) + '.csv';
+    a.click(); URL.revokeObjectURL(url);
+    showAdminMsg('已导出 ' + missing.length + ' 名未登录学生名单。', 'ok');
+}
+
+// ─── 修改密码 ───
+function changePassword() {
+    var p1 = document.getElementById('new-pwd').value;
+    var p2 = document.getElementById('new-pwd2').value;
+    if (!p1) { showAdminMsg('请输入新密码！', 'error'); return; }
+    if (p1 !== p2) { showAdminMsg('两次输入的密码不一致！', 'error'); return; }
+    if (p1.length < 4) { showAdminMsg('密码至少 4 位！', 'error'); return; }
+    window.IEKG.student.admin.setPassword(p1);
+    document.getElementById('new-pwd').value = '';
+    document.getElementById('new-pwd2').value = '';
+    showAdminMsg('✅ 密码修改成功！', 'ok');
+}
+
+// ─── 危险操作 ───
+function confirmClearAllData() {
+    if (!confirm('⚠️ 确认清空所有学情数据？此操作不可撤销！（花名册保留）')) return;
+    window.IEKG.student.admin.clearAllData();
+    renderOverview();
+    showAdminMsg('已清空所有学情数据。', 'ok');
+}
+
+function confirmFullReset() {
+    if (!confirm('🚨 确认完全重置？这将清除花名册和所有学情数据！')) return;
+    if (!confirm('再次确认：完全重置系统？')) return;
+    window.IEKG.student.admin.clearRoster();
+    window.IEKG.student.admin.clearAllData();
+    localStorage.removeItem('iekg_admin_pwd');
+    renderRoster();
+    renderOverview();
+    updateValidationMode();
+    showAdminMsg('系统已完全重置。', 'ok');
+}
+
+// ─── Toast 消息 ───
+function showAdminMsg(msg, type) {
+    var color = type === 'error' ? '#ef4444' : type === 'warn' ? '#f59e0b' : '#10b981';
+    var div = document.createElement('div');
+    div.style.cssText = 'position:fixed;bottom:30px;right:30px;background:#1e293b;border:1.5px solid '+color+';color:'+color+';padding:12px 22px;border-radius:12px;font-size:13.5px;font-weight:700;z-index:9998;box-shadow:0 8px 24px rgba(0,0,0,0.4);max-width:380px;';
+    div.textContent = msg;
+    document.body.appendChild(div);
+    setTimeout(function(){ div.remove(); }, 3500);
+}
+
+// ─── 小组分组与团队治理逻辑 ───
+function renderGroups() {
+    var roster = window.IEKG.student.admin.getRoster();
+    var profiles = window.IEKG.student.admin.getAllProfiles();
+    
+    var groupsData = JSON.parse(localStorage.getItem('iekg_admin_student_groups') || '[]');
+    
+    if (groupsData.length === 0 && roster.length > 0) {
+        groupsData = [
+            { id: 'g1', name: '第 01 小组：智医 AI 辅助诊疗团队', topic: '基于 LLM 的基层医疗辅助系统', leader: roster[0] ? roster[0].name : '张创业', members: roster.slice(0, 4), score: 92, status: 'A+ 优秀' },
+            { id: 'g2', name: '第 02 小组：绿源新能源云控系统', topic: '高精度储能站电池寿命 AI 预测', leader: roster[4] ? roster[4].name : '李创新', members: roster.slice(4, 8), score: 88, status: 'A 良好' }
+        ];
+        localStorage.setItem('iekg_admin_student_groups', JSON.stringify(groupsData));
+    }
+    
+    var gridEl = document.getElementById('groups-container-grid');
+    var totalTeamsEl = document.getElementById('group-total-teams');
+    var groupedStuEl = document.getElementById('group-grouped-students');
+    var ungroupedStuEl = document.getElementById('group-ungrouped-students');
+    var avgSizeEl = document.getElementById('group-avg-size');
+
+    if (!gridEl) return;
+
+    var totalGrouped = 0;
+    groupsData.forEach(function(g){ totalGrouped += (g.members || []).length; });
+
+    var totalRoster = roster.length > 0 ? roster.length : profiles.length;
+    var ungrouped = Math.max(0, totalRoster - totalGrouped);
+    var avgSize = groupsData.length > 0 ? (totalGrouped / groupsData.length).toFixed(1) : 0;
+
+    if (totalTeamsEl) totalTeamsEl.textContent = groupsData.length;
+    if (groupedStuEl) groupedStuEl.textContent = totalGrouped;
+    if (ungroupedStuEl) ungroupedStuEl.textContent = ungrouped;
+    if (avgSizeEl) avgSizeEl.textContent = avgSize;
+
+    if (groupsData.length === 0) {
+        gridEl.innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:36px; color:var(--text-muted); background:rgba(0,194,224,0.03); border:1px dashed rgba(0,194,224,0.2); border-radius:16px;">暂无团队分组，请点击右上角【智能互补分组】或【高效随机分组】创建团队。</div>';
+        return;
+    }
+
+    gridEl.innerHTML = groupsData.map(function(g) {
+        var memberRows = (g.members || []).map(function(m, i){
+            var isLeader = (m.name === g.leader);
+            var roleTag = isLeader ? '<span style="background:rgba(245,158,11,0.2);color:#fbbf24;padding:1px 6px;border-radius:6px;font-size:11px;font-weight:800;">CEO/队长</span>' :
+                          (i % 3 === 1) ? '<span style="background:rgba(0,242,254,0.15);color:#00f2fe;padding:1px 6px;border-radius:6px;font-size:11px;font-weight:700;">CTO/技术</span>' :
+                          '<span style="background:rgba(192,132,252,0.15);color:#c084fc;padding:1px 6px;border-radius:6px;font-size:11px;font-weight:700;">CMO/市场</span>';
+            return '<div style="display:flex; justify-content:space-between; align-items:center; background:rgba(255,255,255,0.04); padding:6px 10px; border-radius:8px; font-size:12.5px; margin-bottom:4px;">'
+                 + '<span><strong>' + (m.name || m.studentId) + '</strong> (' + (m.studentId || '--') + ')</span>'
+                 + '<div>' + roleTag + '</div>'
+                 + '</div>';
+        }).join('');
+
+        return '<div style="background:rgba(13,27,60,0.7); border:1.5px solid rgba(0,194,224,0.3); border-radius:16px; padding:18px; display:flex; flex-direction:column; justify-content:space-between;">'
+             + '<div>'
+             + '  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">'
+             + '    <span style="font-size:15px; font-weight:900; color:var(--cyan);">' + g.name + '</span>'
+             + '    <span style="font-size:12px; font-weight:800; background:rgba(16,185,129,0.15); color:#10b981; padding:2px 8px; border-radius:10px;">' + (g.status || '就绪') + '</span>'
+             + '  </div>'
+             + '  <div style="font-size:12.5px; color:#94a3b8; margin-bottom:12px;"><i class="fas fa-tag" style="color:var(--gz-gold);"></i> 课题：<strong>' + (g.topic || '暂无') + '</strong></div>'
+             + '  <div style="display:flex; flex-direction:column; margin-bottom:14px;">' + memberRows + '</div>'
+             + '</div>'
+             + '<div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid rgba(255,255,255,0.1); padding-top:10px; margin-top:8px;">'
+             + '  <span style="font-size:12px; color:var(--text-muted);">阶段得分: <strong style="color:#fbbf24;">' + (g.score || 85) + '分</strong></span>'
+             + '  <button onclick="dissolveGroup(\'' + g.id + '\')" style="background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.25); color:#ef4444; padding:3px 10px; border-radius:6px; font-size:11.5px; font-weight:700; cursor:pointer;">解散小组</button>'
+             + '</div>'
+             + '</div>';
+    }).join('');
+}
+
+function autoGroupStudents(mode) {
+    var roster = window.IEKG.student.admin.getRoster();
+    if (roster.length === 0) {
+        showAdminMsg('请先导入学生花名册即可开启智能分组！', 'warn'); return;
+    }
+    
+    var copy = roster.slice();
+    if (mode === 'random') {
+        copy.sort(function(){ return Math.random() - 0.5; });
+    }
+    
+    var groupSize = 4;
+    var newGroups = [];
+    var groupIndex = 1;
+    
+    for (var i = 0; i < copy.length; i += groupSize) {
+        var chunk = copy.slice(i, i + groupSize);
+        var gId = 'g_' + Date.now() + '_' + groupIndex;
+        var leaderName = chunk[0] ? chunk[0].name : '未知';
+        newGroups.push({
+            id: gId,
+            name: '第 ' + (groupIndex < 10 ? '0' + groupIndex : groupIndex) + ' 小组（PBL共创队）',
+            topic: '双创项目选题 #' + groupIndex + '（待精益画布认定）',
+            leader: leaderName,
+            members: chunk,
+            score: Math.floor(Math.random() * 15) + 82,
+            status: mode === 'balance' ? 'Hacker/Hipster/Hustler 互补匹配' : '随机抽选完成'
+        });
+        groupIndex++;
+    }
+    
+    localStorage.setItem('iekg_admin_student_groups', JSON.stringify(newGroups));
+    renderGroups();
+    showAdminMsg('🎉 已成功将 ' + copy.length + ' 名学生拆分为 ' + newGroups.length + ' 个 PBL 实战小组！', 'ok');
+}
+
+function createNewGroupModal() {
+    var name = prompt('请输入新小组名称：', '第 03 小组：未来AI创新队');
+    if (!name) return;
+    var topic = prompt('请输入 PBL 项目选题课题：', '基于大模型的智能导诊与健康管理');
+    if (!topic) return;
+    
+    var groupsData = JSON.parse(localStorage.getItem('iekg_admin_student_groups') || '[]');
+    groupsData.push({
+        id: 'g_' + Date.now(),
+        name: name,
+        topic: topic,
+        leader: '待指定',
+        members: [],
+        score: 90,
+        status: '新建小组'
+    });
+    localStorage.setItem('iekg_admin_student_groups', JSON.stringify(groupsData));
+    renderGroups();
+    showAdminMsg('已成功创建小组【' + name + '】', 'ok');
+}
+
+function dissolveGroup(gId) {
+    if (!confirm('确认解散该小组？')) return;
+    var groupsData = JSON.parse(localStorage.getItem('iekg_admin_student_groups') || '[]');
+    groupsData = groupsData.filter(function(g){ return g.id !== gId; });
+    localStorage.setItem('iekg_admin_student_groups', JSON.stringify(groupsData));
+    renderGroups();
+    showAdminMsg('已解散该小组。', 'ok');
+}
+
+// ─── 粒子背景 ───
+function initParticles() {
+
+    var canvas = document.getElementById('particles-canvas');
+    if (!canvas) return;
+    var ctx = canvas.getContext('2d');
+    var W = canvas.width = window.innerWidth;
+    var H = canvas.height = window.innerHeight;
+    var pts = [];
+    for (var i = 0; i < 30; i++) pts.push({ x: Math.random()*W, y: Math.random()*H, r: Math.random()*1.2+0.3, vx: (Math.random()-0.5)*0.12, vy: (Math.random()-0.5)*0.12, alpha: Math.random()*0.25+0.05 });
+    (function draw() {
+        ctx.clearRect(0,0,W,H);
+        pts.forEach(function(p) {
+            ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+            ctx.fillStyle = 'hsla(200,80%,70%,'+p.alpha+')'; ctx.fill();
+            p.x+=p.vx; p.y+=p.vy;
+            if(p.x<0)p.x=W; if(p.x>W)p.x=0; if(p.y<0)p.y=H; if(p.y>H)p.y=0;
+        });
+        requestAnimationFrame(draw);
+    })();
+    window.addEventListener('resize', function(){ W=canvas.width=window.innerWidth; H=canvas.height=window.innerHeight; });
+}
+</script>
+
+<!-- 统一全设备自适应页脚 -->
+<footer class="global-footer" style="background:#030712; border-top:1px solid rgba(255,255,255,0.08); padding:24px 20px; margin-top:40px; font-size:12.5px; color:#64748b;">
+    <div class="footer-content" style="max-width:1400px; margin:0 auto; display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:16px;">
+        <div>
+            <div style="font-weight:800; color:#e2e8f0; font-size:13.5px; margin-bottom:4px;">《大学生创新创业基础》课程知识图谱智能体 V6.0 (CODEX 增强版)</div>
+            <div>国家级一流本科课程配套 PBL 项目制智能化教学与演播系统</div>
+        </div>
+        <div class="footer-device-tags" style="display:flex; gap:12px; flex-wrap:wrap;">
+            <span class="device-badge" style="background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); padding:4px 10px; border-radius:6px; font-size:11.5px; color:#94a3b8;"><i class="fas fa-mobile-alt"></i> 手机自适应</span>
+            <span class="device-badge" style="background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); padding:4px 10px; border-radius:6px; font-size:11.5px; color:#94a3b8;"><i class="fas fa-laptop"></i> 电脑台式端</span>
+            <span class="device-badge" style="background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); padding:4px 10px; border-radius:6px; font-size:11.5px; color:#94a3b8;"><i class="fas fa-tablet-alt"></i> 平板端</span>
+            <span class="device-badge" style="background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); padding:4px 10px; border-radius:6px; font-size:11.5px; color:#94a3b8;"><i class="fas fa-tv"></i> 触摸教学大屏</span>
+        </div>
+        <div style="text-align:right;">
+            <div style="color:#94a3b8;">&copy; 2026 创新创业项目制教学团队. All Rights Reserved.</div>
+            <div style="font-size:11px; margin-top:2px;">支持 📱 手机 | 💻 电脑 | 📱 平板 | 🖥️ 触摸大屏 全端响应</div>
+        </div>
+    </div>
+</footer>
+
+<script>
+if (typeof window.openPresentation !== 'function') {
+  window.openPresentation = function(deckId) {
+    window.open('presentation.html?deck=' + (deckId || '1'), '_blank');
+  };
+}
+if (typeof window.openGlobalPresModal !== 'function') {
+  window.openGlobalPresModal = function(deckId) {
+    window.openPresentation(deckId);
+  };
+}
+</script>
+
+</body>
+</html>

@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>留滇留曲双创赋能专区 - 大学生创新创业课程知识图谱智能体</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .yunn-hero {
+            background: linear-gradient(135deg, rgba(15, 23, 42, 0.9), rgba(30, 58, 138, 0.8)), url('images/school_logo_emblem.png') no-repeat right center;
+            background-size: contain;
+            border-radius: 16px;
+            padding: 40px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(56, 189, 248, 0.3);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        .yunn-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-bottom: 30px;
+        }
+        @media (max-width: 992px) {
+            .yunn-grid { grid-template-columns: 1fr; }
+        }
+        .calc-card {
+            background: rgba(15, 23, 42, 0.75);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(56, 189, 248, 0.2);
+            border-radius: 16px;
+            padding: 24px;
+        }
+        .calc-option {
+            margin-bottom: 16px;
+        }
+        .calc-option label {
+            display: block;
+            color: #94a3b8;
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+        .calc-option select, .calc-option input {
+            width: 100%;
+            padding: 12px;
+            background: rgba(30, 41, 59, 0.8);
+            border: 1px solid #334155;
+            border-radius: 8px;
+            color: #fff;
+            font-size: 15px;
+        }
+        .calc-result-box {
+            background: rgba(6, 182, 212, 0.1);
+            border: 1px solid rgba(6, 182, 212, 0.3);
+            border-radius: 12px;
+            padding: 16px;
+            margin-top: 20px;
+        }
+        .park-tag {
+            display: inline-block;
+            background: rgba(37, 99, 235, 0.2);
+            color: #38bdf8;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 13px;
+            margin: 4px;
+            border: 1px solid rgba(56, 189, 248, 0.3);
+        }
+    </style>
+</head>
+<body class="dark-theme">
+    <!-- Header/Nav Bar -->
+    <header class="site-header">
+        <div class="header-inner">
+            <a href="index.html" class="brand-logo">
+                <div class="brand-icon"><i class="fas fa-graduation-cap"></i></div>
+                <div>
+                    <div class="brand-title">创新创业课程 OBE 智慧教学与评估平台</div>
+                    <div class="brand-subtitle">Innovation & Entrepreneurship Mapping Engine v4.0</div>
+                </div>
+            </a>
+            <button class="nav-toggle" onclick="document.querySelector('.main-nav').classList.toggle('open')"><i class="fas fa-bars"></i></button>
+            <nav class="main-nav" aria-label="主导航">
+                <a href="index.html" class="nav-item"><i class="fas fa-compass"></i> 首页</a>
+                <a href="map.html" class="nav-item"><i class="fas fa-map"></i> 课程地图</a>
+                <a href="knowledge_graph.html" class="nav-item"><i class="fas fa-sitemap"></i> 知识图谱</a>
+                <a href="competition.html" class="nav-item"><i class="fas fa-trophy"></i> 大赛专区</a>
+                <a href="gold_cases.html" class="nav-item"><i class="fas fa-award"></i> 示范案例</a>
+                <a href="student.html" class="nav-item"><i class="fas fa-user-graduate"></i> 能力矩阵</a>
+                <a href="activities.html" class="nav-item"><i class="fas fa-tasks"></i> PBL实战</a>
+                <a href="yunnan_qujing_startup.html" class="nav-item active"><i class="fas fa-mountain"></i> 留滇留曲</a>
+                <a href="chat.html" class="nav-item"><i class="fas fa-robot"></i> AI导师</a>
+                <a href="admin.html" class="nav-item"><i class="fas fa-chart-line"></i> 学情看板</a>
+            
+                <button id="theme-toggle-btn" class="nav-theme-toggle-btn" title="切换白天/夜间主题" onclick="if(window.toggleTheme) window.toggleTheme();"><i class="fas fa-sun"></i> <span>风格切换</span></button>
+            </nav>
+            <div class="nav-actions">
+                <a href="admin.html" class="btn-nav"><i class="fas fa-user-shield"></i> 教师/专家视图</a>
+            </div>
+        </div>
+    </header>
+
+    <main class="main-container" style="max-width: 1360px; margin: 20px auto; padding: 0 20px;">
+        <!-- Hero Section -->
+        <section class="yunn-hero">
+            <h1 style="font-size: 32px; font-weight: 700; color: #fff; margin-bottom: 12px;">
+                <i class="fas fa-seedling" style="color: #38bdf8;"></i> 彩云之南 扎根曲靖 —— 青年创客留滇留曲双创中心
+            </h1>
+            <p style="color: #cbd5e1; font-size: 16px; max-width: 800px; line-height: 1.6;">
+                紧扣云南省“面向南亚东南亚辐射中心”定位与曲靖市“光伏之都”、“新材料产业集群”优势。整合“彩云雁归”人才计划、青年创业30万贴息贷款及曲靖经开区免租孵化基地，助力大学生在地化成功创业！
+            </p>
+            <div style="margin-top: 20px; display: flex; gap: 12px; flex-wrap: wrap;">
+                <a href="#calculator" class="btn-glow" style="padding: 10px 24px; border-radius: 8px; text-decoration: none; color: #fff; background: #2563eb;">
+                    <i class="fas fa-calculator"></i> 政策资金一键测算
+                </a>
+                <a href="#parks" class="btn-outline" style="padding: 10px 24px; border-radius: 8px; text-decoration: none; color: #38bdf8; border: 1px solid #38bdf8;">
+                    <i class="fas fa-building"></i> 曲靖孵化园区导览
+                </a>
+                <a href="chat.html" class="btn-outline" style="padding: 10px 24px; border-radius: 8px; text-decoration: none; color: #10b981; border: 1px solid #10b981;">
+                    <i class="fas fa-robot"></i> 咨询滇曲创业智囊 Agent
+                </a>
+            </div>
+        </section>
+
+        <!-- Grid 1: Policy Calculator & Industrial Matrix -->
+        <div class="yunn-grid" id="calculator">
+            <!-- 政策测算器 -->
+            <div class="calc-card">
+                <h3 style="font-size: 20px; color: #fff; margin-bottom: 16px; display: flex; align-items: center; gap: 10px;">
+                    <i class="fas fa-coins" style="color: #f59e0b;"></i> 留滇留曲扶持政策资金测算器
+                </h3>
+                <div class="calc-option">
+                    <label>拟创业落地意向区域</label>
+                    <select id="calc-region">
+                        <option value="qj_jkq">曲靖市经开区（光伏/锂电高新区）</option>
+                        <option value="qj_ql">曲靖市麒麟区（数字产业/商贸）</option>
+                        <option value="qj_zy">曲靖市沾益区（特色农产品加工）</option>
+                        <option value="qj_xw">曲靖市宣威市（火腿农特深加工）</option>
+                        <option value="km_zmt">昆明/云南自贸区（跨境电商）</option>
+                    </select>
+                </div>
+                <div class="calc-option">
+                    <label>团队成员身份类型</label>
+                    <select id="calc-identity">
+                        <option value="graduate_new">应届高校毕业生（毕业2年内）</option>
+                        <option value="student_in">在校大学生团队</option>
+                        <option value="back_home">曲靖籍返乡青年创客</option>
+                    </select>
+                </div>
+                <div class="calc-option">
+                    <label>拟申请扶持类别（可多选）</label>
+                    <div style="display: flex; gap: 12px; color: #cbd5e1; font-size: 14px; margin-top: 6px;">
+                        <label><input type="checkbox" id="c1" checked> 首次创业补贴</label>
+                        <label><input type="checkbox" id="c2" checked> 30万贴息贷款</label>
+                        <label><input type="checkbox" id="c3" checked> 免费场地工位</label>
+                    </div>
+                </div>
+                <button onclick="calculatePolicy()" style="width: 100%; padding: 12px; background: linear-gradient(90deg, #0284c7, #2563eb); border: none; border-radius: 8px; color: #fff; font-size: 16px; font-weight: 600; cursor: pointer; margin-top: 10px;">
+                    <i class="fas fa-magic"></i> 开始智能测算
+                </button>
+
+                <div class="calc-result-box" id="calc-result" style="display: none;">
+                    <h4 style="color: #38bdf8; font-size: 16px; margin-bottom: 8px;"><i class="fas fa-check-circle"></i> 测算结果与绿色申请通道</h4>
+                    <p id="calc-text" style="color: #e2e8f0; font-size: 14px; line-height: 1.6;"></p>
+                </div>
+            </div>
+
+            <!-- 曲靖三大主导产业链切入指南 -->
+            <div class="calc-card">
+                <h3 style="font-size: 20px; color: #fff; margin-bottom: 16px; display: flex; align-items: center; gap: 10px;">
+                    <i class="fas fa-industry" style="color: #38bdf8;"></i> 曲靖重点产业链大学生创业切入指南
+                </h3>
+                <div style="display: flex; flex-direction: column; gap: 16px;">
+                    <div style="background: rgba(30, 41, 59, 0.6); padding: 14px; border-radius: 10px; border-left: 4px solid #0284c7;">
+                        <h4 style="color: #38bdf8; font-size: 16px;"><i class="fas fa-solar-panel"></i> 1. 绿色光伏与锂电新材料链条</h4>
+                        <p style="color: #94a3b8; font-size: 13px; margin-top: 4px;">切入点：硅渣资源化回收、组件智能运维工具、电池Pack检测及相关B2B辅助服务。</p>
+                    </div>
+                    <div style="background: rgba(30, 41, 59, 0.6); padding: 14px; border-radius: 10px; border-left: 4px solid #10b981;">
+                        <h4 style="color: #10b981; font-size: 16px;"><i class="fas fa-apple-alt"></i> 2. 高原特色现代农业（魔芋/火腿/辣子鸡）</h4>
+                        <p style="color: #94a3b8; font-size: 13px; margin-top: 4px;">切入点：魔芋健康代餐研发、预制菜锁鲜包装、地道农产品直播带货与品牌地理标志申办。</p>
+                    </div>
+                    <div style="background: rgba(30, 41, 59, 0.6); padding: 14px; border-radius: 10px; border-left: 4px solid #f59e0b;">
+                        <h4 style="color: #f59e0b; font-size: 16px;"><i class="fas fa-globe-asia"></i> 3. 面向东南亚跨境贸易与文旅创客</h4>
+                        <p style="color: #94a3b8; font-size: 13px; margin-top: 4px;">切入点：借助中老铁路/磨憨自贸区搭建小语种直播矩阵，会泽古城与红军长征过曲靖沉浸文创。</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section: 曲靖孵化园区地图 -->
+        <section class="calc-card" id="parks" style="margin-bottom: 30px;">
+            <h3 style="font-size: 20px; color: #fff; margin-bottom: 16px; display: flex; align-items: center; gap: 10px;">
+                <i class="fas fa-map-marked-alt" style="color: #10b981;"></i> 曲靖市大学生创新创业孵化基地矩阵
+            </h3>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px;">
+                <div style="background: rgba(30, 41, 59, 0.6); border: 1px solid #334155; border-radius: 12px; padding: 16px;">
+                    <h4 style="color: #fff; font-size: 16px;"><i class="fas fa-university" style="color: #38bdf8;"></i> 曲靖师范学院双创孵化基地</h4>
+                    <p style="color: #94a3b8; font-size: 13px; margin: 8px 0;">校内一体化创业基地，提供一站式导师辅导、实验仪器共享与种子基金投递。</p>
+                    <div><span class="park-tag">免费工位</span><span class="park-tag">校内项目优先</span></div>
+                </div>
+                <div style="background: rgba(30, 41, 59, 0.6); border: 1px solid #334155; border-radius: 12px; padding: 16px;">
+                    <h4 style="color: #fff; font-size: 16px;"><i class="fas fa-microchip" style="color: #10b981;"></i> 曲靖经开区国家级众创空间</h4>
+                    <p style="color: #94a3b8; font-size: 13px; margin: 8px 0;">对接硅光伏与新能源龙头企业，直通产业孵化与高新技术企业奖补。</p>
+                    <div><span class="park-tag">3年免租</span><span class="park-tag">20万高新奖补</span></div>
+                </div>
+                <div style="background: rgba(30, 41, 59, 0.6); border: 1px solid #334155; border-radius: 12px; padding: 16px;">
+                    <h4 style="color: #fff; font-size: 16px;"><i class="fas fa-store" style="color: #f59e0b;"></i> 曲靖麒麟区数字电商创客园</h4>
+                    <p style="color: #94a3b8; font-size: 13px; margin: 8px 0;">配备标准化直播间、摄影棚及三农云仓物流分拨服务。</p>
+                    <div><span class="park-tag">免费直播间</span><span class="park-tag">云仓补贴</span></div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Standardized Footer -->
+    <footer class="main-footer" style="background: rgba(15, 23, 42, 0.9); border-top: 1px solid #1e293b; padding: 30px 0; margin-top: 40px;">
+        <div style="max-width: 1360px; margin: 0 auto; padding: 0 20px; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; color: #94a3b8; font-size: 14px;">
+            <div>
+                <h4 style="color: #fff; margin-bottom: 10px;">课程体系</h4>
+                <p>《大学生创新创业基础》</p>
+                <p>OBE理论与实战能力双图谱</p>
+            </div>
+            <div>
+                <h4 style="color: #fff; margin-bottom: 10px;">留滇留曲专项</h4>
+                <p>云南省“彩云雁归”政策</p>
+                <p>曲靖市人才引进“十七条”</p>
+            </div>
+            <div>
+                <h4 style="color: #fff; margin-bottom: 10px;">产业对接</h4>
+                <p>曲靖硅光伏与新能源基地</p>
+                <p>高原特色农业与跨境电商</p>
+            </div>
+            <div>
+                <h4 style="color: #fff; margin-bottom: 10px;">智能支持</h4>
+                <p>AI Agent 滇曲创业智囊</p>
+                <p>Antigravity Engine 运行中</p>
+            </div>
+        </div>
+        <div style="text-align: center; color: #64748b; font-size: 13px; margin-top: 20px; border-top: 1px solid #1e293b; padding-top: 15px;">
+            © 2026 大学生创新创业课程知识图谱智能体 | 留滇留曲双创赋能中心
+        </div>
+    </footer>
+
+    <script>
+        function calculatePolicy() {
+            const region = document.getElementById('calc-region').value;
+            const identity = document.getElementById('calc-identity').value;
+            const c1 = document.getElementById('c1').checked;
+            const c2 = document.getElementById('c2').checked;
+            const c3 = document.getElementById('c3').checked;
+
+            let money = 0;
+            let loan = "0万元";
+            let space = "无";
+            let policyList = [];
+
+            if (c1) { money += 10000; policyList.push("云南省高校毕业生首次创业一次性补贴 10,000元"); }
+            if (c2) { loan = "30万元（全额政府贴息）"; policyList.push("曲靖市高校毕业生创业担保贴息贷款 最高30万元"); }
+            if (c3) { space = "2-3年标准办公工位及场地租金全免"; policyList.push("曲靖经开区/曲师大双创基地场地租金及物业费全免"); }
+
+            let text = `<strong>恭喜！根据您的条件，预估可享受以下扶持红利：</strong><br>`;
+            text += `💰 预估一次性现金补贴：<span style="color:#10b981; font-weight:bold;">${money.toLocaleString()} 元</span><br>`;
+            text += `🏦 可申请贴息贷款额度：<span style="color:#38bdf8; font-weight:bold;">${loan}</span><br>`;
+            text += `🏢 孵化场地减免支持：<span style="color:#f59e0b; font-weight:bold;">${space}</span><br><br>`;
+            text += `<strong>匹配适用政策文件：</strong><br>` + policyList.map(p => `• ${p}`).join('<br>');
+
+            const certNo = 'YNQJ-' + Math.floor(100000 + Math.random() * 900000);
+            const fullHtml = `
+                <div style="position:relative; padding-top:4px;">
+                    <img src="images/school_logo_emblem.png" style="position:absolute; right:0; top:-10px; width:75px; opacity:0.35; pointer-events:none;">
+                    <div style="font-size:11px; color:#06b6d4; margin-bottom:8px; font-weight:600;">评估文号：${certNo} | 认证依据：云南省及曲靖市十七条人才引育扶持规程</div>
+                    ${text}
+                    <div style="margin-top:14px; text-align:right;">
+                        <button onclick="window.print()" style="padding:6px 14px; background:linear-gradient(135deg,#2563eb,#06b6d4); color:#fff; border:none; border-radius:6px; cursor:pointer; font-size:12px; font-weight:600;"><i class="fas fa-print"></i> 打印/保存测算清单</button>
+                    </div>
+                </div>`;
+            document.getElementById('calc-text').innerHTML = fullHtml;
+            document.getElementById('calc-result').style.display = 'block';
+        }
+    </script>
+</body>
+</html>

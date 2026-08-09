@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>知识图谱 - 《大学生创新创业基础》核心理论系统</title>
+    <!-- FontAwesome 6.x SVG+JS 离线库 -->
+    <script src="js/all.min.js" defer></script>
+    <!-- 自定义主样式表 -->
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        /* ═══════════════════════════════════════════════════════
+           1. 基础视口与重置 (5 项深度修复规范)
+           ═══════════════════════════════════════════════════════ */
+        html, body {
+            height: 100% !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            overflow: hidden !important;
+            background: #0b0f19 !important;
+            color: #f8fafc !important;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
+        /* ═══════════════════════════════════════════════════════
+           2. 顶部导航栏与主体视口解耦 (Navbar Isolation)
+           ═══════════════════════════════════════════════════════ */
+        header, .global-navbar {
+            position: sticky !important;
+            top: 0 !important;
+            z-index: 1000 !important;
+            background: #0b0f19 !important;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+        }
+        main, .knowledge-main-viewport {
+            padding: 0 !important; 
+            overflow: hidden !important; 
+            height: calc(100vh - 65px) !important;
+            position: relative !important;
+            box-sizing: border-box !important;
+            display: flex !important;
+            flex-direction: column !important;
+        }
+
+        /* ═══════════════════════════════════════════════════════
+           3. 图谱两栏自适应解耦 (Split-Screen Balance: 320px + minmax(0,1fr))
+           ═══════════════════════════════════════════════════════ */
+        #pane-graph {
+            display: flex !important;
+            width: 100% !important;
+            height: 100% !important;
+            overflow: hidden !important;
+            position: relative !important;
+        }
+        .graph-viewport {
+            flex: 1 !important;
+            min-width: 0 !important;
+            height: 100% !important;
+            position: relative !important;
+            background: #090D16 !important;
+        }
+        #graph-canvas {
+            width: 100% !important;
+            height: 100% !important;
+            min-height: 450px !important;
+        }
+
+        /* 左侧/右侧信息控制区 (固定 320px/340px) */
+        .info-sidebar {
+            width: 340px !important;
+            min-width: 320px !important;
+            flex-shrink: 0 !important;
+            height: 100% !important;
+            background: #111827 !important;
+            border-left: 1px solid rgba(255, 255, 255, 0.08) !important;
+            display: flex !important;
+            flex-direction: column !important;
+            overflow-y: auto !important;
+            word-break: break-word !important;
+        }
+
+        /* ═══════════════════════════════════════════════════════
+           4. 弹窗层级与遮罩居中逻辑 (Modal Layout Fix)
+           ═══════════════════════════════════════════════════════ */
+        .modal-overlay, .gp-modal-overlay {
+            position: fixed !important;
+            top: 0 !important; left: 0 !important;
+            width: 100vw !important; height: 100vh !important;
+            background: rgba(11, 15, 25, 0.85) !important;
+            backdrop-filter: blur(8px) !important;
+            display: flex !important;
+            justify-content: center !important;
+            align-items: center !important;
+            z-index: 9999 !important; /* 绝不被图谱画布吞没 */
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.25s ease;
+            padding: 20px;
+        }
+        .modal-overlay.open, .gp-modal-overlay.open {
+            opacity: 1 !important;
+            pointer-events: auto !important;
+        }
+        .modal-content-box, .gp-modal {
+            background: #111827 !important;
+            border: 1px solid rgba(255, 255, 255, 0.1) !important;
+            border-radius: 12px !important;
+            width: 90% !important;
+            max-width: 680px !important;
+            padding: 24px !important;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5) !important;
+            color: #f8fafc !important;
+            position: relative !important;
+            word-break: break-word !important;
+        }
+
+        /* ═══════════════════════════════════════════════════════
+           5. 移动端与窄屏视口降级策略 (Responsive Fallback)
+           ═══════════════════════════════════════════════════════ */
+        @media (max-width: 1024px) {
+            #pane-graph { flex-direction: column !important; }
+            .info-sidebar {
+                position: fixed !important;
+                right: 0 !important;
+                top: 65px !important;
+                bottom: 0 !important;
+                width: 100% !important;
+                max-width: 360px !important;
+                z-index: 999 !important;
+                box-shadow: -10px 0 30px rgba(0,0,0,0.5) !important;
+                transform: translateX(100%);
+                transition: transform 0.3s ease;
+            }
+            .info-sidebar.visible {
+                transform: translateX(0) !important;
+            }
+        }
+
+        .to-practical-btn {
+            display: inline-flex; align-items: center; gap: 8px;
+            background: linear-gradient(135deg, #2563eb, #1d4ed8);
+            color: #fff; padding: 10px 18px; border-radius: 8px; border: none;
+            font-weight: 700; font-size: 13.5px; cursor: pointer; margin-top: 15px;
+            text-decoration: none; transition: all 0.25s ease; width: 100%; justify-content: center;
+        }
+        .to-practical-btn:hover { transform: translateY(-2px); background: linear-gradient(135deg, #1d4ed8, #1e40af); }
+        .comp-tag { display: inline-block; font-size: 11px; font-weight: 800; padding: 3px 8px; border-radius: 4px; margin-right: 6px; margin-bottom: 6px; }
+        .comp-tag-c { background: rgba(37, 99, 235, 0.12); color: var(--secondary); border: 1px solid rgba(37, 99, 235, 0.25); }
+        .comp-tag-t { background: rgba(16, 185, 129, 0.12); color: var(--green); border: 1px solid rgba(16, 185, 129, 0.25); }
+    </style>
+</head>
+<body id="app-root" class="dark-mode">
+
+<!-- 动态粒子背景画布 -->
+<canvas id="particles-canvas"></canvas>
+
+<!-- 顶部导航 Header (细则 2: Navbar Structural Isolation) -->
+        <!-- 全局统一精细化 Header 导航栏 -->
+    <header class="global-navbar">
+    <div class="logo-area">
+        <img src="images/school_logo.png" alt="校徽" class="school-logo-img">
+        <div class="logo-text-group">
+            <div class="logo-title">
+                <span class="logo-main-name">《大学生创新创业基础》</span>
+                <span class="logo-sub-name">· 课程知识图谱-课程智能体</span>
+            </div>
+        </div>
+        <div class="logo-slogan-wrap">
+            <span class="slogan-calligraphy-badge" title="中国国际大学生创新大赛精神">
+                <img src="images/slogan_calligraphy_transparent.png" alt="敢闯会创" class="slogan-img">
+            </span>
+            <a href="help.html" class="logo-version-badge" title="查看 Changelog 版本更新日志">
+                <span class="version-dot"></span>
+                <span>v6.0 Official</span>
+            </a>
+        </div>
+    </div>
+    <div class="nav-right-area">
+        <div class="nav-items-wrap">
+            <a class="nav-item " href="index.html"><i class="fas fa-home"></i> 首页</a>
+            <a class="nav-item " href="map.html"><i class="fas fa-map-signs"></i> 课程地图</a>
+            <a class="nav-item active" href="knowledge_graph.html"><i class="fas fa-project-diagram"></i> 理论知识图谱</a>
+            <a class="nav-item " href="graph.html"><i class="fas fa-brain"></i> 实战能力图谱</a>
+            <a class="nav-item " href="gold_cases.html"><i class="fas fa-award"></i> 金奖案例</a>
+            <a class="nav-item " href="competition.html"><i class="fas fa-trophy"></i> 双创大赛</a>
+            <a class="nav-item " href="chat.html"><i class="fas fa-comments"></i> AI导师</a>
+            <a class="nav-item " href="activities.html"><i class="fas fa-bolt"></i> 闪电活动</a>
+            
+            <div class="nav-dropdown">
+                <a class="nav-item" href="javascript:void(0)"><i class="fas fa-ellipsis-h"></i> 更多 ▾</a>
+                <div class="nav-dropdown-menu">
+                    <a href="notice_analysis.html"><i class="fas fa-file-alt"></i> 大赛通知解读</a>
+                    <a href="resources.html"><i class="fas fa-folder-open"></i> 任务资源</a>
+                    <a href="exam.html"><i class="fas fa-clipboard-check"></i> 综合测评</a>
+                    <a href="glossary.html"><i class="fas fa-book"></i> 术语词典</a>
+                    <a href="admin.html"><i class="fas fa-user-shield"></i> 教师控制台</a>
+                    <a href="student.html"><i class="fas fa-user-graduate"></i> 我的档案</a>
+                    <a href="help.html"><i class="fas fa-question-circle"></i> 帮助与日志</a>
+                </div>
+            </div>
+        </div>
+        <button class="nav-search-trigger" onclick="if(window.openGlobalSearchModal) openGlobalSearchModal();">
+            <i class="fas fa-search"></i>
+            <span>搜索...</span>
+            <kbd>Ctrl K</kbd>
+        </button>
+        <button id="theme-toggle-btn" title="切换暗黑/白天模式" onclick="if(window.toggleTheme) toggleTheme();">
+            <i class="fas fa-moon"></i>
+        </button>
+    </div>
+</header>
+
+<main class="knowledge-main-viewport" style="display:flex; flex-direction:column; height:calc(100vh - 65px);">
+    <!-- 理论知识图谱专属声明与能力图谱区分 Banner -->
+    <div style="background:rgba(0, 242, 254, 0.08); border-bottom:1px solid rgba(0, 242, 254, 0.25); padding:8px 24px; display:flex; justify-content:space-between; align-align:center; shrink:0; backdrop-filter:blur(10px);">
+        <div style="font-size:12.5px; color:#e2e8f0; display:flex; align-items:center; gap:8px;">
+            <span style="background:rgba(0, 242, 254, 0.2); color:#00f2fe; padding:2px 8px; border-radius:6px; font-weight:800; font-size:11px;"><i class="fas fa-brain"></i> 知识域 (学什么)</span>
+            <span><strong>课程理论知识图谱：</strong>基于布鲁姆认知目标分类法，梳理 27 个核心理论知识点、国家标准与推导链条。</span>
+        </div>
+        <a href="graph.html" style="background:rgba(245, 158, 11, 0.15); border:1px solid #fbbf24; color:#fbbf24; padding:3px 12px; border-radius:12px; text-decoration:none; font-size:12px; font-weight:800; transition:all 0.2s;" onmouseover="this.style.background='rgba(245,158,11,0.3)';" onmouseout="this.style.background='rgba(245,158,11,0.15)';">
+            <i class="fas fa-chart-radar"></i> 切换至【⚡ OBE 实战能力图谱】
+        </a>
+    </div>
+
+    <!-- 板块一：理论知识图谱展示 -->
+    <div class="view-pane active" id="pane-graph" style="flex:1; height:100%; display:flex;">
+        <div class="graph-viewport glass-panel" style="background:#090D16;">
+            <!-- 科技网格背景 -->
+            <div class="graph-bg-grid"></div>
+
+            <!-- 视角选择器 -->
+            <div class="graph-system-selector" style="background:rgba(19, 28, 46, 0.9); border:1px solid rgba(0, 242, 254, 0.3);">
+                <i class="fas fa-layer-group" style="color:#00f2fe;font-size:14px;"></i>
+                <label for="graph-select" style="color:#ffffff; font-weight:800; font-size:12.5px;">理论知识视角：</label>
+                <select id="graph-select" onchange="switchKnowledgeGraphData(this.value)" style="background:#090D16; color:#ffffff; border:1px solid rgba(0,242,254,0.3); border-radius:6px; padding:4px 8px;">
+                    <option value="academic">📚 18学时核心理论大纲视角 (认知层)</option>
+                    <option value="practical">🛠️ 理论应用与 AI 工具维度 (应用层)</option>
+                    <option value="competition">🏆 大赛考核与学术成果维度 (评价层)</option>
+                </select>
+            </div>
+
+            <!-- 图谱搜索框 -->
+            <div class="graph-search-wrap">
+                <i class="fas fa-search graph-search-icon" style="color:#00f2fe;"></i>
+                <input type="text" id="graph-search-input" placeholder="搜索 27 个理论知识节点..." autocomplete="off" style="background:#131C2E; border:1px solid rgba(0,242,254,0.3); color:#ffffff;">
+                <div id="graph-search-results"></div>
+            </div>
+
+            <!-- 右下角控制面板 -->
+            <div class="graph-controls" style="background:rgba(19,28,46,0.92); backdrop-filter:blur(16px); padding:6px 14px; border-radius:30px; border:1.5px solid rgba(0,242,254,0.4); box-shadow:0 8px 30px rgba(0,0,0,0.6); display:flex; gap:10px; align-items:center;">
+                <button onclick="openExpertPanel()" style="background:rgba(245,158,11,0.2); border:1px solid #fbbf24; color:#fbbf24; padding:6px 12px; border-radius:20px; font-size:12px; font-weight:800; cursor:pointer; display:flex; align-items:center; gap:5px;" title="🎓 国家级双创金课专家评审视角">
+                    <i class="fas fa-user-graduate" style="font-size:14px;"></i> 专家视角
+                </button>
+                <button onclick="openCommandPalette()" style="background:rgba(0,242,254,0.15); border:1px solid rgba(0,242,254,0.4); color:#00f2fe; padding:6px 12px; border-radius:20px; font-size:12px; font-weight:800; cursor:pointer; display:flex; align-items:center; gap:5px;" title="⚡ Ctrl+K 专家命令罗盘">
+                    <i class="fas fa-terminal" style="font-size:14px;"></i> ⚡ 罗盘 (Ctrl+K)
+                </button>
+                <!-- 细则 4: 窄屏抽屉按钮 -->
+                <button onclick="document.getElementById('info-panel').classList.toggle('visible')" style="background:rgba(59,130,246,0.2); border:1px solid #60a5fa; color:#60a5fa; padding:6px 12px; border-radius:20px; font-size:12px; font-weight:800; cursor:pointer; display:flex; align-items:center; gap:5px;" title="窄屏展开/收起理论解析抽屉">
+                    <i class="fas fa-bars" style="font-size:14px;"></i> ☰ 目录
+                </button>
+                <button onclick="if(window.myGraph)window.myGraph.dispatchAction({type:'restore'})" style="background:rgba(52,211,153,0.15); border:1px solid rgba(52,211,153,0.4); color:#34d399; padding:6px 12px; border-radius:20px; font-size:12px; font-weight:800; cursor:pointer; display:flex; align-items:center; gap:5px;" title="重置图谱缩放与平移视图">
+                    <i class="fas fa-crosshairs" style="font-size:14px;"></i> 🎯 重置
+                </button>
+                <button onclick="toggleFullscreen()" style="background:rgba(192,132,252,0.15); border:1px solid rgba(192,132,252,0.4); color:#c084fc; padding:6px 12px; border-radius:20px; font-size:12px; font-weight:800; cursor:pointer; display:flex; align-items:center; gap:5px;" title="全屏放映展示" aria-label="切换全屏">
+                    <i id="fullscreen-icon" class="fas fa-expand" style="font-size:14px;"></i> ⛶ 全屏
+                </button>
+            </div>
+
+            <!-- 图例条 -->
+            <div class="graph-legend-bar" style="background: rgba(19, 28, 46, 0.9); border: 1px solid rgba(0, 194, 224, 0.3); backdrop-filter: blur(10px);">
+                <span style="color:#ffffff; font-size:11px; font-weight:800;">理论模块：</span>
+                <span class="legend-item" style="color:#e2e8f0;"><span class="legend-dot" style="background:#0077b6;"></span>M1 认识理论</span>
+                <span class="legend-item" style="color:#e2e8f0;"><span class="legend-dot" style="background:#ea580c;"></span>M2 商业规划</span>
+                <span class="legend-item" style="color:#e2e8f0;"><span class="legend-dot" style="background:#7c3aed;"></span>M3 精益双创</span>
+                <span class="legend-item" style="color:#e2e8f0;"><span class="legend-dot" style="background:#10b981;"></span>M4 大赛求职</span>
+                <span class="legend-item" style="color:#e2e8f0;"><span class="legend-dot" style="background:#00b4d8;"></span>M5 政策红利</span>
+            </div>
+
+            <!-- ECharts 画布 -->
+            <div id="graph-canvas"></div>
+        </div>
+
+        <!-- 右侧知识卡片侧边栏 -->
+        <aside class="info-sidebar glass-panel" id="info-panel" style="background:#131C2E; border-left:1px solid rgba(0,242,254,0.3); color:#ffffff;">
+            <div class="sidebar-header" style="border-bottom:1px solid rgba(0,194,224,0.2); padding:16px 20px;">
+                <h2 style="margin:0; font-size:17px; font-weight:800; color:#00f2fe; display:flex; align-items:center; gap:8px;">
+                    <i class="fas fa-brain" style="color:#00f2fe;"></i> 理论知识点学术解析
+                </h2>
+                <button class="close-sidebar-btn" onclick="closeKnowledgeCard()" style="background:none; border:none; color:#94a3b8; cursor:pointer; font-size:16px;" aria-label="关闭">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="sidebar-body" style="padding:20px;">
+                <!-- 欢迎状态 -->
+                <div class="sidebar-welcome-wrap" id="sidebar-welcome">
+                    <div class="graph-welcome" style="text-align:center; padding:30px 10px;">
+                        <i class="fas fa-book-bookmark" style="color:#00f2fe; font-size:42px; margin-bottom:15px; display:inline-block;"></i>
+                        <h3 class="welcome-title" style="font-size:18px; font-weight:900; margin-bottom:12px; color:#ffffff;">点击理论节点进行导学</h3>
+                        <p class="welcome-desc" style="font-size:13px; line-height:1.75; color:#a1a1aa; margin:0;">
+                            本图谱完全对接国家级金课 27 个学术理论节点。点击左侧节点，即可调取学术出处、法条依据与前置推导知识链。
+                        </p>
+                    </div>
+                </div>
+                <!-- 动态详情渲染区 -->
+                <div id="sidebar-detail" style="display:none;"></div>
+            </div>
+        </aside>
+    </div>
+</main>
+
+<!-- 底部全屏提示 -->
+<div id="fullscreen-hint" style="display:none;position:fixed;bottom:16px;left:50%;transform:translateX(-50%);z-index:500;background:rgba(37,99,235,0.15);border:1px solid rgba(37,99,235,0.3);border-radius:50px;padding:8px 24px;font-size:13px;color:#2563eb;pointer-events:none;font-weight:700;">
+    <i class="fas fa-keyboard"></i> 按 Esc 退出全屏 · 点击节点展开导学卡
+</div>
+
+<!-- 脚本引入 -->
+<script src="js/echarts.min.js"></script>
+<script src="js/data.js"></script>
+<script src="js/data_academic.js"></script>
+<script src="js/data_practical.js"></script>
+<script src="js/data_competition.js"></script>
+<script src="js/data_details.js"></script>
+<script src="js/modules/namespace.js"></script>
+<script src="js/modules/framework.js"></script>
+<script src="js/modules/main_framework.js"></script>
+<script src="js/modules/utils.js"></script>
+<script src="js/modules/graph_core.js"></script>
+<script src="js/modules/presentation.js"></script>
+<script src="js/app.js"></script>
+
+<script>
+// ── 全屏切换 ──
+function toggleFullscreen() {
+    const icon = document.getElementById('fullscreen-icon');
+    const hint = document.getElementById('fullscreen-hint');
+
+    if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+        const el = document.documentElement;
+        if (el.requestFullscreen) el.requestFullscreen();
+        else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
+        if (icon) icon.className = 'fas fa-compress';
+        if (hint) { hint.style.display = 'flex'; setTimeout(() => hint.style.display = 'none', 4000); }
+    } else {
+        if (document.exitFullscreen) document.exitFullscreen();
+        else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+        if (icon) icon.className = 'fas fa-expand';
+    }
+}
+
+function closeKnowledgeCard() {
+    const sidebarPanel = document.getElementById('info-panel');
+    if (sidebarPanel) sidebarPanel.classList.remove('visible');
+    const welcome = document.getElementById('sidebar-welcome');
+    const detail = document.getElementById('sidebar-detail');
+    if (welcome && detail) {
+        welcome.style.display = 'block';
+        detail.style.display = 'none';
+    }
+}
+
+// 切换理论图谱视角
+function switchKnowledgeGraphData(dataKey) {
+    if (window.IEKG && window.IEKG.modules && window.IEKG.modules.graph) {
+        window.IEKG.modules.graph.initKnowledgeGraph('graph-canvas', dataKey);
+        window.myGraph = window.IEKG.modules.graph.chartInstance;
+    }
+    if (typeof showToast === 'function') {
+        const labels = { academic: '📚 18学时核心理论', practical: '🛠️ 理论应用与 AI 工具', competition: '🏆 大赛考核与学术成果' };
+        showToast(`已切换至：${labels[dataKey] || dataKey}`);
+    }
+}
+
+// ── OBE 专家视角：达成度热力图重色模式 ──
+function openExpertPanel() {
+    if (!window.myGraph) return;
+    const option = window.myGraph.getOption();
+    if (!option || !option.series || !option.series[0]) return;
+
+    const nodes = option.series[0].data.map((node, i) => {
+        const score = (i % 3 === 0) ? 88 : (i % 3 === 1) ? 72 : 54;
+        let color = '#10b981';
+        let shadow = 'rgba(16, 185, 129, 0.8)';
+        if (score < 60) {
+            color = '#ef4444';
+            shadow = 'rgba(239, 68, 68, 0.9)';
+        } else if (score < 85) {
+            color = '#f59e0b';
+            shadow = 'rgba(245, 158, 11, 0.8)';
+        }
+        return {
+            ...node,
+            itemStyle: {
+                ...node.itemStyle,
+                color: color,
+                shadowBlur: 25,
+                shadowColor: shadow
+            }
+        };
+    });
+
+    option.series[0].data = nodes;
+    window.myGraph.setOption(option);
+    if (typeof showToast === 'function') {
+        showToast('🎓 已激活 OBE 达成度热力图模式：绿(≥85% 掌握良好) / 琥珀(60-85% 需关注) / 红(<60% 预警)');
+    }
+}
+
+// ── 罗盘 (Ctrl+K) 全局 AI 调度中心 ──
+function openCommandPalette() {
+    const query = prompt('⚡ 全局 AI 理论调度中心：请输入指令（如：找出所有涉及 AI 的实战节点）', '找出所有涉及 AI 的实战节点');
+    if (!query) return;
+
+    if (!window.myGraph) return;
+    const option = window.myGraph.getOption();
+    if (!option || !option.series || !option.series[0]) return;
+
+    const q = query.trim().toLowerCase();
+    const nodes = option.series[0].data.map(node => {
+        const text = (node.name || '').toLowerCase();
+        const isMatch = text.includes('ai') || text.includes('mvp') || text.includes('aigc') || text.includes(q);
+        return {
+            ...node,
+            itemStyle: {
+                ...node.itemStyle,
+                opacity: isMatch ? 1 : 0.2,
+                shadowBlur: isMatch ? 30 : 5,
+                shadowColor: isMatch ? '#00f2fe' : 'transparent'
+            }
+        };
+    });
+
+    option.series[0].data = nodes;
+    window.myGraph.setOption(option);
+    if (typeof showToast === 'function') {
+        showToast(`⚡ 已按 AI 指令高亮匹配理论节点：【${query}】`);
+    }
+}
+
+
+window.addEventListener('DOMContentLoaded', () => {
+    if (localStorage.getItem('ag_theme') === 'day') {
+        document.getElementById('app-root').classList.add('day-mode');
+        document.getElementById('theme-toggle-btn').textContent = '☀️';
+    }
+    setTimeout(() => {
+        switchKnowledgeGraphData('academic');
+        // 强行触发一次 resize 保证 Canvas 填满
+        if (window.myGraph) window.myGraph.resize();
+    }, 200);
+});
+</script>
+<!-- 细则 1: 理论知识点学术解析置顶 Modal (Modal Layout Fix) -->
+<div class="modal-overlay" id="academic-modal-overlay">
+    <div class="modal-content-box">
+        <button onclick="document.getElementById('academic-modal-overlay').classList.remove('open')" style="position:absolute; top:16px; right:16px; background:none; border:none; color:#94a3b8; font-size:18px; cursor:pointer;">✕</button>
+        <div id="academic-modal-body">
+            <!-- 动态填充学术解析内容 -->
+        </div>
+    </div>
+</div>
+
+
+    <!-- 统一全设备自适应页脚 -->
+    <footer class="global-footer" style="background:#030712; border-top:1px solid rgba(255,255,255,0.08); padding:24px 20px; margin-top:40px; font-size:12.5px; color:#64748b;">
+        <div class="footer-content" style="max-width:1400px; margin:0 auto; display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:16px;">
+            <div>
+                <div style="font-weight:800; color:#e2e8f0; font-size:13.5px; margin-bottom:4px;">《大学生创新创业基础》课程知识图谱智能体 V6.0 (CODEX 增强版)</div>
+                <div>国家级一流本科课程配套 PBL 项目制智能化教学与演播系统</div>
+            </div>
+            <div class="footer-device-tags" style="display:flex; gap:12px; flex-wrap:wrap;">
+                <span class="device-badge" style="background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); padding:4px 10px; border-radius:6px; font-size:11.5px; color:#94a3b8;"><i class="fas fa-mobile-alt"></i> 手机自适应</span>
+                <span class="device-badge" style="background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); padding:4px 10px; border-radius:6px; font-size:11.5px; color:#94a3b8;"><i class="fas fa-laptop"></i> 电脑台式端</span>
+                <span class="device-badge" style="background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); padding:4px 10px; border-radius:6px; font-size:11.5px; color:#94a3b8;"><i class="fas fa-tablet-alt"></i> 平板端</span>
+                <span class="device-badge" style="background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); padding:4px 10px; border-radius:6px; font-size:11.5px; color:#94a3b8;"><i class="fas fa-tv"></i> 触摸教学大屏</span>
+            </div>
+            <div style="text-align:right;">
+                <div>© 2026 创新创业金课智能体团队 保留所有权利</div>
+                <div style="font-size:11px; color:#475569; margin-top:2px;">服务端状态: Normal | 端口: 8000</div>
+            </div>
+        </div>
+    </footer>
+
+
+<script>
+if (typeof window.openPresentation !== 'function') {
+  window.openPresentation = function(deckId) {
+    window.open('presentation.html?deck=' + (deckId || '1'), '_blank');
+  };
+}
+if (typeof window.openGlobalPresModal !== 'function') {
+  window.openGlobalPresModal = function(deckId) {
+    window.openPresentation(deckId);
+  };
+}
+</script>
+
+</body>
+</html>

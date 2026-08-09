@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>课程地图 - 《大学生创新创业基础》项目制智能体</title>
+    <!-- FontAwesome 6.x SVG+JS 离线库 -->
+    <script src="js/all.min.js" defer></script>
+    <!-- 自定义主样式表 -->
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        main {
+            overflow-y: auto !important;
+            height: calc(100vh - 70px) !important;
+            padding-bottom: 50px;
+        }
+    </style>
+</head>
+<body id="app-root" class="dark-mode" style="background:#090D16; color:#f8fafc;">
+
+<!-- 动态粒子背景画布 -->
+<canvas id="particles-canvas"></canvas>
+
+<!-- 顶部导航 Header -->
+<header class="global-navbar">
+    <div class="logo-area" style="display:flex; align-items:center;">
+        <div class="school-badge">
+            <i class="fas fa-graduation-cap"></i>
+        </div>
+        <div class="logo-text-group">
+            <span class="logo-main">高校双创平台</span>
+            <span class="logo-course">《大学生创新创业基础》· 课程学习智能体</span>
+        </div>
+        <a href="help.html" class="logo-version-badge" title="查看使用说明与开发更新日志" style="text-decoration:none; display:inline-flex; align-items:center; gap:5px; background:rgba(0,194,224,0.12); border:1px solid rgba(0,194,224,0.25); color:var(--cyan); font-size:11px; padding:3px 8px; border-radius:12px; margin-left:12px; font-weight:700; transition:all 0.2s;">
+            <span class="version-dot" style="width:6px; height:6px; background:#10b981; border-radius:50%; box-shadow:0 0 5px #10b981;"></span>
+            v6.6 Refactored (2026.07.21)
+        </a>
+    </div>
+
+    <div class="header-tools">
+        <nav>
+            <a class="nav-item" href="index.html"><i class="fas fa-home"></i><span class="nav-text"> 首页</span></a>
+            <a class="nav-item active" href="map.html"><i class="fas fa-map-marked-alt"></i><span class="nav-text"> 课程地图</span></a>
+            <a class="nav-item" href="knowledge_graph.html"><i class="fas fa-brain"></i><span class="nav-text"> 理论知识图谱</span></a>
+            <a class="nav-item" href="graph.html"><i class="fas fa-chart-radar"></i><span class="nav-text"> 实战能力图谱</span></a>
+            <a class="nav-item" href="chat.html"><i class="fas fa-comments"></i><span class="nav-text"> AI导师</span></a>
+            <a class="nav-item" href="activities.html"><i class="fas fa-bolt"></i><span class="nav-text"> 闪电活动</span></a>
+            <a class="nav-item" href="resources.html"><i class="fas fa-cubes"></i><span class="nav-text"> 任务资源</span></a>
+            <a class="nav-item" href="admin.html" style="color:#fbbf24; font-weight:800;"><i class="fas fa-user-tie"></i><span class="nav-text"> 教师控制台</span></a>
+            <a class="nav-item" href="student.html"><i class="fas fa-user-graduate"></i><span class="nav-text"> 我的档案</span></a>
+            <div class="nav-dropdown">
+                <span class="nav-item nav-dropdown-trigger"><i class="fas fa-ellipsis-h"></i> 更多 ▾</span>
+                <div class="nav-dropdown-menu">
+                    <a href="glossary.html"><i class="fas fa-book"></i> 术语词典</a>
+                    <a href="presentation.html"><i class="fas fa-desktop"></i> 大屏演示</a>
+                    <a href="exam.html"><i class="fas fa-poll-h"></i> 综合测评</a>
+                </div>
+            </div>
+        </nav>
+        <button class="nav-search-trigger" onclick="openCmdKModal()" title="全站快捷搜索 (Ctrl + K)">
+            <i class="fas fa-search"></i> <span>搜索...</span> <kbd>Ctrl K</kbd>
+        </button>
+        <button id="theme-toggle-btn" onclick="toggleTheme()" title="切换日夜主题" aria-label="切换主题">🌙</button>
+    </div>
+</header>
+
+<main>
+    <div class="view-pane active" id="pane-map" style="display:block;">
+        <div class="map-container glass-panel">
+            
+            <div class="current-lesson-indicator glass-panel" style="margin-bottom: 25px; padding: 15px 22px; border-radius: var(--radius-sm); border: 1px solid rgba(0, 194, 224, 0.3); display: flex; align-items: center; justify-content: space-between; background: rgba(0, 119, 182, 0.08); box-shadow: 0 4px 15px rgba(0, 194, 224, 0.05);">
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <span class="status-breathing-dot" style="display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: #10b981; box-shadow: 0 0 10px #10b981;"></span>
+                    <span style="font-size: 13px; color: var(--text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">当前课堂 PBL 状态指示:</span>
+                    <span id="current-class-status-text" style="font-size: 15px; color: var(--text-main); font-weight: 800;">💡 正在浏览 18学时项目制大纲地图。点击下方各课的“投影演示”可开始课堂大屏演示与 PBL 小组实战活动。</span>
+                </div>
+                <div id="current-class-action-tag" style="background: rgba(16, 185, 129, 0.15); color: var(--green); font-size: 11px; padding: 2px 8px; border-radius: 6px; border: 1px solid rgba(16, 185, 129, 0.25); font-weight: 800; white-space: nowrap;">大纲浏览中</div>
+            </div>
+
+            <div class="map-header" style="margin-top: 10px;">
+                <h2><i class="fas fa-route"></i> 《大学生创新创业基础》18学时极速实战课程大纲地图</h2>
+                <p>依据通识课程标准与金课学术体系重构设计 · 融合多校国家级金课学术体系</p>
+                <div style="display: flex; gap: 15px; justify-content: center; margin-top: 15px; flex-wrap: wrap;">
+                    <span style="font-size: 12px; padding: 4px 10px; border-radius: 12px; background: rgba(59, 130, 246, 0.15); color: var(--secondary); border: 1px solid rgba(59, 130, 246, 0.25);">
+                        <i class="fas fa-clock"></i> 课程总学时：18学时 (共9次大课)
+                    </span>
+                    <span style="font-size: 12px; padding: 4px 10px; border-radius: 12px; background: rgba(16, 185, 129, 0.15); color: var(--green); border: 1px solid rgba(16, 185, 129, 0.25);">
+                        <i class="fas fa-laptop-code"></i> 数字时代 PBL 项目制
+                    </span>
+                    <span style="font-size: 12px; padding: 4px 10px; border-radius: 12px; background: rgba(245, 158, 11, 0.15); color: var(--accent); border: 1px solid rgba(245, 158, 11, 0.25);">
+                        <i class="fas fa-graduation-cap"></i> 通识教育双创金课
+                    </span>
+                </div>
+            </div>
+
+            <!-- 💻 全套 18学时 PBL 大屏演播快捷放映中心 -->
+            <div class="glass-panel" style="margin: 25px 0 15px 0; padding: 20px 24px; border-radius: var(--radius-md); border: 1.5px solid rgba(245, 158, 11, 0.35); background: rgba(8, 18, 50, 0.65);">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; border-bottom:1px solid rgba(255,255,255,0.08); padding-bottom:10px;">
+                    <div style="font-size:16px; font-weight:900; color:#fbbf24; display:flex; align-items:center; gap:8px;">
+                        <i class="fas fa-desktop"></i> 💻 全套 18 学时 PBL 快捷放映中心 (一键调起霸屏 33 Slide 演播)
+                    </div>
+                    <button onclick="if(window.openPresentationDrawer)openPresentationDrawer();" style="background:linear-gradient(135deg,#f59e0b,#d97706); border:none; color:#050608; padding:5px 16px; border-radius:12px; font-size:12px; font-weight:800; cursor:pointer;">
+                        <i class="fas fa-th-list"></i> 打开放映罗盘
+                    </button>
+                </div>
+                <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap:10px;">
+                    <button onclick="openPresentation('11')" class="action-btn" style="text-align:left; justify-content:flex-start; padding:10px 14px; background:rgba(255,255,255,0.04); border:1px solid rgba(0,194,224,0.2); font-size:12.5px; color:#fff; font-weight:700;">
+                        💻 放映：第一次课 认识创新创业与 Sarasvathy 效果推理
+                    </button>
+                    <button onclick="openPresentation('12')" class="action-btn" style="text-align:left; justify-content:flex-start; padding:10px 14px; background:rgba(255,255,255,0.04); border:1px solid rgba(0,194,224,0.2); font-size:12.5px; color:#fff; font-weight:700;">
+                        💻 放映：第一次课(下) SCAMPER 奔驰法 7维发散
+                    </button>
+                    <button onclick="openPresentation('21')" class="action-btn" style="text-align:left; justify-content:flex-start; padding:10px 14px; background:rgba(255,255,255,0.04); border:1px solid rgba(0,194,224,0.2); font-size:12.5px; color:#fff; font-weight:700;">
+                        💻 放映：第二次课 商机捕捉与 JTBD 真实痛点过滤
+                    </button>
+                    <button onclick="openPresentation('22')" class="action-btn" style="text-align:left; justify-content:flex-start; padding:10px 14px; background:rgba(255,255,255,0.04); border:1px solid rgba(0,194,224,0.2); font-size:12.5px; color:#fff; font-weight:700;">
+                        💻 放映：第三次课 创业者特质与生涯规划技能拼图
+                    </button>
+                    <button onclick="openPresentation('31')" class="action-btn" style="text-align:left; justify-content:flex-start; padding:10px 14px; background:rgba(255,255,255,0.04); border:1px solid rgba(0,194,224,0.2); font-size:12.5px; color:#fff; font-weight:700;">
+                        💻 放映：第四次课 精益商业模式画布 (BMC) 9要素设计
+                    </button>
+                    <button onclick="openPresentation('33')" class="action-btn" style="text-align:left; justify-content:flex-start; padding:10px 14px; background:rgba(255,255,255,0.04); border:1px solid rgba(0,194,224,0.2); font-size:12.5px; color:#fff; font-weight:700;">
+                        💻 放映：第五次课 24 小时零代码 MVP 原型构建
+                    </button>
+                </div>
+            </div>
+
+            <div class="map-timeline" style="margin-top: 30px;">
+                <!-- Lesson 1 -->
+                <div class="map-milestone m1-milestone">
+                    <div class="milestone-badge">1</div>
+                    <div class="milestone-content">
+                        <div class="lesson-header-row">
+                            <h3 class="lesson-title">第一次课：认识创新创业与发散思维 <button class="pres-trigger-btn" onclick="openPresentation('11'); event.stopPropagation();" style="background:#f59e0b; color:#050608; border:none; padding:6px 16px; border-radius:18px; font-size:13px; font-weight:800; cursor:pointer; box-shadow:0 0 15px rgba(245,158,11,0.4); margin-left:15px;"><i class="fas fa-desktop"></i> 投影演示</button></h3>
+                            <span class="lesson-hours-tag">2 学时 · PBL敏捷实操</span>
+                        </div>
+                        <div class="theory-box">
+                            <strong class="theory-title"><i class="fas fa-book-reader"></i> 📚 核心理论基础：</strong>
+                            <div class="theory-text">
+                                <strong>1. Sarasvathy 效果推理理论 (Effectuation)：</strong> 区别于传统因果推理，强调基于现有资源开展手段导向创新。<br/>
+                                <strong>2. SCAMPER 奔驰法发散模型：</strong> 7 维创想发散法则。
+                            </div>
+                        </div>
+                        <div class="lesson-tools-row">
+                            <div class="lesson-output-text">🎯 <strong>实操产出：</strong> 个人特长资源盘点表 + 10分钟奔驰卡牌提案。</div>
+                            <div style="display:flex; gap:8px;">
+                                <a href="activities.html" class="action-btn" style="font-size:11.5px; padding:4px 10px;"><i class="fas fa-bolt" style="color:var(--accent);"></i> 10min 奔驰卡牌</a>
+                                <a href="graph.html?nodeId=12" class="milestone-link-btn"><i class="fas fa-magic"></i> 查看能力卡片 1.2</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Lesson 2 -->
+                <div class="map-milestone m1-milestone">
+                    <div class="milestone-badge">2</div>
+                    <div class="milestone-content">
+                        <div class="lesson-header-row">
+                            <h3 class="lesson-title">第二次课：商机捕捉与真实痛点过滤 <button class="pres-trigger-btn" onclick="openPresentation('21'); event.stopPropagation();" style="background:#f59e0b; color:#050608; border:none; padding:6px 16px; border-radius:18px; font-size:13px; font-weight:800; cursor:pointer; box-shadow:0 0 15px rgba(245,158,11,0.4); margin-left:15px;"><i class="fas fa-desktop"></i> 投影演示</button></h3>
+                            <span class="lesson-hours-tag">2 学时 · PBL敏捷实操</span>
+                        </div>
+                        <div class="theory-box">
+                            <strong class="theory-title"><i class="fas fa-book-reader"></i> 📚 核心理论基础：</strong>
+                            <div class="theory-text">
+                                <strong>1. JTBD 待办任务理论：</strong> 锁定显性痛苦与真实付费意愿。<br/>
+                                <strong>2. 同理心地图 6 维归因：</strong> 还原真实场景与挫败象限。
+                            </div>
+                        </div>
+                        <div class="lesson-tools-row">
+                            <div class="lesson-output-text">🎯 <strong>实操产出：</strong> 真实痛点白皮书 + 同理心画像。</div>
+                            <div style="display:flex; gap:8px;">
+                                <a href="activities.html" class="action-btn" style="font-size:11.5px; padding:4px 10px;"><i class="fas fa-search" style="color:var(--cyan);"></i> 启动痛点盲测</a>
+                                <a href="graph.html?nodeId=21" class="milestone-link-btn"><i class="fas fa-bullseye"></i> 查看能力卡片 2.1</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Lesson 3 -->
+                <div class="map-milestone m2-milestone">
+                    <div class="milestone-badge">3</div>
+                    <div class="milestone-content">
+                        <div class="lesson-header-row">
+                            <h3 class="lesson-title">第三次课：创业者特质与生涯规划 <button class="pres-trigger-btn" onclick="openPresentation('22'); event.stopPropagation();" style="background:#f59e0b; color:#050608; border:none; padding:6px 16px; border-radius:18px; font-size:13px; font-weight:800; cursor:pointer; box-shadow:0 0 15px rgba(245,158,11,0.4); margin-left:15px;"><i class="fas fa-desktop"></i> 投影演示</button></h3>
+                            <span class="lesson-hours-tag">2 学时 · PBL敏捷实操</span>
+                        </div>
+                        <div class="theory-box">
+                            <strong class="theory-title"><i class="fas fa-book-reader"></i> 📚 核心理论基础：</strong>
+                            <div class="theory-text">
+                                <strong>1. 创始人九型人格与特质：</strong> 识别开拓者、分析师与执行官。<br/>
+                                <strong>2. 跨学科技能对接：</strong> 打造 Hacker+Hipster+Hustler 铁三角。
+                            </div>
+                        </div>
+                        <div class="lesson-tools-row">
+                            <div class="lesson-output-text">🎯 <strong>实操产出：</strong> 跨学科团队技能互补拼图与职责说明。</div>
+                            <div style="display:flex; gap:8px;">
+                                <a href="activities.html" class="action-btn" style="font-size:11.5px; padding:4px 10px;"><i class="fas fa-users" style="color:var(--purple);"></i> 技能接龙</a>
+                                <a href="graph.html?nodeId=22" class="milestone-link-btn"><i class="fas fa-user-check"></i> 查看能力卡片 2.2</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Lesson 4 -->
+                <div class="map-milestone m2-milestone">
+                    <div class="milestone-badge">4</div>
+                    <div class="milestone-content">
+                        <div class="lesson-header-row">
+                            <h3 class="lesson-title">第四次课：精益商业模式画布 (BMC) 设计 <button class="pres-trigger-btn" onclick="openPresentation('31'); event.stopPropagation();" style="background:#f59e0b; color:#050608; border:none; padding:6px 16px; border-radius:18px; font-size:13px; font-weight:800; cursor:pointer; box-shadow:0 0 15px rgba(245,158,11,0.4); margin-left:15px;"><i class="fas fa-desktop"></i> 投影演示</button></h3>
+                            <span class="lesson-hours-tag">2 学时 · PBL敏捷实操</span>
+                        </div>
+                        <div class="theory-box">
+                            <strong class="theory-title"><i class="fas fa-book-reader"></i> 📚 核心理论基础：</strong>
+                            <div class="theory-text">
+                                <strong>1. 奥斯特瓦德 BMC 画布：</strong> 9 大核心要素与勾稽关联。<br/>
+                                <strong>2. 价值主张设计：</strong> 匹配客户痛点 (Pains) 与解药 (Pain Relievers)。
+                            </div>
+                        </div>
+                        <div class="lesson-tools-row">
+                            <div class="lesson-output-text">🎯 <strong>实操产出：</strong> 精益商业模式画布 (BMC) 海报。</div>
+                            <div style="display:flex; gap:8px;">
+                                <a href="resources.html#interactive-bmc" class="action-btn" style="font-size:11.5px; padding:4px 10px;"><i class="fas fa-clipboard-list" style="color:var(--primary);"></i> 编辑商业画布</a>
+                                <a href="graph.html?nodeId=31" class="milestone-link-btn"><i class="fas fa-th-large"></i> 查看能力卡片 3.1</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Lesson 5 -->
+                <div class="map-milestone m3-milestone">
+                    <div class="milestone-badge">5</div>
+                    <div class="milestone-content">
+                        <div class="lesson-header-row">
+                            <h3 class="lesson-title">第五次课：最小可行化产品 (MVP) 极速构建 <button class="pres-trigger-btn" onclick="openPresentation('33'); event.stopPropagation();" style="background:#f59e0b; color:#050608; border:none; padding:6px 16px; border-radius:18px; font-size:13px; font-weight:800; cursor:pointer; box-shadow:0 0 15px rgba(245,158,11,0.4); margin-left:15px;"><i class="fas fa-desktop"></i> 投影演示</button></h3>
+                            <span class="lesson-hours-tag">2 学时 · PBL敏捷实操</span>
+                        </div>
+                        <div class="theory-box">
+                            <strong class="theory-title"><i class="fas fa-book-reader"></i> 📚 核心理论基础：</strong>
+                            <div class="theory-text">
+                                <strong>1. 莱斯精益创业 MVP 理论：</strong> 构建-测量-学习敏捷反馈环。<br/>
+                                <strong>2. 产品三层次：</strong> 验证核心利益与冷启动付费测试。
+                            </div>
+                        </div>
+                        <div class="lesson-tools-row">
+                            <div class="lesson-output-text">🎯 <strong>实操产出：</strong> 极简 MVP 可用原型及冷启动测试日志。</div>
+                            <div style="display:flex; gap:8px;">
+                                <a href="activities.html" class="action-btn" style="font-size:11.5px; padding:4px 10px;"><i class="fas fa-robot" style="color:var(--cyan);"></i> AI 赋能测试</a>
+                                <a href="graph.html?nodeId=33" class="milestone-link-btn"><i class="fas fa-cube"></i> 查看能力卡片 3.3</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Lesson 6 -->
+                <div class="map-milestone m3-milestone">
+                    <div class="milestone-badge">6</div>
+                    <div class="milestone-content">
+                        <div class="lesson-header-row">
+                            <h3 class="lesson-title">第六次课：AIGC 零代码原型构建与 iCAN 软硬件指南 <button class="pres-trigger-btn" onclick="openPresentation('34'); event.stopPropagation();" style="background:#f59e0b; color:#050608; border:none; padding:6px 16px; border-radius:18px; font-size:13px; font-weight:800; cursor:pointer; box-shadow:0 0 15px rgba(245,158,11,0.4); margin-left:15px;"><i class="fas fa-desktop"></i> 投影演示</button></h3>
+                            <span class="lesson-hours-tag">2 学时 · PBL敏捷实操</span>
+                        </div>
+                        <div class="theory-box">
+                            <strong class="theory-title"><i class="fas fa-book-reader"></i> 📚 核心理论基础：</strong>
+                            <div class="theory-text">
+                                <strong>1. AI 民主化开发架构：</strong> 借助 LLM API 低成本构建。<br/>
+                                <strong>2. iCAN 软硬件联调：</strong> 前沿芯片/算法在产业场景落地。
+                            </div>
+                        </div>
+                        <div class="lesson-tools-row">
+                            <div class="lesson-output-text">🎯 <strong>实操产出：</strong> 软硬件原型架构流程图与数据飞轮说明。</div>
+                            <div style="display:flex; gap:8px;">
+                                <a href="chat.html" class="action-btn" style="font-size:11.5px; padding:4px 10px;"><i class="fas fa-comments" style="color:var(--cyan);"></i> 咨询 CTO</a>
+                                <a href="graph.html?nodeId=34" class="milestone-link-btn"><i class="fas fa-microchip"></i> 查看能力卡片 3.4</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Lesson 7 -->
+                <div class="map-milestone m4-milestone">
+                    <div class="milestone-badge">7</div>
+                    <div class="milestone-content">
+                        <div class="lesson-header-row">
+                            <h3 class="lesson-title">第七次课：合伙人‘铁三角’与股权动态成熟机制 <button class="pres-trigger-btn" onclick="openPresentation('42'); event.stopPropagation();" style="background:#f59e0b; color:#050608; border:none; padding:6px 16px; border-radius:18px; font-size:13px; font-weight:800; cursor:pointer; box-shadow:0 0 15px rgba(245,158,11,0.4); margin-left:15px;"><i class="fas fa-desktop"></i> 投影演示</button></h3>
+                            <span class="lesson-hours-tag">2 学时 · PBL敏捷实操</span>
+                        </div>
+                        <div class="theory-box">
+                            <strong class="theory-title"><i class="fas fa-book-reader"></i> 📚 核心理论基础：</strong>
+                            <div class="theory-text">
+                                <strong>1. Belbin 团队角色：</strong> Hacker+Hipster+Hustler 跨学科协作。<br/>
+                                <strong>2. Vesting 动态股权机制：</strong> 锁定 67% 控制权与退场回购。
+                            </div>
+                        </div>
+                        <div class="lesson-tools-row">
+                            <div class="lesson-output-text">🎯 <strong>实操产出：</strong> 股权计算器结果表 + Vesting 契约。</div>
+                            <div style="display:flex; gap:8px;">
+                                <a href="resources.html#equity-calculator" class="action-btn" style="font-size:11.5px; padding:4px 10px;"><i class="fas fa-percentage" style="color:var(--purple);"></i> 股权估算</a>
+                                <a href="graph.html?nodeId=42" class="milestone-link-btn"><i class="fas fa-users"></i> 查看能力卡片 4.2</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Lesson 8 -->
+                <div class="map-milestone m5-milestone">
+                    <div class="milestone-badge">8</div>
+                    <div class="milestone-content">
+                        <div class="lesson-header-row">
+                            <h3 class="lesson-title">第八次课：BP 十模块‘鱼型模型’与 12页黄金 PPT <button class="pres-trigger-btn" onclick="openPresentation('52'); event.stopPropagation();" style="background:#f59e0b; color:#050608; border:none; padding:6px 16px; border-radius:18px; font-size:13px; font-weight:800; cursor:pointer; box-shadow:0 0 15px rgba(245,158,11,0.4); margin-left:15px;"><i class="fas fa-desktop"></i> 投影演示</button></h3>
+                            <span class="lesson-hours-tag">2 学时 · PBL敏捷实操</span>
+                        </div>
+                        <div class="theory-box">
+                            <strong class="theory-title"><i class="fas fa-book-reader"></i> 📚 核心理论基础：</strong>
+                            <div class="theory-text">
+                                <strong>1. 鱼型模型十模块：</strong> 正文十模块与附件四层次。<br/>
+                                <strong>2. 12 页黄金 PPT 逻辑：</strong> 答复投资人‘干什么、怎么干、谁来干、如何退’。
+                            </div>
+                        </div>
+                        <div class="lesson-tools-row">
+                            <div class="lesson-output-text">🎯 <strong>实操产出：</strong> 商业计划书大纲初稿 + 12页路演 PPT 结构。</div>
+                            <div style="display:flex; gap:8px;">
+                                <a href="resources.html#bp-assembler" class="action-btn" style="font-size:11.5px; padding:4px 10px;"><i class="fas fa-file-invoice" style="color:var(--cyan);"></i> BP 拼装器</a>
+                                <a href="resources.html#ppt-generator" class="action-btn" style="font-size:11.5px; padding:4px 10px;"><i class="fas fa-file-powerpoint" style="color:var(--red);"></i> PPT 生成器</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Lesson 9 -->
+                <div class="map-milestone m5-milestone">
+                    <div class="milestone-badge">9</div>
+                    <div class="milestone-content">
+                        <div class="lesson-header-row">
+                            <h3 class="lesson-title">第九次课：路演模拟与创业体验成果复盘 <button class="pres-trigger-btn" onclick="openPresentation('53'); event.stopPropagation();" style="background:#f59e0b; color:#050608; border:none; padding:6px 16px; border-radius:18px; font-size:13px; font-weight:800; cursor:pointer; box-shadow:0 0 15px rgba(245,158,11,0.4); margin-left:15px;"><i class="fas fa-desktop"></i> 投影演示</button></h3>
+                            <span class="lesson-hours-tag">2 学时 · PBL敏捷实操</span>
+                        </div>
+                        <div class="theory-box">
+                            <strong class="theory-title"><i class="fas fa-book-reader"></i> 📚 核心理论基础：</strong>
+                            <div class="theory-text">
+                                <strong>1. 项目成果展示与可持续运营初探：</strong> 体验商业闭环与初创风险防护。<br/>
+                                <strong>2. 大赛 5 维评审标准：</strong> 教育、创新、团队、商业与社会价值。
+                            </div>
+                        </div>
+                        <div class="lesson-tools-row">
+                            <div class="lesson-output-text">🎯 <strong>实操产出：</strong> 大赛答辩防御金句报告 + 创业补贴申报。</div>
+                            <div style="display:flex; gap:8px;">
+                                <a href="chat.html" class="action-btn" style="font-size:11.5px; padding:4px 10px;"><i class="fas fa-robot" style="color:var(--accent);"></i> 专家高压测试</a>
+                                <a href="exam.html" class="action-btn" style="font-size:11.5px; padding:4px 10px;"><i class="fas fa-poll-h" style="color:var(--green);"></i> 综合测评</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</main>
+
+<script src="js/data.js"></script>
+<script src="js/data_details.js"></script>
+<script src="js/modules/framework.js"></script>
+<script src="js/modules/main_framework.js"></script>
+<script src="js/modules/utils.js"></script>
+<script src="js/modules/presentation.js"></script>
+<script src="js/app.js"></script>
+
+<script>
+// 自动化点击测试代理
+document.addEventListener('DOMContentLoaded', () => {
+    if (window.location.search.includes('testClick=1')) {
+        if (typeof window.openPresentation === 'function') {
+            window.openPresentation('11');
+        }
+    }
+});
+</script>
+</body>
+</html>

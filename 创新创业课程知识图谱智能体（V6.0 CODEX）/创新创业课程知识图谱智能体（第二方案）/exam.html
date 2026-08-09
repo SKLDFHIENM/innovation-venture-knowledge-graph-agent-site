@@ -1,0 +1,858 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>综合测评 - 《大学生创新创业基础》项目制智能体</title>
+    <!-- FontAwesome 6.x SVG+JS 离线库 -->
+    <script src="js/all.min.js" defer></script>
+    <!-- 自定义主样式表 -->
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        main {
+            overflow: hidden !important;
+            height: calc(100vh - 70px) !important;
+            padding: 22px 30px !important;
+            box-sizing: border-box;
+        }
+        #pane-exam {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            height: 100%;
+        }
+        .policy-content-area {
+            flex: 1;
+            overflow-y: auto;
+            position: relative;
+        }
+        .policy-pane {
+            display: none;
+            width: 100%;
+            height: 100%;
+            flex-direction: column;
+            overflow: hidden;
+            box-sizing: border-box;
+        }
+        .policy-pane.active {
+            display: flex;
+        }
+        .exam-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            height: 100%;
+            align-items: stretch;
+        }
+        .scrollable-col {
+            overflow-y: auto;
+            padding-right: 8px;
+            height: 100%;
+        }
+        .chart-col {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            background: rgba(255,255,255,0.01);
+            border-left: 1px solid rgba(226,232,240,0.08);
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        @media (max-width: 768px) {
+            main {
+                overflow-y: auto !important;
+                height: auto !important;
+                min-height: calc(100vh - 70px);
+                padding: 15px !important;
+            }
+            .exam-grid {
+                grid-template-columns: 1fr;
+                height: auto;
+            }
+            .chart-col {
+                border-left: none;
+                border-top: 1px solid rgba(226,232,240,0.08);
+                height: 450px;
+                padding-top: 20px;
+            }
+            .policy-pane {
+                height: auto;
+                overflow: visible;
+            }
+        }
+    </style>
+</head>
+<body id="app-root" class="dark-mode" style="background:#090D16; color:#f8fafc;">
+
+<!-- 动态粒子背景画布 -->
+<canvas id="particles-canvas"></canvas>
+
+<!-- 顶部导航 Header -->
+<header>
+    <div class="logo-area" style="display:flex; align-items:center;">
+        <div class="school-badge">
+            <i class="fas fa-graduation-cap"></i>
+        </div>
+        <div class="logo-text-group">
+            <span class="logo-main">高校双创平台</span>
+            <span class="logo-course">《大学生创新创业基础》· 课程学习智能体</span>
+        </div>
+        <a href="help.html" class="logo-version-badge" title="查看使用说明与开发更新日志" style="text-decoration:none; display:inline-flex; align-items:center; gap:5px; background:rgba(0,194,224,0.12); border:1px solid rgba(0,194,224,0.25); color:var(--cyan); font-size:11px; padding:3px 8px; border-radius:12px; margin-left:12px; font-weight:700; transition:all 0.2s;">
+            <span class="version-dot" style="width:6px; height:6px; background:#10b981; border-radius:50%; box-shadow:0 0 5px #10b981;"></span>
+            v6.6 Refactored (2026.07.21)
+        </a>
+    </div>
+
+    <div class="header-tools">
+        <nav>
+            <a class="nav-item" href="index.html">
+                <i class="fas fa-home"></i><span class="nav-text"> 首页</span>
+            </a>
+            <a class="nav-item" href="map.html">
+                <i class="fas fa-map-marked-alt"></i><span class="nav-text"> 课程地图</span>
+            </a>
+            <a class="nav-item" href="knowledge_graph.html">
+                <i class="fas fa-brain"></i><span class="nav-text"> 理论知识图谱</span>
+            </a>
+            <a class="nav-item" href="graph.html">
+                <i class="fas fa-chart-radar"></i><span class="nav-text"> 实战能力图谱</span>
+            </a>
+            <a class="nav-item" href="chat.html">
+                <i class="fas fa-comments"></i><span class="nav-text"> AI导师</span>
+            </a>
+            <a class="nav-item" href="activities.html">
+                <i class="fas fa-bolt"></i><span class="nav-text"> 闪电活动</span>
+            </a>
+            <a class="nav-item active" href="exam.html">
+                <i class="fas fa-poll-h"></i><span class="nav-text"> 综合测评</span>
+            </a>
+            <a class="nav-item" href="glossary.html">
+                <i class="fas fa-book"></i><span class="nav-text"> 术语词典</span>
+            </a>
+            <a class="nav-item" href="resources.html">
+                <i class="fas fa-cubes"></i><span class="nav-text"> 任务资源</span>
+            </a>
+            <a class="nav-item" href="presentation.html"><i class="fas fa-desktop"></i><span class="nav-text"> 大屏演示</span></a>
+            <a class="nav-item" href="student.html"><i class="fas fa-user-graduate"></i><span class="nav-text"> 我的档案</span></a>
+        </nav>
+        <button id="theme-toggle-btn" onclick="toggleTheme()" title="切换日夜主题" aria-label="切换主题">🌙</button>
+    </div>
+</header>
+
+<main>
+    <div class="view-pane active glass-panel" id="pane-exam" style="padding: 0 !important; overflow: hidden !important;">
+        <!-- 顶部 Tab 导航 -->
+        <div class="policy-tabs" style="border-radius: 20px 20px 0 0;">
+            <div class="policy-tab active" data-pane="exam-quiz"><i class="fas fa-file-signature"></i> 知识闯关测验</div>
+            <div class="policy-tab" data-pane="exam-radar"><i class="fas fa-chart-line"></i> 能力维度评估</div>
+            <div class="policy-tab" data-pane="exam-project"><i class="fas fa-clipboard-check"></i> 项目提案评估</div>
+        </div>
+
+        <!-- 测评主显示区 -->
+        <div class="policy-content-area" style="padding: 24px;">
+            
+            <!-- 板块 A：知识闯关 -->
+            <div class="policy-pane active" id="exam-quiz">
+                <!-- ===== 全新重构：实战闯关起始屏 ===== -->
+                <div id="quiz-start-screen" style="display:flex; align-items:stretch; justify-content:center; height:100%; gap:24px; padding:4px 0;">
+
+                    <!-- 内嵌增强样式 -->
+                    <style>
+                    /* ─── 双栏起始屏布局 ─── */
+                    #quiz-start-screen { overflow: hidden; }
+                    @media (max-width: 900px) {
+                        #quiz-start-screen { flex-direction: column !important; overflow-y: auto !important; }
+                        .qs-right-panel { max-width: 100% !important; min-width: unset !important; }
+                    }
+
+                    /* ─── 主卡片（左） ─── */
+                    .qs-main-card {
+                        flex: 1;
+                        min-width: 0;
+                        max-width: 620px;
+                        background: linear-gradient(145deg, rgba(0,82,204,0.10) 0%, rgba(0,119,182,0.06) 100%);
+                        border: 1px solid rgba(24,144,255,0.22);
+                        border-radius: 20px;
+                        padding: 32px 30px 28px;
+                        box-shadow: 0 8px 32px rgba(0,82,204,0.12), 0 0 0 1px rgba(255,255,255,0.04) inset;
+                        display: flex;
+                        flex-direction: column;
+                        gap: 18px;
+                        position: relative;
+                        overflow: hidden;
+                        backdrop-filter: blur(12px);
+                    }
+                    .qs-main-card::before {
+                        content: '';
+                        position: absolute;
+                        top: -60px; right: -60px;
+                        width: 200px; height: 200px;
+                        border-radius: 50%;
+                        background: radial-gradient(circle, rgba(24,144,255,0.18) 0%, transparent 70%);
+                        pointer-events: none;
+                    }
+
+                    /* ─── 标题区 ─── */
+                    .qs-badge-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+                    .qs-level-badge {
+                        display: inline-flex; align-items: center; gap: 5px;
+                        background: linear-gradient(90deg, #FA8C16, #f5a623);
+                        color: #fff; font-size: 11px; font-weight: 800;
+                        padding: 3px 10px; border-radius: 20px;
+                        letter-spacing: 0.5px;
+                        box-shadow: 0 2px 8px rgba(250,140,22,0.35);
+                        animation: qs-pulse-badge 2.5s infinite;
+                    }
+                    @keyframes qs-pulse-badge {
+                        0%,100% { box-shadow: 0 2px 8px rgba(250,140,22,0.35); }
+                        50%      { box-shadow: 0 2px 16px rgba(250,140,22,0.65); }
+                    }
+                    .qs-new-badge {
+                        display: inline-flex; align-items: center; gap: 4px;
+                        background: rgba(19,194,194,0.15); border: 1px solid rgba(19,194,194,0.35);
+                        color: #13C2C2; font-size: 10.5px; font-weight: 700;
+                        padding: 3px 9px; border-radius: 20px;
+                    }
+                    .qs-title {
+                        font-size: 20px; font-weight: 900; line-height: 1.35;
+                        color: var(--text-main);
+                        background: linear-gradient(90deg, #fff 0%, #90caf9 100%);
+                        -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+                        background-clip: text;
+                        margin: 0;
+                    }
+                    body.day-mode .qs-title, body.light-mode .qs-title {
+                        background: linear-gradient(90deg, #0d2b6e 0%, #1890FF 100%);
+                        -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+                        background-clip: text;
+                    }
+                    .qs-desc {
+                        font-size: 13.5px; color: var(--text-muted); line-height: 1.75;
+                        margin: 0; border-left: 3px solid rgba(24,144,255,0.4);
+                        padding-left: 12px;
+                    }
+
+                    /* ─── 考点标签云 ─── */
+                    .qs-tag-cloud { display: flex; flex-wrap: wrap; gap: 8px; }
+                    .qs-topic-tag {
+                        display: inline-flex; align-items: center; gap: 4px;
+                        background: rgba(24,144,255,0.10); border: 1px solid rgba(24,144,255,0.25);
+                        color: #69b1ff; font-size: 11.5px; font-weight: 600;
+                        padding: 4px 10px; border-radius: 20px;
+                        transition: all 0.25s ease; cursor: default;
+                    }
+                    .qs-topic-tag:hover {
+                        background: rgba(24,144,255,0.22); border-color: rgba(24,144,255,0.5);
+                        transform: translateY(-2px);
+                        box-shadow: 0 4px 12px rgba(24,144,255,0.2);
+                    }
+                    body.day-mode .qs-topic-tag, body.light-mode .qs-topic-tag {
+                        background: rgba(24,144,255,0.08); border-color: rgba(24,144,255,0.3);
+                        color: #0052CC;
+                    }
+
+                    /* ─── 四项指标卡 ─── */
+                    .qs-stats-grid {
+                        display: grid; grid-template-columns: 1fr 1fr;
+                        gap: 10px;
+                    }
+                    .qs-stat-card {
+                        display: flex; align-items: center; gap: 10px;
+                        background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
+                        border-radius: 12px; padding: 12px 14px;
+                        transition: all 0.25s ease;
+                    }
+                    .qs-stat-card:hover {
+                        background: rgba(255,255,255,0.07);
+                        transform: translateY(-2px);
+                        box-shadow: 0 6px 18px rgba(0,0,0,0.15);
+                    }
+                    body.day-mode .qs-stat-card, body.light-mode .qs-stat-card {
+                        background: rgba(255,255,255,0.85); border-color: rgba(24,144,255,0.15);
+                        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+                    }
+                    .qs-stat-icon {
+                        width: 38px; height: 38px; border-radius: 10px;
+                        display: flex; align-items: center; justify-content: center;
+                        font-size: 17px; flex-shrink: 0;
+                    }
+                    .qs-stat-icon.blue  { background: rgba(24,144,255,0.15); color: #1890FF; }
+                    .qs-stat-icon.orange{ background: rgba(250,140,22,0.15); color: #FA8C16; }
+                    .qs-stat-icon.cyan  { background: rgba(19,194,194,0.15); color: #13C2C2; }
+                    .qs-stat-icon.green { background: rgba(16,185,129,0.15); color: #10b981; }
+                    .qs-stat-label { font-size: 11px; color: var(--text-muted); margin-bottom: 2px; }
+                    .qs-stat-value { font-size: 15px; font-weight: 800; color: var(--text-main); }
+
+                    /* ─── CTA 按钮 ─── */
+                    .qs-cta-btn {
+                        display: flex; align-items: center; justify-content: center; gap: 10px;
+                        padding: 14px 28px; border-radius: 50px;
+                        background: linear-gradient(135deg, #FA8C16 0%, #f5a623 50%, #FA8C16 100%);
+                        background-size: 200% auto;
+                        color: #fff; font-size: 15px; font-weight: 800;
+                        border: none; cursor: pointer; width: 100%;
+                        box-shadow: 0 6px 24px rgba(250,140,22,0.40);
+                        transition: all 0.3s ease;
+                        letter-spacing: 0.5px;
+                        position: relative; overflow: hidden;
+                    }
+                    .qs-cta-btn:hover {
+                        background-position: right center;
+                        box-shadow: 0 8px 30px rgba(250,140,22,0.60);
+                        transform: translateY(-2px) scale(1.01);
+                    }
+                    .qs-cta-btn:active { transform: scale(0.98); }
+                    .qs-cta-btn::after {
+                        content: '';
+                        position: absolute; inset: 0;
+                        background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.18) 50%, transparent 100%);
+                        transform: translateX(-100%);
+                        transition: transform 0.55s ease;
+                    }
+                    .qs-cta-btn:hover::after { transform: translateX(100%); }
+                    .qs-cta-sub { font-size: 11.5px; color: rgba(250,140,22,0.85); text-align:center; margin-top:-4px; }
+                    body.day-mode .qs-cta-sub, body.light-mode .qs-cta-sub { color: rgba(180,100,0,0.8); }
+
+                    /* ─── 右侧历史战报 ─── */
+                    .qs-right-panel {
+                        min-width: 260px; max-width: 310px; width: 300px;
+                        display: flex; flex-direction: column; gap: 14px;
+                    }
+                    .qs-hist-card {
+                        background: linear-gradient(145deg, rgba(250,140,22,0.08) 0%, rgba(0,82,204,0.06) 100%);
+                        border: 1px solid rgba(250,140,22,0.20);
+                        border-radius: 18px; padding: 20px 18px;
+                        backdrop-filter: blur(10px);
+                        box-shadow: 0 8px 24px rgba(0,0,0,0.10);
+                        display: flex; flex-direction: column; gap: 14px;
+                    }
+                    body.day-mode .qs-hist-card, body.light-mode .qs-hist-card {
+                        background: rgba(255,255,255,0.92); border-color: rgba(250,140,22,0.22);
+                        box-shadow: 0 4px 20px rgba(0,0,0,0.07);
+                    }
+                    .qs-hist-title {
+                        font-size: 12.5px; font-weight: 800; color: var(--text-muted);
+                        letter-spacing: 0.5px; text-transform: uppercase;
+                        display: flex; align-items: center; gap: 6px;
+                    }
+                    .qs-best-score-ring {
+                        display: flex; flex-direction: column; align-items: center; gap: 4px;
+                        padding: 12px 0 8px;
+                    }
+                    .qs-score-ring-wrap {
+                        width: 80px; height: 80px; position: relative;
+                    }
+                    .qs-score-ring-svg { width: 80px; height: 80px; transform: rotate(-90deg); }
+                    .qs-ring-bg { fill: none; stroke: rgba(255,255,255,0.07); stroke-width: 7; }
+                    .qs-ring-fg {
+                        fill: none; stroke: url(#ringGrad); stroke-width: 7;
+                        stroke-linecap: round;
+                        stroke-dasharray: 220; stroke-dashoffset: 220;
+                        transition: stroke-dashoffset 1.2s cubic-bezier(0.22,1,0.36,1);
+                    }
+                    .qs-ring-center {
+                        position: absolute; inset: 0;
+                        display: flex; flex-direction: column; align-items: center; justify-content: center;
+                    }
+                    .qs-ring-num { font-size: 22px; font-weight: 900; color: var(--text-main); line-height: 1; }
+                    .qs-ring-unit { font-size: 10px; color: var(--text-muted); }
+                    .qs-score-label { font-size: 11.5px; color: var(--text-muted); }
+                    .qs-score-rank {
+                        display: flex; justify-content: space-between;
+                        font-size: 12px;
+                    }
+                    .qs-rank-item { display:flex; flex-direction:column; align-items:center; gap:2px; }
+                    .qs-rank-val { font-size:14px; font-weight:800; color:var(--text-main); }
+                    .qs-rank-label { font-size:10.5px; color:var(--text-muted); }
+
+                    /* ─── 解锁奖励区 ─── */
+                    .qs-unlock-card {
+                        background: linear-gradient(135deg, rgba(19,194,194,0.08) 0%, rgba(0,82,204,0.08) 100%);
+                        border: 1px solid rgba(19,194,194,0.22);
+                        border-radius: 14px; padding: 16px 16px;
+                        display: flex; flex-direction: column; gap: 10px;
+                        backdrop-filter: blur(8px);
+                    }
+                    body.day-mode .qs-unlock-card, body.light-mode .qs-unlock-card {
+                        background: rgba(255,255,255,0.92); border-color: rgba(19,194,194,0.3);
+                    }
+                    .qs-unlock-title {
+                        font-size: 12px; font-weight: 800; color: #13C2C2;
+                        display: flex; align-items: center; gap: 5px;
+                    }
+                    .qs-unlock-item {
+                        display: flex; align-items: center; gap: 8px;
+                        font-size: 12px; color: var(--text-sub);
+                        padding: 6px 10px; border-radius: 8px;
+                        background: rgba(255,255,255,0.03);
+                        border: 1px solid rgba(255,255,255,0.06);
+                        transition: all 0.2s ease;
+                    }
+                    .qs-unlock-item:hover { background: rgba(19,194,194,0.07); border-color: rgba(19,194,194,0.2); }
+                    body.day-mode .qs-unlock-item, body.light-mode .qs-unlock-item {
+                        background: rgba(240,255,255,0.6); border-color: rgba(19,194,194,0.15);
+                        color: #334155;
+                    }
+                    .qs-unlock-icon { font-size: 15px; flex-shrink: 0; }
+                    .qs-unlock-locked { opacity: 0.5; }
+                    .qs-lock-badge {
+                        margin-left: auto; font-size: 10px; color: var(--text-muted);
+                        background: rgba(255,255,255,0.06); border-radius: 10px;
+                        padding: 1px 7px; border: 1px solid rgba(255,255,255,0.1);
+                    }
+                    body.day-mode .qs-lock-badge, body.light-mode .qs-lock-badge {
+                        background: rgba(0,0,0,0.05); border-color: rgba(0,0,0,0.1); color: #64748b;
+                    }
+                    </style>
+
+                    <!-- SVG 渐变定义 -->
+                    <svg width="0" height="0" style="position:absolute;">
+                        <defs>
+                            <linearGradient id="ringGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                                <stop offset="0%" stop-color="#FA8C16"/>
+                                <stop offset="100%" stop-color="#1890FF"/>
+                            </linearGradient>
+                        </defs>
+                    </svg>
+
+                    <!-- ▌左侧：主信息卡片 ▌ -->
+                    <div class="qs-main-card">
+
+                        <!-- 标题区 -->
+                        <div>
+                            <div class="qs-badge-row">
+                                <span class="qs-level-badge"><i class="fas fa-trophy"></i> 实战能力挑战</span>
+                                <span class="qs-new-badge"><i class="fas fa-robot"></i> AI智能诊断版</span>
+                            </div>
+                            <h2 class="qs-title" style="margin-top:10px;">《大学生创新创业基础》<br>实战能力与知识闯关</h2>
+                        </div>
+
+                        <!-- 简介文案 -->
+                        <p class="qs-desc">
+                            本测验精选 <strong style="color:#FA8C16;">20 道</strong>涵盖单选、多选与<strong style="color:#13C2C2;">案例场景诊断题</strong>，全面覆盖 SCAMPER（奔驰法）、精益画布、股权设计、电梯演说、红旅实践和政策红利等核心大纲，并包含 <strong style="color:#1890FF;">3 个真实双创项目模拟案例</strong>，系统限时 <strong style="color:#FA8C16;">30 分钟</strong>。
+                        </p>
+
+                        <!-- 考点标签云 -->
+                        <div>
+                            <div style="font-size:11.5px; color:var(--text-muted); font-weight:700; margin-bottom:8px; letter-spacing:0.5px;">📌 考查维度覆盖</div>
+                            <div class="qs-tag-cloud">
+                                <span class="qs-topic-tag"># 商业模式</span>
+                                <span class="qs-topic-tag"># 团队股权</span>
+                                <span class="qs-topic-tag"># 路演表达</span>
+                                <span class="qs-topic-tag"># 政策红利</span>
+                                <span class="qs-topic-tag"># SCAMPER创新</span>
+                                <span class="qs-topic-tag"># 精益创业</span>
+                                <span class="qs-topic-tag"># 红旅实践</span>
+                                <span class="qs-topic-tag"># MVP验证</span>
+                            </div>
+                        </div>
+
+                        <!-- 四项指标卡 -->
+                        <div class="qs-stats-grid">
+                            <div class="qs-stat-card">
+                                <div class="qs-stat-icon blue"><i class="fas fa-question-circle"></i></div>
+                                <div>
+                                    <div class="qs-stat-label">题目数量</div>
+                                    <div class="qs-stat-value">20 题</div>
+                                </div>
+                            </div>
+                            <div class="qs-stat-card">
+                                <div class="qs-stat-icon orange"><i class="fas fa-clock"></i></div>
+                                <div>
+                                    <div class="qs-stat-label">限时时长</div>
+                                    <div class="qs-stat-value">30 分钟</div>
+                                </div>
+                            </div>
+                            <div class="qs-stat-card">
+                                <div class="qs-stat-icon cyan"><i class="fas fa-bullseye"></i></div>
+                                <div>
+                                    <div class="qs-stat-label">及格标准</div>
+                                    <div class="qs-stat-value">80 分通关</div>
+                                </div>
+                            </div>
+                            <div class="qs-stat-card">
+                                <div class="qs-stat-icon green"><i class="fas fa-layer-group"></i></div>
+                                <div>
+                                    <div class="qs-stat-label">题型</div>
+                                    <div class="qs-stat-value">混合题型</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- CTA 按钮 -->
+                        <div style="display:flex; flex-direction:column; gap:8px; margin-top:2px;">
+                            <button class="qs-cta-btn" onclick="startKnowledgeQuiz()">
+                                <i class="fas fa-flag-checkered"></i>
+                                开启实战挑战测验
+                                <i class="fas fa-arrow-right"></i>
+                            </button>
+                            <div class="qs-cta-sub">🔓 80分通关 · 解锁 AI 导师深度诊断 & 项目提案评估权限</div>
+                        </div>
+
+                    </div><!-- /qs-main-card -->
+
+                    <!-- ▌右侧：历史战报 + 通关奖励 ▌ -->
+                    <div class="qs-right-panel">
+
+                        <!-- 个人最高分 -->
+                        <div class="qs-hist-card">
+                            <div class="qs-hist-title">
+                                <i class="fas fa-medal" style="color:#FA8C16;"></i> 我的历史战报
+                            </div>
+                            <div class="qs-best-score-ring">
+                                <div class="qs-score-ring-wrap">
+                                    <svg class="qs-score-ring-svg" viewBox="0 0 80 80">
+                                        <circle class="qs-ring-bg" cx="40" cy="40" r="35"/>
+                                        <circle class="qs-ring-fg" id="qs-ring-circle" cx="40" cy="40" r="35"/>
+                                    </svg>
+                                    <div class="qs-ring-center">
+                                        <div class="qs-ring-num" id="qs-best-score-num">--</div>
+                                        <div class="qs-ring-unit">分</div>
+                                    </div>
+                                </div>
+                                <div class="qs-score-label">历史最高分</div>
+                            </div>
+                            <div class="qs-score-rank">
+                                <div class="qs-rank-item">
+                                    <div class="qs-rank-val" id="qs-attempt-count">0</div>
+                                    <div class="qs-rank-label">参与次数</div>
+                                </div>
+                                <div class="qs-rank-item">
+                                    <div class="qs-rank-val" id="qs-pass-count">0</div>
+                                    <div class="qs-rank-label">通关次数</div>
+                                </div>
+                                <div class="qs-rank-item">
+                                    <div class="qs-rank-val" id="qs-pass-rate">--%</div>
+                                    <div class="qs-rank-label">通关率</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 通关奖励解锁区 -->
+                        <div class="qs-unlock-card">
+                            <div class="qs-unlock-title">
+                                <i class="fas fa-unlock-alt"></i> 通关后可解锁
+                            </div>
+                            <div class="qs-unlock-item">
+                                <span class="qs-unlock-icon">🤖</span>
+                                <span>AI 导师深度能力诊断</span>
+                                <span class="qs-lock-badge">≥80分</span>
+                            </div>
+                            <div class="qs-unlock-item">
+                                <span class="qs-unlock-icon">📋</span>
+                                <span>项目提案专业评估</span>
+                                <span class="qs-lock-badge">≥80分</span>
+                            </div>
+                            <div class="qs-unlock-item">
+                                <span class="qs-unlock-icon">🏆</span>
+                                <span>三维能力图谱生成</span>
+                                <span class="qs-lock-badge">完成即解</span>
+                            </div>
+                            <div class="qs-unlock-item">
+                                <span class="qs-unlock-icon">📊</span>
+                                <span>OBE学情诊断报告</span>
+                                <span class="qs-lock-badge">完成即解</span>
+                            </div>
+                        </div>
+
+                        <!-- 重考说明 -->
+                        <div style="text-align:center; padding:10px 8px; font-size:11.5px; color:var(--text-muted); line-height:1.7;">
+                            <i class="fas fa-infinity" style="color:#13C2C2;"></i>
+                            支持<strong style="color:var(--text-sub);">无限次</strong>重考 · 每次作答独立计分<br>
+                            <span style="opacity:0.7;">历史最高分将自动同步至学情档案</span>
+                        </div>
+
+                    </div><!-- /qs-right-panel -->
+
+                </div><!-- /quiz-start-screen -->
+                
+                <!-- 答题进行区 -->
+                <div id="quiz-main-area" style="display:none; height:100%;">
+                    <!-- 由 JS 动态填充 -->
+                </div>
+            </div>
+
+            <!-- 板块 B：能力维度评估 -->
+            <div class="policy-pane" id="exam-radar">
+                <div class="exam-grid">
+                    <!-- 左侧：滑块控制区 -->
+                    <div class="scrollable-col">
+                        <h3 style="color:var(--text-main); font-size:15.5px; font-weight:700; margin:0 0 15px 0;"><i class="fas fa-sliders-h" style="color:var(--cyan);"></i> 知识、素养、能力自评维度调节</h3>
+                        <p style="color:var(--text-muted); font-size:12.5px; line-height:1.6; margin:0 0 20px 0;">
+                            请根据你目前的真实掌握情况，拖动滑块调整以下 9 个核心维度（涵盖知识图谱、素养图谱、能力图谱）的得分（1-10分）。
+                        </p>
+                        <div id="radar-sliders" style="display:flex; flex-direction:column; gap:16px; margin-bottom:20px;">
+                            <!-- 动态填充 -->
+                        </div>
+                        <button class="action-btn primary" onclick="generateRadarChart()" style="width:100%; padding:12px; justify-content:center;">
+                            <i class="fas fa-sync-alt"></i> 生成我的三维评估图谱（知识/素养/能力）
+                        </button>
+                        
+                        <!-- OBE（成果导向教育） “3+3+4” 总评成绩一键结算看板 -->
+                        <div class="obe-calc-card glass-panel" style="margin-top:20px; padding:20px; border:1px solid rgba(0,194,224,0.2); background:rgba(0,119,182,0.05); border-radius:12px;">
+                            <h4 style="margin:0 0 10px 0; color:#fff; font-size:15px;"><i class="fas fa-calculator" style="color:var(--cyan); margin-right:6px;"></i> OBE（成果导向教育）“3+3+4”总评成绩一键结算</h4>
+                            <p style="color:var(--text-muted); font-size:12px; line-height:1.5; margin-bottom:15px; margin-top:0;">
+                                考核比重：平时表现 30%（9次PBL打卡与探索） + 期中成果 30%（商业画布与MVP（最小可行产品）诊断） + 期末终极 40%（综合测评测验）。
+                            </p>
+                            <div style="display:flex; flex-direction:column; gap:8px; font-size:13px; color:var(--text-sub); margin-bottom:15px;">
+                                <div style="display:flex; justify-content:space-between;">
+                                    <span>平时分 (30%权重)：</span>
+                                    <span id="obe-calc-regular" style="font-weight:700; color:var(--cyan);">0 分 (折合 0.0)</span>
+                                </div>
+                                <div style="display:flex; justify-content:space-between;">
+                                    <span>期中分 (30%权重)：</span>
+                                    <span id="obe-calc-mid" style="font-weight:700; color:var(--cyan);">0 分 (折合 0.0)</span>
+                                </div>
+                                <div style="display:flex; justify-content:space-between;">
+                                    <span>期末分 (40%权重)：</span>
+                                    <span id="obe-calc-final" style="font-weight:700; color:var(--cyan);">0 分 (折合 0.0)</span>
+                                </div>
+                                <div style="border-top:1px dashed rgba(255,255,255,0.1); padding-top:8px; display:flex; justify-content:space-between; font-size:14.5px; color:#fff; font-weight:800;">
+                                    <span>终期综合总成绩：</span>
+                                    <span id="obe-calc-total" style="color:var(--accent);">0 分</span>
+                                </div>
+                            </div>
+                            <button class="action-btn primary" onclick="window.calculateOBE（成果导向教育）FinalScore()" style="width:100%; padding:10px; justify-content:center; background:linear-gradient(135deg, var(--cyan), #0077b6); border:none; border-radius:6px; font-weight:700; color:#fff; cursor:pointer;">
+                                <i class="fas fa-magic"></i> 提取数据并一键结算
+                            </button>
+                            <button class="action-btn" onclick="window.openStudentReportModal()" style="width:100%; margin-top:8px; padding:10px; justify-content:center; background:rgba(16,185,129,0.15); border:1px solid rgba(16,185,129,0.3); border-radius:6px; font-weight:700; color:#10b981; cursor:pointer;">
+                                <i class="fas fa-file-invoice"></i> 生成/打印平时成绩学情诊断书
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- 右侧：雷达图展示区 -->
+                    <div class="chart-col">
+                        <div id="radar-chart-container" style="width:100%; height:320px;"></div>
+                        <div id="radar-result" style="display:none; margin-top:15px; text-align:center; width:100%; padding:12px; background:rgba(0,180,216,0.04); border:1px solid rgba(0,180,216,0.15); border-radius:10px;">
+                            <!-- 动态报告 -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 板块 C：项目提案评分墙 -->
+            <div class="policy-pane" id="exam-project">
+                <div class="exam-grid">
+                    <!-- 左侧：提案输入区 -->
+                    <div class="scrollable-col">
+                        <h3 style="color:var(--text-main); font-size:15.5px; font-weight:700; margin:0 0 10px 0;"><i class="fas fa-edit" style="color:var(--accent);"></i> 提交你的项目概要</h3>
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                            <label style="font-size:12px; color:var(--text-muted);">请输入或填入提案设想：</label>
+                            <button onclick="document.getElementById('project-proposal-input').value='【高原特色农产品边缘 AI 智能分拣与数字化出海系统】针对本地果农采摘后果品手工分拣效率低下、冷链损耗率高达 25% 的核心痛点，团队研发了基于嵌入式视觉识别的智能分拣硬件与 2.5D 数字人跨境直播带货系统，实现自动化精准分级与 24 小时出海销售，预计为合作社提效 300%、户均增收 1.2 万元。'" style="background:rgba(0,194,224,0.1); border:1px solid rgba(0,194,224,0.3); color:var(--cyan); padding:3px 10px; border-radius:6px; font-size:11.5px; cursor:pointer; font-weight:700;"><i class="fas fa-magic"></i> 填入金奖示例提案</button>
+                        </div>
+                        <textarea id="project-proposal-input" class="chat-input" placeholder="例如：传统非遗美食实体店目前难以规模化，我们团队开发了一套 24小时数字人自动跨国直播带货与跨境私域流量运营系统，解决实体店高昂的销售人资与出海翻译成本，实现特色餐饮的高效出海与变现..." style="width:100%; min-height:140px; padding:15px; border-radius:12px; margin-bottom:15px; border:1px solid var(--glass-border);"></textarea>
+                        <button class="action-btn primary" onclick="rateProjectProposal()" style="width:100%; padding:12px; justify-content:center; background:linear-gradient(135deg,var(--accent),#d97706); border-color:rgba(245,158,11,0.5);">
+                            <i class="fas fa-magic"></i> 提交项目提案进行 AI 诊断
+                        </button>
+                        
+                        <div id="project-score-summary" style="display:none; margin-top:20px; padding:15px; border:1px solid var(--glass-border); border-radius:12px; font-size:13px; line-height:1.7;">
+                            <!-- 动态简报 -->
+                        </div>
+                    </div>
+
+                    <!-- 右侧：雷达图与八维打分栏 -->
+                    <div class="chart-col">
+                        <div id="project-radar-chart" style="width:100%; height:280px;"></div>
+                        <div id="project-rating-text" style="display:none; width:100%; margin-top:10px;">
+                            <!-- 详细得分条 -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</main>
+
+<script src="js/echarts.min.js"></script>
+<script src="js/data.js"></script>
+<script src="js/data_policies.js"></script>
+<script src="js/data_details.js"></script>
+<script src="js/data_academic.js"></script>
+<script src="js/data_practical.js"></script>
+<script src="js/data_competition.js"></script>
+<script src="js/modules/framework.js"></script>
+<script src="js/modules/main_framework.js"></script>
+<script src="js/modules/tools.js"></script>
+<script src="js/modules/student.js"></script>
+<script src="js/exam.js"></script>
+<script src="js/modules/utils.js"></script>
+<script src="js/modules/presentation.js"></script>
+<script src="js/app.js"></script>
+<script>
+// 综合测评成绩自动记录到学生档案
+(function() {
+    // 拦截成绩提交，自动存入档案
+    const origFinishQuiz = window.finishQuiz;
+    document.addEventListener('DOMContentLoaded', () => {
+        // 监听测验完成事件：等待 exam.js 定义 finishQuiz 后包装
+        setTimeout(() => {
+            if (typeof window.finishKnowledgeQuiz === 'function') {
+                const orig = window.finishKnowledgeQuiz;
+                window.finishKnowledgeQuiz = function(score, total, dimension) {
+                    const pct = Math.round((score / (total || 20)) * 100);
+                    if (window.IEKG && window.IEKG.student && window.IEKG.student.isLoggedIn()) {
+                        window.IEKG.student.recordExamScore(pct, dimension || '知识闯关测验');
+                        if (typeof showToast === 'function') showToast('✅ 成绩已记录到学情档案！前往 <a href="student.html" style="color:#fff;font-weight:800;">我的档案</a> 查看');
+                    }
+                    return orig.apply(this, arguments);
+                };
+            }
+        }, 500);
+    });
+})();
+</script>
+<script>
+// ── 历史战报看板初始化 ──
+(function initQsHistoryPanel() {
+    // 从 localStorage 读取历史记录
+    function getHistory() {
+        try {
+            return JSON.parse(localStorage.getItem('exam_knowledge_history') || '{"scores":[],"best":0,"attempts":0,"passes":0}');
+        } catch(e) { return { scores:[], best:0, attempts:0, passes:0 }; }
+    }
+    function saveHistory(h) {
+        try { localStorage.setItem('exam_knowledge_history', JSON.stringify(h)); } catch(e){}
+    }
+
+    // 渲染环形图与数字
+    function renderPanel() {
+        const h = getHistory();
+        const best = h.best || 0;
+        const attempts = h.attempts || 0;
+        const passes = h.passes || 0;
+        const rate = attempts > 0 ? Math.round((passes / attempts) * 100) : 0;
+
+        const numEl   = document.getElementById('qs-best-score-num');
+        const ringEl  = document.getElementById('qs-ring-circle');
+        const attEl   = document.getElementById('qs-attempt-count');
+        const passEl  = document.getElementById('qs-pass-count');
+        const rateEl  = document.getElementById('qs-pass-rate');
+
+        if (!numEl) return;
+
+        numEl.textContent  = best > 0 ? best : '--';
+        attEl.textContent  = attempts;
+        passEl.textContent = passes;
+        rateEl.textContent = attempts > 0 ? rate + '%' : '--%';
+
+        // 环形进度 (circumference ≈ 220)
+        if (ringEl && best > 0) {
+            const offset = 220 - (220 * best / 100);
+            setTimeout(() => { ringEl.style.strokeDashoffset = offset; }, 300);
+        }
+    }
+
+    // 页面就绪后渲染
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', renderPanel);
+    } else {
+        renderPanel();
+    }
+
+    // 钩入 finishKnowledgeQuiz，测验完成后自动更新战报
+    document.addEventListener('DOMContentLoaded', () => {
+        setTimeout(() => {
+            if (typeof window.finishKnowledgeQuiz === 'function') {
+                const origFn = window.finishKnowledgeQuiz;
+                window.finishKnowledgeQuiz = function(score, total, dimension) {
+                    const pct = Math.round((score / (total || 20)) * 100);
+                    // 更新历史记录
+                    const h = getHistory();
+                    h.attempts = (h.attempts || 0) + 1;
+                    if (pct >= 80) h.passes = (h.passes || 0) + 1;
+                    if (pct > (h.best || 0)) h.best = pct;
+                    saveHistory(h);
+                    // 当用户返回起始屏时刷新
+                    renderPanel();
+                    return origFn.apply(this, arguments);
+                };
+            }
+        }, 600);
+    });
+})();
+</script>
+<script>
+// ── 粒子系统 ──
+(function() {
+    const canvas = document.getElementById('particles-canvas');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    let W = canvas.width = window.innerWidth;
+    let H = canvas.height = window.innerHeight;
+    const particles = [];
+    const COUNT = 35;
+    for (let i = 0; i < COUNT; i++) {
+        particles.push({
+            x: Math.random() * W,
+            y: Math.random() * H,
+            r: Math.random() * 1.5 + 0.3,
+            vx: (Math.random() - 0.5) * 0.15,
+            vy: (Math.random() - 0.5) * 0.15,
+            alpha: Math.random() * 0.3 + 0.1,
+            hue: 215
+        });
+    }
+    function draw() {
+        ctx.clearRect(0, 0, W, H);
+        particles.forEach(p => {
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+            ctx.fillStyle = `hsla(${p.hue}, 80%, 75%, ${p.alpha})`;
+            ctx.fill();
+            p.x += p.vx; p.y += p.vy;
+            if (p.x < 0) p.x = W; if (p.x > W) p.x = 0;
+            if (p.y < 0) p.y = H; if (p.y > H) p.y = 0;
+        });
+        requestAnimationFrame(draw);
+    }
+    draw();
+    });
+})();
+</script>
+<script>
+// ── 粒子系统 ──
+(function() {
+    const canvas = document.getElementById('particles-canvas');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    let W = canvas.width = window.innerWidth;
+    let H = canvas.height = window.innerHeight;
+    const particles = [];
+    const COUNT = 35;
+    for (let i = 0; i < COUNT; i++) {
+        particles.push({
+            x: Math.random() * W,
+            y: Math.random() * H,
+            r: Math.random() * 1.5 + 0.3,
+            vx: (Math.random() - 0.5) * 0.15,
+            vy: (Math.random() - 0.5) * 0.15,
+            alpha: Math.random() * 0.3 + 0.1,
+            hue: 215
+        });
+    }
+    function draw() {
+        ctx.clearRect(0, 0, W, H);
+        particles.forEach(p => {
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+            ctx.fillStyle = `hsla(${p.hue}, 80%, 75%, ${p.alpha})`;
+            ctx.fill();
+            p.x += p.vx; p.y += p.vy;
+            if (p.x < 0) p.x = W; if (p.x > W) p.x = 0;
+            if (p.y < 0) p.y = H; if (p.y > H) p.y = 0;
+        });
+        requestAnimationFrame(draw);
+    }
+    draw();
+    window.addEventListener('resize', () => {
+        W = canvas.width = window.innerWidth;
+        H = canvas.height = window.innerHeight;
+    });
+})();
+</script>
+</body>
+</html>

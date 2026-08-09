@@ -1,0 +1,1023 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>课程地图 - 《大学生创新创业基础》项目制智能体</title>
+    <script src="js/all.min.js" defer></script>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .main-container {
+            max-width: 1360px;
+            margin: 0 auto;
+            padding: 90px 24px 40px 24px;
+        }
+
+        .academic-banner {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 28px 32px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .academic-title {
+            font-size: var(--text-2xl);
+            font-weight: 900;
+            color: var(--text-main);
+            margin: 0 0 8px 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .academic-subtitle {
+            font-size: var(--text-base);
+            color: var(--text-sub);
+            margin: 0 0 16px 0;
+            line-height: 1.6;
+        }
+
+        .status-strip {
+            background: var(--bg-hover);
+            border: 1px solid var(--border-accent);
+            border-radius: var(--radius-sm);
+            padding: 12px 18px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .status-strip-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: var(--text-sm);
+            color: var(--primary-blue);
+            font-weight: 600;
+        }
+
+        .status-dot {
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+            background: var(--primary-blue);
+            display: inline-block;
+        }
+
+        .matrix-section {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 24px 28px;
+            margin-bottom: 32px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .table-responsive {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .obe-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: var(--text-sm);
+            text-align: left;
+        }
+
+        .obe-table th {
+            background: var(--bg-app);
+            color: var(--primary);
+            font-weight: 800;
+            padding: 12px 16px;
+            border-bottom: 2px solid var(--border-color);
+            white-space: nowrap;
+        }
+
+        .obe-table td {
+            padding: 14px 16px;
+            border-bottom: 1px solid var(--bg-subtle);
+            color: var(--text-muted);
+            vertical-align: top;
+            line-height: 1.55;
+        }
+
+        .obe-table tr:nth-child(even) { background: #FAFAFA; }
+        .obe-table tr:hover { background: var(--bg-subtle); }
+
+        .milestones-wrapper {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        .milestone-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 26px 30px;
+            box-shadow: var(--shadow-sm);
+            transition: var(--transition-normal);
+        }
+
+        .milestone-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+            border-color: var(--border-hover);
+        }
+
+        .milestone-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            margin-bottom: 18px;
+            padding-bottom: 14px;
+            border-bottom: 1px solid var(--bg-subtle);
+            flex-wrap: wrap;
+        }
+
+        .milestone-badge-group {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .module-tag {
+            background: var(--bg-accent);
+            color: var(--primary-blue);
+            font-size: var(--text-xs);
+            font-weight: 800;
+            padding: 4px 12px;
+            border-radius: 20px;
+            border: 1px solid var(--border-accent);
+            text-transform: uppercase;
+        }
+
+        .lesson-title-text {
+            font-size: var(--text-xl);
+            font-weight: 800;
+            color: var(--text-main);
+            margin: 0;
+        }
+
+        .hours-tag {
+            font-size: var(--text-xs);
+            color: var(--text-sub);
+            background: var(--bg-subtle);
+            padding: 4px 10px;
+            border-radius: var(--radius-sm);
+            font-weight: 600;
+        }
+
+        .pres-trigger-btn {
+            background: var(--primary-blue);
+            color: var(--text-on-primary);
+            border: none;
+            padding: 8px 18px;
+            border-radius: var(--radius-sm);
+            font-size: var(--text-sm);
+            font-weight: 700;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: var(--shadow-sm);
+            transition: var(--transition-fast);
+            min-height: 40px;
+            touch-action: manipulation;
+        }
+
+        .pres-trigger-btn:hover {
+            background: var(--primary);
+            box-shadow: var(--shadow-md);
+            transform: translateY(-1px);
+        }
+
+        .milestone-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 18px;
+        }
+
+        .info-box {
+            background: var(--bg-app);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 16px;
+        }
+
+        .info-box-label {
+            font-size: var(--text-xs);
+            font-weight: 800;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            text-transform: uppercase;
+        }
+
+        .info-box-content {
+            font-size: var(--text-sm);
+            color: var(--text-main);
+            line-height: 1.55;
+            font-weight: 500;
+        }
+
+        .resource-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-hover);
+            border-radius: var(--radius-sm);
+            font-size: 12.5px;
+            color: var(--primary);
+            font-weight: 700;
+            cursor: pointer;
+            text-decoration: none;
+            transition: var(--transition-fast);
+            margin-top: 6px;
+            margin-right: 6px;
+        }
+
+        .resource-btn:hover {
+            border-color: var(--primary-blue);
+            background: var(--bg-accent);
+            color: var(--primary-blue);
+        }
+
+        .map-header {
+            text-align: center;
+            margin-bottom: 32px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 28px 24px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .map-header h2 {
+            font-size: var(--text-2xl);
+            font-weight: 900;
+            color: var(--text-main);
+            margin: 0 0 10px 0;
+            line-height: 1.35;
+        }
+
+        .map-header p {
+            font-size: var(--text-base);
+            color: var(--text-sub);
+            margin: 0 0 16px 0;
+            font-weight: 500;
+        }
+
+        .milestone-badge {
+            width: 40px;
+            height: 40px;
+            background: var(--primary-blue);
+            color: var(--text-on-primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 900;
+            font-size: var(--text-lg);
+            flex-shrink: 0;
+        }
+
+        .milestone-content {
+            flex: 1;
+        }
+
+        .lesson-header-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .lesson-title {
+            font-size: var(--text-xl);
+            font-weight: 800;
+            color: var(--text-main);
+            margin: 0;
+        }
+
+        .lesson-hours-tag {
+            font-size: var(--text-xs);
+            color: var(--text-sub);
+            background: var(--bg-subtle);
+            padding: 4px 10px;
+            border-radius: var(--radius-sm);
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .theory-box {
+            background: #F8FAFC;
+            border: 1px solid var(--border-color);
+            border-left: 4px solid var(--primary-blue);
+            border-radius: var(--radius-md);
+            padding: 16px 20px;
+            margin: 14px 0;
+        }
+
+        .theory-title {
+            font-size: var(--text-sm);
+            color: var(--text-main);
+            font-weight: 800;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .theory-text {
+            font-size: var(--text-sm);
+            color: var(--text-sub);
+            line-height: 1.7;
+            font-weight: 500;
+        }
+
+        .lesson-tools-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-top: 12px;
+        }
+
+        .lesson-output-text {
+            font-size: var(--text-sm);
+            color: var(--text-muted);
+        }
+
+        .milestone-link-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            background: var(--bg-accent);
+            border: 1px solid var(--border-accent);
+            color: var(--primary-blue);
+            font-size: 11.5px;
+            font-weight: 700;
+            border-radius: var(--radius-sm);
+            text-decoration: none;
+            transition: var(--transition-fast);
+        }
+
+        .milestone-link-btn:hover {
+            background: var(--primary-blue);
+            color: #FFFFFF;
+        }
+
+        .pbl-shortcut-center {
+            background: var(--bg-card);
+            border: 1.5px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 20px 24px;
+            margin: 25px 0 15px 0;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .shortcut-btn {
+            text-align: left;
+            justify-content: flex-start;
+            padding: 10px 14px;
+            background: var(--bg-subtle);
+            border: 1px solid var(--border-color);
+            font-size: 12.5px;
+            color: var(--text-main);
+            font-weight: 700;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            width: 100%;
+            transition: var(--transition-normal);
+        }
+
+        .shortcut-btn:hover {
+            background: var(--bg-accent);
+            border-color: var(--primary-blue);
+            color: var(--primary-blue);
+        }
+
+        .current-lesson-indicator {
+            margin-bottom: 25px;
+            padding: 15px 22px;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--bg-card);
+            box-shadow: var(--shadow-sm);
+        }
+
+        @media (max-width: 1024px) {
+            .footer-inner { grid-template-columns: 1fr 1fr; }
+        }
+
+        @media (max-width: 640px) {
+            .main-container { padding: 80px 16px 24px 16px; }
+            .academic-banner { padding: 20px; }
+            .milestone-card { padding: 18px; }
+            .milestone-header { flex-direction: column; align-items: flex-start; }
+            .lesson-header-row { flex-direction: column; align-items: flex-start; }
+            .footer-inner { grid-template-columns: 1fr; }
+            .footer-bottom { flex-direction: column; align-items: flex-start; }
+        }
+    </style>
+</head>
+<body class="day-mode">
+
+<header class="site-header">
+    <div class="header-inner">
+        <a href="index.html" class="brand-logo">
+            <div class="brand-icon"><i class="fas fa-graduation-cap"></i></div>
+            <div>
+                <div class="brand-title">创新创业课程 OBE 智慧教学与评估平台</div>
+                <div class="brand-subtitle">Innovation & Entrepreneurship Mapping Engine v4.0</div>
+            </div>
+        </a>
+        <button class="nav-toggle" onclick="document.querySelector('.main-nav').classList.toggle('open')">
+            <i class="fas fa-bars"></i>
+        </button>
+        <nav class="main-nav" aria-label="主导航">
+            <a href="index.html" class="nav-item"><i class="fas fa-compass"></i> 首页</a>
+            <a href="map.html" class="nav-item active"><i class="fas fa-map"></i> 课程地图</a>
+            <a href="knowledge_graph.html" class="nav-item"><i class="fas fa-sitemap"></i> 知识图谱</a>
+                        <a href="competition.html" class="nav-item"><i class="fas fa-trophy"></i> 大赛专区</a>
+            <a href="gold_cases.html" class="nav-item"><i class="fas fa-award"></i> 示范案例</a>
+            <a href="student.html" class="nav-item"><i class="fas fa-user-graduate"></i> 能力矩阵</a>
+            <a href="activities.html" class="nav-item"><i class="fas fa-tasks"></i> PBL实战</a>
+            <a href="yunnan_qujing_startup.html" class="nav-item"><i class="fas fa-mountain"></i> 留滇留曲</a>
+            <a href="chat.html" class="nav-item"><i class="fas fa-robot"></i> AI导师</a>
+            <a href="admin.html" class="nav-item"><i class="fas fa-chart-line"></i> 学情看板</a>
+        
+            <button id="theme-toggle-btn" class="nav-theme-toggle-btn" title="切换白天/夜间主题" onclick="if(window.toggleTheme) window.toggleTheme();"><i class="fas fa-sun"></i> <span>风格切换</span></button>
+        </nav>
+        <div class="nav-actions">
+            <a href="admin.html" class="btn-nav"><i class="fas fa-user-shield"></i> 教师/专家视图</a>
+        </div>
+    </div>
+</header>
+
+<main class="main-container">
+
+    <!-- Academic Light Header Banner -->
+    <div class="academic-banner">
+        <div class="academic-title">
+            <i class="fas fa-map-marked-alt" style="color:var(--primary-blue);"></i>
+            《大学生创新创业基础》18学时高效实战大纲地图
+        </div>
+        <div class="academic-subtitle">
+            遵循成果导向教育 (OBE) 理念 · 9 大核心模块 · 18 次课堂实操 · 核心知识节点 · 18 项 Rubrics 表现性评价
+        </div>
+        <div class="status-strip">
+            <div class="status-strip-left">
+                <span class="status-dot"></span>
+                <span>【教师与评估专家视角】当前进度：第 5 次课 - MVP 快速构建与原型测试</span>
+            </div>
+            <div style="font-size:12.5px; color:var(--text-muted); font-weight:600;">
+                <i class="fas fa-bullseye" style="color:var(--accent-emerald);"></i> 建议学习路径：按 CLO 顺序依次解锁 PBL 实战任务
+            </div>
+        </div>
+    </div>
+
+    <!-- OBE Course Outcome Matrix Table -->
+    <div class="matrix-section">
+        <div style="font-size:var(--text-lg); font-weight:800; color:var(--text-main); margin-bottom:14px; display:flex; align-items:center; justify-content:space-between;">
+            <div style="display:flex; align-items:center; gap:8px;">
+                <i class="fas fa-th-list" style="color:var(--primary-blue);"></i>
+                课程学习成果 (CLOs) - 知识点 - PBL 任务 - Rubrics 评价映射矩阵
+            </div>
+            <span style="font-size:var(--text-xs); color:var(--green-text); background:var(--green-bg); border:1px solid var(--green-border); padding:3px 10px; border-radius:var(--radius-sm); font-weight:700;">
+                <i class="fas fa-check-circle"></i> OBE 成果达成闭环
+            </span>
+        </div>
+        <div class="table-responsive">
+            <table class="obe-table">
+                <thead>
+                    <tr>
+                        <th style="width:220px;">课程学习成果 (CLO)</th>
+                        <th>支撑的知识模块 (K)</th>
+                        <th style="width:220px;">对应 PBL 实战任务 (S)</th>
+                        <th style="width:260px;">评价方式 (Rubrics A)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>
+                            <strong style="color:var(--primary);">CLO 1: 痛点识别与发散思维能力</strong><br>
+                            <span style="font-size:var(--text-xs); color:var(--text-sub);">能够从真实场景中挖掘高价值用户痛点，运用 SCAMPER / TRIZ 发散创新方案。</span>
+                        </td>
+                        <td>
+                            模块一：认识创新创业与发散思维<br>
+                            模块二：精益创业与痛点挖掘 (JTBD)
+                        </td>
+                        <td>
+                            <span style="background:var(--bg-accent); color:var(--primary-blue); font-weight:700; padding:2px 8px; border-radius:4px; font-size:var(--text-xs);">Task 01</span> 创客自画像与团队组建<br>
+                            <span style="background:var(--bg-accent); color:var(--primary-blue); font-weight:700; padding:2px 8px; border-radius:4px; font-size:var(--text-xs);">Task 02</span> 真实痛点挖掘访谈录
+                        </td>
+                        <td>
+                            <strong style="color:var(--green-text);">过程性 Rubric 评分表</strong><br>
+                            访谈真实性 (30%) + 痛点精准度 (40%) + 场景可量化 (30%)
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <strong style="color:var(--primary);">CLO 2: 精益商业模式设计与精算能力</strong><br>
+                            <span style="font-size:var(--text-xs); color:var(--text-sub);">能够熟练绘制 BMC 商业模式画布，设计成本收益结构并测算 LTV/CAC。</span>
+                        </td>
+                        <td>
+                            模块三：精益商业模式画布 (BMC)<br>
+                            模块四：商业可行性与精算 (LTV/CAC)
+                        </td>
+                        <td>
+                            <span style="background:var(--bg-accent); color:var(--primary-blue); font-weight:700; padding:2px 8px; border-radius:4px; font-size:var(--text-xs);">Task 03</span> 商业模式画布 (BMC) 绘制<br>
+                            <span style="background:var(--bg-accent); color:var(--primary-blue); font-weight:700; padding:2px 8px; border-radius:4px; font-size:var(--text-xs);">Task 04</span> 单元经济模型测算表
+                        </td>
+                        <td>
+                            <strong style="color:var(--green-text);">可行性量化评分表</strong><br>
+                            画布逻辑自洽 (40%) + 财务假设严谨 (30%) + 盈利壁垒 (30%)
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <strong style="color:var(--primary);">CLO 3: MVP 敏捷验证与 AI 原型构建能力</strong><br>
+                            <span style="font-size:var(--text-xs); color:var(--text-sub);">能够运用低代码/AIGC 工具快速搭建 MVP 原型，并开展假说验证。</span>
+                        </td>
+                        <td>
+                            模块五：MVP 快速构建与原型测试<br>
+                            模块六：市场验证与精益数据飞轮
+                        </td>
+                        <td>
+                            <span style="background:var(--bg-accent); color:var(--primary-blue); font-weight:700; padding:2px 8px; border-radius:4px; font-size:var(--text-xs);">Task 05</span> MVP 落地页/原型搭建<br>
+                            <span style="background:var(--bg-accent); color:var(--primary-blue); font-weight:700; padding:2px 8px; border-radius:4px; font-size:var(--text-xs);">Task 06</span> 种子用户转化测试
+                        </td>
+                        <td>
+                            <strong style="color:var(--green-text);">原型体验与数据量化表</strong><br>
+                            原型可用性 (40%) + 验证数据真实 (30%) + 迭代速度 (30%)
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <strong style="color:var(--primary);">CLO 4: 团队股权治理与 BP 路演能力</strong><br>
+                            <span style="font-size:var(--text-xs); color:var(--text-sub);">能够合理分配股权动态绑定机制，撰写高阶商业计划书并完成精益路演。</span>
+                        </td>
+                        <td>
+                            模块七：团队股权结构与动态绑定<br>
+                            模块八：高阶 BP 撰写与商业路演<br>
+                            模块九：政策红利与硬科技合规
+                        </td>
+                        <td>
+                            <span style="background:var(--bg-accent); color:var(--primary-blue); font-weight:700; padding:2px 8px; border-radius:4px; font-size:var(--text-xs);">Task 07</span> 股权架构与协议拟定<br>
+                            <span style="background:var(--bg-accent); color:var(--primary-blue); font-weight:700; padding:2px 8px; border-radius:4px; font-size:var(--text-xs);">Task 08</span> 竞赛级标准 BP & 5分钟路演
+                        </td>
+                        <td>
+                            <strong style="color:var(--green-text);">综合表现性评价 (Rubrics)</strong><br>
+                            治理合规 (25%) + BP数据支撑 (35%) + 路演表达与答辩 (40%)
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- 当前状态指示 -->
+    <div class="current-lesson-indicator">
+        <div style="display:flex; align-items:center; gap:12px;">
+            <span style="display:inline-block; width:10px; height:10px; border-radius:50%; background:var(--accent-emerald);"></span>
+            <span style="font-size:13px; color:var(--text-muted); font-weight:700; text-transform:uppercase; letter-spacing:0.5px;">当前课堂 PBL 状态指示:</span>
+            <span id="current-class-status-text" style="font-size:15px; color:var(--text-main); font-weight:800;">
+                正在浏览 18学时项目制大纲地图。点击下方各课的"投影演示"可开始课堂大屏演示与 PBL 小组实战活动。
+            </span>
+        </div>
+        <div id="current-class-action-tag" style="background:var(--green-bg); color:var(--green-text); font-size:11px; padding:2px 8px; border-radius:6px; border:1px solid var(--green-border); font-weight:800; white-space:nowrap;">
+            大纲浏览中
+        </div>
+    </div>
+
+    <!-- Map Header -->
+    <div class="map-header">
+        <h2><i class="fas fa-route" style="color:var(--primary-blue); margin-right:8px;"></i> 《大学生创新创业基础》18学时高效实战课程大纲地图与双视角数智演播系统</h2>
+        <p>依据成果导向教育 (OBE) 通识课程标准重构设计 · 融合多校教学体系 · 集成 16:9 双视角数智演播</p>
+        <div style="display:flex; gap:12px; justify-content:center; margin-top:16px; flex-wrap:wrap;">
+            <span style="font-size:var(--text-xs); padding:6px 14px; border-radius:20px; background:var(--bg-accent); color:var(--primary-blue); border:1px solid var(--border-accent); font-weight:700;">
+                <i class="fas fa-clock"></i> 课程总学时：18学时 (共9次大课)
+            </span>
+            <span style="font-size:var(--text-xs); padding:6px 14px; border-radius:20px; background:var(--green-bg); color:var(--green-text); border:1px solid var(--green-border); font-weight:700;">
+                <i class="fas fa-laptop-code"></i> 数字时代 PBL 项目制
+            </span>
+            <span style="font-size:var(--text-xs); padding:6px 14px; border-radius:20px; background:var(--amber-bg); color:var(--amber-text); border:1px solid var(--amber-border); font-weight:700;">
+                <i class="fas fa-graduation-cap"></i> 通识教育双创精品课程
+            </span>
+        </div>
+    </div>
+
+    <!-- PBL 快捷放映中心 -->
+    <div class="pbl-shortcut-center">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; border-bottom:1px solid var(--border-color); padding-bottom:10px;">
+            <div style="font-size:var(--text-lg); font-weight:900; color:var(--amber-text); display:flex; align-items:center; gap:8px;">
+                <i class="fas fa-desktop"></i> 全套 18 学时 PBL 快捷放映中心 (一键调起演播)
+            </div>
+            <button onclick="if(window.openPresentationDrawer)openPresentationDrawer();" style="background:linear-gradient(135deg,var(--accent-amber),var(--amber-text)); border:none; color:#fff; padding:5px 16px; border-radius:12px; font-size:12px; font-weight:800; cursor:pointer;">
+                <i class="fas fa-th-list"></i> 打开放映罗盘
+            </button>
+        </div>
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:10px;">
+            <button onclick="openPresentation('11')" class="shortcut-btn">
+                <i class="fas fa-desktop" style="color:var(--primary-blue);"></i> 放映：第一次课 认识创新创业与 Sarasvathy 效果推理
+            </button>
+            <button onclick="openPresentation('12')" class="shortcut-btn">
+                <i class="fas fa-desktop" style="color:var(--primary-blue);"></i> 放映：第一次课(下) SCAMPER 奔驰法 7维发散
+            </button>
+            <button onclick="openPresentation('21')" class="shortcut-btn">
+                <i class="fas fa-desktop" style="color:var(--primary-blue);"></i> 放映：第二次课 商机捕捉与 JTBD 真实痛点过滤
+            </button>
+            <button onclick="openPresentation('22')" class="shortcut-btn">
+                <i class="fas fa-desktop" style="color:var(--primary-blue);"></i> 放映：第三次课 创业者特质与生涯规划技能拼图
+            </button>
+            <button onclick="openPresentation('31')" class="shortcut-btn">
+                <i class="fas fa-desktop" style="color:var(--primary-blue);"></i> 放映：第四次课 精益商业模式画布 (BMC) 9要素设计
+            </button>
+            <button onclick="openPresentation('33')" class="shortcut-btn">
+                <i class="fas fa-desktop" style="color:var(--primary-blue);"></i> 放映：第五次课 24 小时零代码 MVP 原型构建
+            </button>
+        </div>
+    </div>
+
+    <!-- 课程里程碑 Timeline -->
+    <div class="milestones-wrapper" style="margin-top:30px;">
+
+        <!-- Lesson 1 -->
+        <div class="milestone-card" style="display:flex; gap:20px; align-items:flex-start;">
+            <div class="milestone-badge">1</div>
+            <div class="milestone-content">
+                <div class="lesson-header-row">
+                    <h3 class="lesson-title">第一次课：认识创新创业与发散思维</h3>
+                    <div style="display:flex; align-items:center; gap:12px;">
+                        <span class="lesson-hours-tag">2 学时 · PBL敏捷实操</span>
+                        <button class="pres-trigger-btn" onclick="openPresentation('11'); event.stopPropagation();">
+                            <i class="fas fa-desktop"></i> 投影演示
+                        </button>
+                    </div>
+                </div>
+                <div class="theory-box">
+                    <strong class="theory-title"><i class="fas fa-book-reader"></i> 核心理论基础：</strong>
+                    <div class="theory-text">
+                        <strong>1. Sarasvathy 效果推理理论 (Effectuation)：</strong> 区别于传统因果推理，强调基于现有资源开展手段导向创新。<br/>
+                        <strong>2. SCAMPER 奔驰法发散模型：</strong> 7 维创想发散法则。
+                    </div>
+                </div>
+                <div class="lesson-tools-row">
+                    <div class="lesson-output-text"><strong>实操产出：</strong> 个人特长资源盘点表 + 10分钟奔驰卡牌提案。</div>
+                    <div style="display:flex; gap:8px;">
+                        <a href="activities.html" class="resource-btn"><i class="fas fa-bolt" style="color:var(--accent-amber);"></i> 10min 奔驰卡牌</a>
+                        <a href="graph.html?nodeId=12" class="milestone-link-btn"><i class="fas fa-magic"></i> 查看能力卡片 1.2</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Lesson 2 -->
+        <div class="milestone-card" style="display:flex; gap:20px; align-items:flex-start;">
+            <div class="milestone-badge">2</div>
+            <div class="milestone-content">
+                <div class="lesson-header-row">
+                    <h3 class="lesson-title">第二次课：商机捕捉与真实痛点过滤</h3>
+                    <div style="display:flex; align-items:center; gap:12px;">
+                        <span class="lesson-hours-tag">2 学时 · PBL敏捷实操</span>
+                        <button class="pres-trigger-btn" onclick="openPresentation('21'); event.stopPropagation();">
+                            <i class="fas fa-desktop"></i> 投影演示
+                        </button>
+                    </div>
+                </div>
+                <div class="theory-box">
+                    <strong class="theory-title"><i class="fas fa-book-reader"></i> 核心理论基础：</strong>
+                    <div class="theory-text">
+                        <strong>1. JTBD 待办任务理论：</strong> 锁定显性痛苦与真实付费意愿。<br/>
+                        <strong>2. 同理心地图 6 维归因：</strong> 还原真实场景与挫败象限。
+                    </div>
+                </div>
+                <div class="lesson-tools-row">
+                    <div class="lesson-output-text"><strong>实操产出：</strong> 真实痛点白皮书 + 同理心画像。</div>
+                    <div style="display:flex; gap:8px;">
+                        <a href="activities.html" class="resource-btn"><i class="fas fa-search" style="color:var(--primary-blue);"></i> 启动痛点盲测</a>
+                        <a href="graph.html?nodeId=21" class="milestone-link-btn"><i class="fas fa-bullseye"></i> 查看能力卡片 2.1</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Lesson 3 -->
+        <div class="milestone-card" style="display:flex; gap:20px; align-items:flex-start;">
+            <div class="milestone-badge">3</div>
+            <div class="milestone-content">
+                <div class="lesson-header-row">
+                    <h3 class="lesson-title">第三次课：创业者特质与生涯规划</h3>
+                    <div style="display:flex; align-items:center; gap:12px;">
+                        <span class="lesson-hours-tag">2 学时 · PBL敏捷实操</span>
+                        <button class="pres-trigger-btn" onclick="openPresentation('22'); event.stopPropagation();">
+                            <i class="fas fa-desktop"></i> 投影演示
+                        </button>
+                    </div>
+                </div>
+                <div class="theory-box">
+                    <strong class="theory-title"><i class="fas fa-book-reader"></i> 核心理论基础：</strong>
+                    <div class="theory-text">
+                        <strong>1. 创始人九型人格与特质：</strong> 识别开拓者、分析师与执行官。<br/>
+                        <strong>2. 跨学科技能对接：</strong> 建立 Hacker+Hipster+Hustler 三角色互补团队。
+                    </div>
+                </div>
+                <div class="lesson-tools-row">
+                    <div class="lesson-output-text"><strong>实操产出：</strong> 跨学科团队技能互补拼图与职责说明。</div>
+                    <div style="display:flex; gap:8px;">
+                        <a href="activities.html" class="resource-btn"><i class="fas fa-users" style="color:var(--accent-violet);"></i> 技能接龙</a>
+                        <a href="graph.html?nodeId=22" class="milestone-link-btn"><i class="fas fa-user-check"></i> 查看能力卡片 2.2</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Lesson 4 -->
+        <div class="milestone-card" style="display:flex; gap:20px; align-items:flex-start;">
+            <div class="milestone-badge">4</div>
+            <div class="milestone-content">
+                <div class="lesson-header-row">
+                    <h3 class="lesson-title">第四次课：精益商业模式画布 (BMC) 设计</h3>
+                    <div style="display:flex; align-items:center; gap:12px;">
+                        <span class="lesson-hours-tag">2 学时 · PBL敏捷实操</span>
+                        <button class="pres-trigger-btn" onclick="openPresentation('31'); event.stopPropagation();">
+                            <i class="fas fa-desktop"></i> 投影演示
+                        </button>
+                    </div>
+                </div>
+                <div class="theory-box">
+                    <strong class="theory-title"><i class="fas fa-book-reader"></i> 核心理论基础：</strong>
+                    <div class="theory-text">
+                        <strong>1. 奥斯特瓦德 BMC 画布：</strong> 9 大核心要素与勾稽关联。<br/>
+                        <strong>2. 价值主张设计：</strong> 匹配客户痛点 (Pains) 与解药 (Pain Relievers)。
+                    </div>
+                </div>
+                <div class="lesson-tools-row">
+                    <div class="lesson-output-text"><strong>实操产出：</strong> 精益商业模式画布 (BMC) 海报。</div>
+                    <div style="display:flex; gap:8px;">
+                        <a href="resources.html#interactive-bmc" class="resource-btn"><i class="fas fa-clipboard-list" style="color:var(--primary-blue);"></i> 编辑商业画布</a>
+                        <a href="graph.html?nodeId=31" class="milestone-link-btn"><i class="fas fa-th-large"></i> 查看能力卡片 3.1</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Lesson 5 -->
+        <div class="milestone-card" style="display:flex; gap:20px; align-items:flex-start;">
+            <div class="milestone-badge">5</div>
+            <div class="milestone-content">
+                <div class="lesson-header-row">
+                    <h3 class="lesson-title">第五次课：最小可行化产品 (MVP) 快速构建</h3>
+                    <div style="display:flex; align-items:center; gap:12px;">
+                        <span class="lesson-hours-tag">2 学时 · PBL敏捷实操</span>
+                        <button class="pres-trigger-btn" onclick="openPresentation('33'); event.stopPropagation();">
+                            <i class="fas fa-desktop"></i> 投影演示
+                        </button>
+                    </div>
+                </div>
+                <div class="theory-box">
+                    <strong class="theory-title"><i class="fas fa-book-reader"></i> 核心理论基础：</strong>
+                    <div class="theory-text">
+                        <strong>1. 莱斯精益创业 MVP 理论：</strong> 构建-测量-学习敏捷反馈环。<br/>
+                        <strong>2. 产品三层次：</strong> 验证核心利益与冷启动付费测试。
+                    </div>
+                </div>
+                <div class="lesson-tools-row">
+                    <div class="lesson-output-text"><strong>实操产出：</strong> 极简 MVP 可用原型及冷启动测试日志。</div>
+                    <div style="display:flex; gap:8px;">
+                        <a href="activities.html" class="resource-btn"><i class="fas fa-robot" style="color:var(--primary-blue);"></i> AI 支持测试</a>
+                        <a href="graph.html?nodeId=33" class="milestone-link-btn"><i class="fas fa-cube"></i> 查看能力卡片 3.3</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Lesson 6 -->
+        <div class="milestone-card" style="display:flex; gap:20px; align-items:flex-start;">
+            <div class="milestone-badge">6</div>
+            <div class="milestone-content">
+                <div class="lesson-header-row">
+                    <h3 class="lesson-title">第六次课：AIGC 零代码原型构建与软硬件指南</h3>
+                    <div style="display:flex; align-items:center; gap:12px;">
+                        <span class="lesson-hours-tag">2 学时 · PBL敏捷实操</span>
+                        <button class="pres-trigger-btn" onclick="openPresentation('34'); event.stopPropagation();">
+                            <i class="fas fa-desktop"></i> 投影演示
+                        </button>
+                    </div>
+                </div>
+                <div class="theory-box">
+                    <strong class="theory-title"><i class="fas fa-book-reader"></i> 核心理论基础：</strong>
+                    <div class="theory-text">
+                        <strong>1. AI 普惠开发架构：</strong> 借助 LLM API 低成本构建。<br/>
+                        <strong>2. 软硬件联调：</strong> 前沿芯片/算法在产业场景落地。
+                    </div>
+                </div>
+                <div class="lesson-tools-row">
+                    <div class="lesson-output-text"><strong>实操产出：</strong> 软硬件原型架构流程图与数据飞轮说明。</div>
+                    <div style="display:flex; gap:8px;">
+                        <a href="yunnan_qujing_startup.html" class="nav-item"><i class="fas fa-mountain"></i> 留滇留曲</a>
+            <a href="chat.html" class="resource-btn"><i class="fas fa-comments" style="color:var(--primary-blue);"></i> 咨询 AI 导师</a>
+                        <a href="graph.html?nodeId=34" class="milestone-link-btn"><i class="fas fa-microchip"></i> 查看能力卡片 3.4</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Lesson 7 -->
+        <div class="milestone-card" style="display:flex; gap:20px; align-items:flex-start;">
+            <div class="milestone-badge">7</div>
+            <div class="milestone-content">
+                <div class="lesson-header-row">
+                    <h3 class="lesson-title">第七次课：合伙人"三角色"互补与股权动态机制</h3>
+                    <div style="display:flex; align-items:center; gap:12px;">
+                        <span class="lesson-hours-tag">2 学时 · PBL敏捷实操</span>
+                        <button class="pres-trigger-btn" onclick="openPresentation('42'); event.stopPropagation();">
+                            <i class="fas fa-desktop"></i> 投影演示
+                        </button>
+                    </div>
+                </div>
+                <div class="theory-box">
+                    <strong class="theory-title"><i class="fas fa-book-reader"></i> 核心理论基础：</strong>
+                    <div class="theory-text">
+                        <strong>1. Belbin 团队角色：</strong> Hacker+Hipster+Hustler 跨学科协作。<br/>
+                        <strong>2. Vesting 动态股权机制：</strong> 锁定控制权与退场回购。
+                    </div>
+                </div>
+                <div class="lesson-tools-row">
+                    <div class="lesson-output-text"><strong>实操产出：</strong> 股权计算器结果表 + Vesting 契约。</div>
+                    <div style="display:flex; gap:8px;">
+                        <a href="resources.html#equity-calculator" class="resource-btn"><i class="fas fa-percentage" style="color:var(--accent-violet);"></i> 股权估算</a>
+                        <a href="graph.html?nodeId=42" class="milestone-link-btn"><i class="fas fa-users"></i> 查看能力卡片 4.2</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Lesson 8 -->
+        <div class="milestone-card" style="display:flex; gap:20px; align-items:flex-start;">
+            <div class="milestone-badge">8</div>
+            <div class="milestone-content">
+                <div class="lesson-header-row">
+                    <h3 class="lesson-title">第八次课：BP 十模块"鱼型模型"与路演 PPT</h3>
+                    <div style="display:flex; align-items:center; gap:12px;">
+                        <span class="lesson-hours-tag">2 学时 · PBL敏捷实操</span>
+                        <button class="pres-trigger-btn" onclick="openPresentation('52'); event.stopPropagation();">
+                            <i class="fas fa-desktop"></i> 投影演示
+                        </button>
+                    </div>
+                </div>
+                <div class="theory-box">
+                    <strong class="theory-title"><i class="fas fa-book-reader"></i> 核心理论基础：</strong>
+                    <div class="theory-text">
+                        <strong>1. 鱼型模型十模块：</strong> 正文十模块与附件四层次。<br/>
+                        <strong>2. 路演 PPT 逻辑：</strong> 答复投资人"干什么、怎么干、谁来干、如何退"。
+                    </div>
+                </div>
+                <div class="lesson-tools-row">
+                    <div class="lesson-output-text"><strong>实操产出：</strong> 商业计划书大纲初稿 + 路演 PPT 结构。</div>
+                    <div style="display:flex; gap:8px;">
+                        <a href="resources.html#bp-assembler" class="resource-btn"><i class="fas fa-file-invoice" style="color:var(--primary-blue);"></i> BP 拼装器</a>
+                        <a href="resources.html#ppt-generator" class="resource-btn"><i class="fas fa-file-powerpoint" style="color:var(--accent-rose);"></i> PPT 生成器</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Lesson 9 -->
+        <div class="milestone-card" style="display:flex; gap:20px; align-items:flex-start;">
+            <div class="milestone-badge">9</div>
+            <div class="milestone-content">
+                <div class="lesson-header-row">
+                    <h3 class="lesson-title">第九次课：路演模拟与创业体验成果复盘</h3>
+                    <div style="display:flex; align-items:center; gap:12px;">
+                        <span class="lesson-hours-tag">2 学时 · PBL敏捷实操</span>
+                        <button class="pres-trigger-btn" onclick="openPresentation('53'); event.stopPropagation();">
+                            <i class="fas fa-desktop"></i> 投影演示
+                        </button>
+                    </div>
+                </div>
+                <div class="theory-box">
+                    <strong class="theory-title"><i class="fas fa-book-reader"></i> 核心理论基础：</strong>
+                    <div class="theory-text">
+                        <strong>1. 项目成果展示与可持续运营初探：</strong> 体验商业闭环与初创风险防护。<br/>
+                        <strong>2. 大赛评审标准：</strong> 教育、创新、团队、商业与社会价值。
+                    </div>
+                </div>
+                <div class="lesson-tools-row">
+                    <div class="lesson-output-text"><strong>实操产出：</strong> 大赛答辩防御报告 + 创业补贴申报。</div>
+                    <div style="display:flex; gap:8px;">
+                        <a href="yunnan_qujing_startup.html" class="nav-item"><i class="fas fa-mountain"></i> 留滇留曲</a>
+            <a href="chat.html" class="resource-btn"><i class="fas fa-robot" style="color:var(--accent-amber);"></i> 专家高压测试</a>
+                        <a href="exam.html" class="resource-btn"><i class="fas fa-poll-h" style="color:var(--accent-emerald);"></i> 综合测评</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</main>
+
+<footer style="background:var(--bg-card); border-top:1px solid var(--border-color); padding:48px 0 32px 0; margin-top:auto;">
+    <div style="max-width:1360px; margin:0 auto; padding:0 24px; display:grid; grid-template-columns:1.5fr 1fr 1fr 1.2fr; gap:36px;">
+        <div>
+            <div style="font-size:16px; font-weight:800; color:var(--text-main); margin-bottom:12px; display:flex; align-items:center; gap:8px;">
+                <i class="fas fa-graduation-cap" style="color:var(--primary-blue);"></i>
+                《大学生创新创业基础》智能体平台
+            </div>
+            <div style="font-size:13px; color:var(--text-sub); line-height:1.6; margin-bottom:16px;">
+                基于成果导向教育 (OBE) 理念设计，通过知识节点拓扑、PBL 表现性评价任务与 AI 专项导师，打造高校双创"学-练-评-改"闭环。
+            </div>
+            <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                <span style="display:inline-flex; align-items:center; gap:6px; padding:4px 10px; background:var(--green-bg); border:1px solid var(--green-border); border-radius:6px; font-size:12px; color:var(--green-text); font-weight:600;">
+                    <i class="fas fa-check-circle"></i> OBE 成果达成闭环认证
+                </span>
+                <span style="display:inline-flex; align-items:center; gap:6px; padding:4px 10px; background:var(--blue-bg); border:1px solid var(--blue-border); border-radius:6px; font-size:12px; color:var(--blue-text); font-weight:600;">
+                    <i class="fas fa-book"></i> 教学标准对齐
+                </span>
+            </div>
+        </div>
+
+        <div>
+            <div style="font-size:14px; font-weight:800; color:var(--text-main); margin-bottom:16px;">课程核心体系</div>
+            <ul style="list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:10px; font-size:13px;">
+                <li><a href="index.html" style="color:var(--text-muted); text-decoration:none;"><i class="fas fa-angle-right" style="color:var(--primary-blue);"></i> 课程目标 (CLOs) 矩阵</a></li>
+                <li><a href="knowledge_graph.html" style="color:var(--text-muted); text-decoration:none;"><i class="fas fa-angle-right" style="color:var(--primary-blue);"></i> 理论知识图谱</a></li>
+                <li><a href="graph.html" style="color:var(--text-muted); text-decoration:none;"><i class="fas fa-angle-right" style="color:var(--primary-blue);"></i> 实战能力图谱</a></li>
+                <li><a href="map.html" style="color:var(--text-muted); text-decoration:none;"><i class="fas fa-angle-right" style="color:var(--primary-blue);"></i> 课程大纲地图</a></li>
+                <li><a href="activities.html" style="color:var(--text-muted); text-decoration:none;"><i class="fas fa-angle-right" style="color:var(--primary-blue);"></i> PBL 实战任务流</a></li>
+            </ul>
+        </div>
+
+        <div>
+            <div style="font-size:14px; font-weight:800; color:var(--text-main); margin-bottom:16px;">教学资源与评估</div>
+            <ul style="list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:10px; font-size:13px;">
+                <li><a href="yunnan_qujing_startup.html" class="nav-item"><i class="fas fa-mountain"></i> 留滇留曲</a>
+            <a href="chat.html" style="color:var(--text-muted); text-decoration:none;"><i class="fas fa-angle-right" style="color:var(--primary-blue);"></i> AI 导师智能体</a></li>
+                <li><a href="admin.html" style="color:var(--text-muted); text-decoration:none;"><i class="fas fa-angle-right" style="color:var(--primary-blue);"></i> 学情与达成度看板</a></li>
+                <li><a href="resources.html" style="color:var(--text-muted); text-decoration:none;"><i class="fas fa-angle-right" style="color:var(--primary-blue);"></i> 教学模版与资源下载</a></li>
+                <li><a href="glossary.html" style="color:var(--text-muted); text-decoration:none;"><i class="fas fa-angle-right" style="color:var(--primary-blue);"></i> 双创与 AI 权威词典</a></li>
+                <li><a href="exam.html" style="color:var(--text-muted); text-decoration:none;"><i class="fas fa-angle-right" style="color:var(--primary-blue);"></i> 综合自测与 Rubrics 评分</a></li>
+            </ul>
+        </div>
+
+        <div>
+            <div style="font-size:14px; font-weight:800; color:var(--text-main); margin-bottom:16px;">实时学情与系统数据</div>
+            <div style="background:var(--bg-subtle); border:1px solid var(--border-color); border-radius:10px; padding:14px; font-size:12.5px; line-height:1.8; color:var(--text-sub);">
+                <div><span>知识节点拓扑：</span> <strong style="color:var(--primary-blue);">持续更新</strong></div>
+                <div><span>能力指标映射：</span> <strong style="color:var(--accent-emerald);">36 项</strong></div>
+                <div><span>对齐 PBL 任务：</span> <strong style="color:var(--accent-amber);">18 项</strong></div>
+                <div><span>系统计算模式：</span> <strong style="color:var(--text-main);">本地离线隐私保护</strong></div>
+            </div>
+        </div>
+    </div>
+
+    <div style="max-width:1360px; margin:36px auto 0 auto; padding:20px 24px 0 24px; border-top:1px solid var(--border-color); display:flex; align-items:center; justify-content:space-between; font-size:12.5px; color:var(--text-sub); flex-wrap:wrap; gap:12px;">
+        <div>Copyright (C) 2026 《大学生创新创业基础》课程智能体平台. All Rights Reserved.</div>
+        <div style="display:flex; align-items:center; gap:16px;">
+            <span style="display:inline-flex; align-items:center; gap:6px; color:var(--accent-emerald); font-weight:600;">
+                <span style="width:8px; height:8px; background:var(--accent-emerald); border-radius:50%;"></span>
+                Antigravity Engine 运行正常
+            </span>
+            <a href="index.html" style="color:var(--text-sub); text-decoration:none;">首页</a>
+            <a href="help.html" style="color:var(--text-sub); text-decoration:none;">使用说明</a>
+            <a href="admin.html" style="color:var(--text-sub); text-decoration:none;">教师入口</a>
+        </div>
+    </div>
+</footer>
+
+<script src="js/data.js"></script>
+<script src="js/data_details.js"></script>
+<script src="js/modules/framework.js"></script>
+<script src="js/modules/main_framework.js"></script>
+<script src="js/modules/utils.js"></script>
+<script src="js/modules/presentation.js"></script>
+<script src="js/app.js"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    if (window.location.search.includes('testClick=1')) {
+        if (typeof window.openPresentation === 'function') {
+            window.openPresentation('11');
+        }
+    }
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>首页 - 《大学生创新创业基础》项目制智能体</title>
+    <!-- FontAwesome 6.x SVG+JS 离线库 -->
+    <script src="js/all.min.js" defer></script>
+    <script src="js/echarts.min.js"></script>
+    <!-- 自定义主样式表 -->
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        main {
+            overflow-y: auto !important;
+            height: calc(100vh - 70px) !important;
+            padding-bottom: 30px;
+        }
+        .home-container {
+            max-width: 1380px;
+            margin: 0 auto;
+            padding: 16px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px !important;
+        }
+        .home-banner-box {
+            margin-bottom: 14px !important;
+        }
+        .student-archive-card {
+            background: rgba(0, 119, 182, 0.04);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 20px;
+            margin-top: 14px !important;
+        }
+        body.day-mode .student-archive-card,
+        body.light-mode .student-archive-card {
+            background: #ffffff !important;
+            border: 1px solid rgba(2, 132, 199, 0.22) !important;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+        }
+    </style>
+
+</head>
+<body id="app-root" class="dark-mode" style="background:#090D16; color:#f8fafc;">
+
+<!-- 动态粒子背景画布 -->
+<canvas id="particles-canvas"></canvas>
+
+<!-- 顶部导航 Header -->
+<header class="global-navbar">
+    <div class="logo-area" style="display:flex; align-items:center; gap:12px;">
+        <img src="images/school_logo.png" alt="Logo" class="school-logo-img" style="height:38px; width:auto; background:linear-gradient(135deg, #0f172a 0%, #1e293b 100%); padding:4px 10px; border-radius:8px; border:1px solid rgba(255,255,255,0.25); box-shadow:0 2px 8px rgba(15,23,42,0.3); display:inline-block; vertical-align:middle;">
+        <div class="logo-text-group" style="display:flex; flex-direction:column; justify-content:center; line-height:1.25;">
+            <div class="logo-title" style="font-size:15px; font-weight:800; color:var(--text-primary, #f8fafc); letter-spacing:0.5px; display:flex; align-items:center; gap:4px; flex-wrap:wrap;">
+                <span class="logo-main-name" style="background:linear-gradient(90deg, #38bdf8, #818cf8); -webkit-background-clip:text; -webkit-text-fill-color:transparent; font-weight:800;">《大学生创新创业基础》</span>
+                <span class="logo-sub-name" style="font-size:13px; opacity:0.9; color:var(--text-muted, #94a3b8); font-weight:600;">· 课程知识图谱-课程智能体</span>
+            </div>
+            <div class="logo-slogan-wrap" style="display:flex; align-items:center; gap:8px; margin-top:2px;">
+                <div class="slogan-calligraphy-badge" style="display:inline-flex; align-items:center; height:24px; padding:2px 10px; border-radius:6px; background:linear-gradient(135deg, #ffffff 0%, #f0f9ff 100%); border:1px solid rgba(56,189,248,0.5); box-shadow:0 2px 8px rgba(0,0,0,0.2), 0 0 10px rgba(56,189,248,0.3); vertical-align:middle;">
+                    <img src="images/slogan_calligraphy.png" alt="敢闯会创" style="height:18px; width:auto; display:block; filter:drop-shadow(0 1px 2px rgba(15,23,42,0.3));">
+                </div>
+            </div>
+        <a href="help.html" class="logo-version-badge" title="查看使用说明与开发更新日志" style="text-decoration:none; display:inline-flex; align-items:center; gap:5px; background:rgba(0,194,224,0.12); border:1px solid rgba(0,194,224,0.25); color:var(--cyan, #38bdf8); font-size:11px; padding:3px 8px; border-radius:12px; font-weight:700; transition:all 0.2s;">
+            <span class="version-dot" style="width:6px; height:6px; background:#10b981; border-radius:50%; box-shadow:0 0 5px #10b981;"></span>
+            v6.0 Official
+        </a>
+    </div>
+                </div>
+
+                <div class="glass-panel" style="padding:22px;">
+                    <h3 style="margin-top:0; color:var(--text-main); font-size:17px; font-weight:800;"><i class="fas fa-trophy" style="color:var(--accent);"></i> 全国大学生双创金奖案例选编</h3>
+                    <p style="font-size:12.5px; color:var(--text-muted); line-height:1.6;">教育部“互联网+”与“挑战杯”国金项目剖析，包含商业壁垒与 AI 赋能诊断。</p>
+                    <div style="display:flex; flex-direction:column; gap:10px; margin-top:14px;">
+                        <div class="sub-card" style="padding:12px; display:flex; justify-content:space-between; align-items:center;">
+                            <div>
+                                <div style="font-size:13.5px; font-weight:800; color:var(--text-main);">【金奖】高原特色农产品边缘 AI 分拣与数字化出海</div>
+                                <div style="font-size:11.5px; color:var(--text-muted);">红旅赛道 · 精准解决农产品分拣损耗与跨境销售</div>
+                            </div>
+                            <a href="resources.html" class="action-btn" style="font-size:11px; padding:3px 10px;">阅读</a>
+                        </div>
+                        <div class="sub-card" style="padding:12px; display:flex; justify-content:space-between; align-items:center;">
+                            <div>
+                                <div style="font-size:13.5px; font-weight:800; color:var(--text-main);">【金奖】非遗文化纹样 AIGC 数字化重构与潮玩衍生</div>
+                                <div style="font-size:11.5px; color:var(--text-muted);">高教主赛道 · 传统文化活化与数字版权交易</div>
+                            </div>
+                            <a href="resources.html" class="action-btn" style="font-size:11px; padding:3px 10px;">阅读</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</main>
+
+<!-- 脚本引入 -->
+<script src="js/data.js"></script>
+<script src="js/data_policies.js"></script>
+<script src="js/data_details.js"></script>
+<script src="js/data_academic.js"></script>
+<script src="js/data_practical.js"></script>
+<script src="js/data_competition.js"></script>
+<script src="js/modules/namespace.js"></script>
+<script src="js/modules/framework.js"></script>
+<script src="js/modules/main_framework.js"></script>
+<script src="js/modules/tools.js"></script>
+<script src="js/modules/student.js"></script>
+<script src="js/modules/utils.js"></script>
+<script src="js/modules/presentation.js"></script>
+<script src="js/app.js"></script>
+<script>
+// 学情档案箱数据初始化与保存 (细则 5)
+function loadStudentArchive() {
+    const id = localStorage.getItem('ag_student_id') || '20260719001';
+    const name = localStorage.getItem('ag_student_name') || '张创业';
+    const sClass = localStorage.getItem('ag_student_class') || '双创金课 01 班';
+    const quizScore = localStorage.getItem('ag_exam_score') || '--';
+
+    if (document.getElementById('archive-student-id')) document.getElementById('archive-student-id').value = id;
+    if (document.getElementById('archive-student-name')) document.getElementById('archive-student-name').value = name;
+    if (document.getElementById('archive-student-class')) document.getElementById('archive-student-class').value = sClass;
+
+    updateStudentArchiveData();
+}
+
+function updateStudentArchiveData() {
+    const quizScore = localStorage.getItem('ag_exam_score') || '--';
+    const regScore = 92;
+    const midScore = 88;
+    const warnBanner = document.getElementById('archive-warning-banner');
+
+    if (document.getElementById('archive-score-final')) {
+        document.getElementById('archive-score-final').textContent = quizScore !== '--' ? quizScore + ' 分' : '-- 分';
+    }
+
+    if (quizScore === '--' || !quizScore) {
+        if (warnBanner) warnBanner.style.display = 'block';
+        // 60% 权重折算平时与期中成绩 (92*0.5 + 88*0.5)*0.6 => 54 分 (以平时与期中为主)
+        const partial = Math.round((regScore * 0.5 + midScore * 0.5) * 0.6 + 30);
+        if (document.getElementById('archive-score-total')) {
+            document.getElementById('archive-score-total').textContent = `${partial} 分 (暂折算)`;
+        }
+    } else {
+        if (warnBanner) warnBanner.style.display = 'none';
+        const finalScore = parseInt(quizScore);
+        const total = Math.round(regScore * 0.3 + midScore * 0.3 + finalScore * 0.4);
+        if (document.getElementById('archive-score-total')) {
+            document.getElementById('archive-score-total').textContent = `${total} 分`;
+        }
+    }
+}
+
+function saveStudentArchive() {
+    const id = document.getElementById('archive-student-id').value.trim();
+    const name = document.getElementById('archive-student-name').value.trim();
+    const sClass = document.getElementById('archive-student-class').value.trim();
+
+    localStorage.setItem('ag_student_id', id);
+    localStorage.setItem('ag_student_name', name);
+    localStorage.setItem('ag_student_class', sClass);
+
+    if (typeof showToast === 'function') showToast('✅ 学情档案与学号成绩记录保存成功！');
+    else alert('✅ 学情档案保存成功！');
+}
+
+function printStudentReport() {
+    const id = localStorage.getItem('ag_student_id') || '20260719001';
+    const name = localStorage.getItem('ag_student_name') || '张创业';
+    const quizScore = localStorage.getItem('ag_exam_score') || '85';
+    alert(`🎓 【《大学生创新创业基础》学情成绩报告单】\n────────────────────\n学号：${id}\n姓名：${name}\n累计学习学时：18 / 18 学时\n平时表现分：92 分 (权重 30%)\n期中 MVP 诊断：88 分 (权重 30%)\n期末综合测试：${quizScore} 分 (权重 40%)\n────────────────────\n恭喜完成课程学习！已具备申报双创园免租与贴息贷款资格。`);
+}
+
+// 细则 6: Leaderboard Drawer 滑出抽屉
+function openLeaderboardDrawer() {
+    const drawer = document.getElementById('leaderboard-drawer');
+    if (drawer) drawer.classList.add('open');
+}
+function closeLeaderboardDrawer() {
+    const drawer = document.getElementById('leaderboard-drawer');
+    if (drawer) drawer.classList.remove('open');
+}
+
+// 细则 9: 一键预检机制
+function checkPBLPrerequisite(pblId, targetUrl) {
+    const completed = localStorage.getItem(`pbl_completed_${pblId}`);
+    if (!completed) {
+        const confirmGo = confirm(`⚠️ 预检提示：根据 OBE 教学规范，建议先完成前置 PBL 任务 #${pblId} 的理论学习与技能测试！\n\n点击【确定】去学习理论节点\n点击【取消】直接强行使用工具`);
+        if (confirmGo) {
+            window.location.href = `knowledge_graph.html#node-${pblId}`;
+            return;
+        }
+    }
+    window.location.href = targetUrl;
+}
+
+// OBE 雷达图初始化
+function initHomeOBERadar() {
+    const container = document.getElementById('obe-radar-container');
+    if (!container || typeof echarts === 'undefined') return;
+
+    const myChart = echarts.init(container);
+    const isDay = document.body.classList.contains('day-mode') || document.body.classList.contains('light-mode');
+    const textColor = isDay ? '#0f172a' : '#ffffff';
+
+    const option = {
+        radar: {
+            indicator: [
+                { name: '1.1 痛点识别与发散', max: 100 },
+                { name: '2.1 商业模式闭环', max: 100 },
+                { name: '3.2 MVP原型设计', max: 100 },
+                { name: '3.3 复杂工程分析', max: 100 },
+                { name: '7.3 环境与可持续', max: 100 },
+                { name: '8.2 道德与社会责任', max: 100 }
+            ],
+            radius: 85,
+            axisName: { color: textColor, fontSize: 11, fontWeight: '700' },
+            splitLine: { lineStyle: { color: isDay ? 'rgba(2,132,199,0.3)' : 'rgba(0,194,224,0.3)' } },
+            splitArea: { areaStyle: { color: ['rgba(2,132,199,0.05)', 'rgba(2,132,199,0.12)'] } }
+        },
+        series: [{
+            type: 'radar',
+            data: [{
+                value: [92, 88, 95, 86, 89, 90],
+                name: '毕业要求达成度',
+                itemStyle: { color: isDay ? '#0284c7' : '#00e5ff' },
+                areaStyle: { color: isDay ? 'rgba(2,132,199,0.45)' : 'rgba(0,229,255,0.45)' }
+            }]
+        }]
+    };
+    myChart.setOption(option);
+    window.addEventListener('resize', () => myChart.resize());
+}
+
+// 18 项 PBL 卡片初始化 (细则 8 对标国赛细则)
+const COMPETITION_RUBRICS = {
+    '11': '对应国赛评委【团队结构与跨学科配比】权重 10%',
+    '31': '对应国赛评委【创新性与痛点真实度】权重 25%',
+    '41': '对应国赛评委【MVP产品敏捷落地】权重 20%',
+    '51': '对应国赛评委【商业模式与财务可行性】权重 20%',
+    '61': '对应国赛评委【路演逻辑与答辩防御】权重 15%',
+    '71': '对应国赛评委【股权划分与合伙人稳定性】权重 15%',
+    '72': '对应国赛评委【团队结构与公司治理】权重 15%',
+    '81': '对应国赛评委【政策落地与风险防控】权重 10%'
+};
+
+function initHomeMatrix() {
+    const container = document.getElementById('home-matrix-container');
+    if (!container || !window.KNOWLEDGE_GRAPH_DATA) return;
+
+    const pblNodes = window.KNOWLEDGE_GRAPH_DATA.nodes.filter(n => n.id !== '0' && !n.id.startsWith('L'));
+    container.innerHTML = pblNodes.map(n => {
+        const detail = (window.KNOWLEDGE_DETAILS && window.KNOWLEDGE_DETAILS[n.id]) || {};
+        const rubricTag = COMPETITION_RUBRICS[n.id] || `对应国赛评委【综合实操得分】权重 10%`;
+        return `
+            <div class="sub-card" onclick="openPresentation('${n.id}')" style="cursor:pointer; padding:16px; transition:all 0.25s ease; position:relative;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                    <span style="color:var(--cyan); font-weight:800; font-size:12px;">PBL 节点 #${n.id}</span>
+                    <span style="font-size:10px; background:rgba(234,88,12,0.15); color:#ea580c; border:1px solid rgba(234,88,12,0.3); padding:2px 6px; border-radius:4px; font-weight:800;">${rubricTag}</span>
+                </div>
+                <div style="font-weight:800; font-size:14.5px; margin-bottom:8px; color:var(--text-main);">${n.name}</div>
+                <div style="color:var(--text-sub); font-size:12px; line-height:1.5;">${detail.see ? detail.see.content.substring(0, 42) + '...' : (n.value || '')}</div>
+                <div style="margin-top:12px; padding-top:8px; border-top:1px dashed var(--glass-border); display:flex; justify-content:space-between; font-size:11px; color:var(--text-muted);">
+                    <span><i class="fas fa-book"></i> ${detail.bookIndex || 'PBL金课大纲'}</span>
+                    <span style="color:var(--cyan); font-weight:700;"><i class="fas fa-play"></i> 演播</span>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+</script>
+
+<!-- Cmd+K 全局快捷搜索面板 -->
+<div class="cmd-k-overlay" id="cmd-k-modal" onclick="if(event.target===this)closeCmdKModal();">
+    <div class="cmd-k-box">
+        <div class="cmd-k-input-wrapper">
+            <i class="fas fa-search"></i>
+            <input type="text" id="cmd-k-input" class="cmd-k-input" placeholder="输入知识点、PBL 任务、卡牌工具或关键词检索 (Esc 退出)..." oninput="handleCmdKSearch(this.value)">
+            <span style="font-size:11px; background:rgba(255,255,255,0.1); color:var(--text-sub); padding:3px 8px; border-radius:6px;">ESC</span>
+        </div>
+        <div class="cmd-k-results" id="cmd-k-results">
+            <div style="padding:14px; text-align:center; color:var(--text-muted); font-size:13px;">快捷提示：支持输入如 "SCAMPER"、"JTBD"、"Vesting"、"BMC" 快速跳转演播</div>
+        </div>
+    </div>
+</div>
+
+<script>
+
+function openCmdKModal() {
+    const modal = document.getElementById('cmd-k-modal');
+    if (modal) {
+        modal.classList.add('active');
+        const input = document.getElementById('cmd-k-input');
+        if (input) { input.value = ''; input.focus(); }
+    }
+}
+function closeCmdKModal() {
+    const modal = document.getElementById('cmd-k-modal');
+    if (modal) modal.classList.remove('active');
+}
+function handleCmdKSearch(query) {
+    const container = document.getElementById('cmd-k-results');
+    if (!container || !window.KNOWLEDGE_GRAPH_DATA) return;
+    const q = (query || '').trim().toLowerCase();
+    if (!q) {
+        container.innerHTML = '<div style="padding:14px; text-align:center; color:var(--text-muted); font-size:13px;">快捷提示：支持输入如 "SCAMPER"、"JTBD"、"Vesting"、"BMC" 快速跳转演播</div>';
+        return;
+    }
+    const matches = window.KNOWLEDGE_GRAPH_DATA.nodes.filter(n => n.name.toLowerCase().includes(q) || (n.value && n.value.toLowerCase().includes(q))).slice(0, 8);
+    if (matches.length === 0) {
+        container.innerHTML = '<div style="padding:14px; text-align:center; color:var(--text-muted); font-size:13px;">未检索到匹配结果</div>';
+        return;
+    }
+    container.innerHTML = matches.map(m => `
+        <div class="cmd-k-item" onclick="closeCmdKModal(); openPresentation('${m.id}');">
+            <div>
+                <strong style="color:#00f2fe;">PBL 节点 #${m.id}</strong> - ${m.name}
+            </div>
+            <span style="font-size:11px; background:rgba(0,242,254,0.15); color:#00f2fe; padding:2px 8px; border-radius:6px;"><i class="fas fa-play"></i> 跳转演播</span>
+        </div>
+    `).join('');
+}
+
+document.addEventListener('keydown', (e) => {
+    if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        openCmdKModal();
+    } else if (e.key === 'Escape') {
+        closeCmdKModal();
+    }
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+    if (typeof loadStudentArchive === 'function') loadStudentArchive();
+    initHomeOBERadar();
+    initHomeMatrix();
+    if (window.location.search.includes('testClick=1')) {
+        if (typeof window.openPresentation === 'function') {
+            window.openPresentation('11');
+        }
+    }
+});
+</script>
+
+
+    <!-- 统一全设备自适应页脚 -->
+    <footer class="global-footer" style="background:#030712; border-top:1px solid rgba(255,255,255,0.08); padding:24px 20px; margin-top:40px; font-size:12.5px; color:#64748b;">
+        <div class="footer-content" style="max-width:1400px; margin:0 auto; display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:16px;">
+            <div>
+                <div style="font-weight:800; color:#e2e8f0; font-size:13.5px; margin-bottom:4px;">《大学生创新创业基础》课程知识图谱智能体 V6.0 (CODEX 增强版)</div>
+                <div>国家级一流本科课程配套 PBL 项目制智能化教学与演播系统</div>
+            </div>
+            <div class="footer-device-tags" style="display:flex; gap:12px; flex-wrap:wrap;">
+                <span class="device-badge" style="background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); padding:4px 10px; border-radius:6px; font-size:11.5px; color:#94a3b8;"><i class="fas fa-mobile-alt"></i> 手机自适应</span>
+                <span class="device-badge" style="background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); padding:4px 10px; border-radius:6px; font-size:11.5px; color:#94a3b8;"><i class="fas fa-laptop"></i> 电脑台式端</span>
+                <span class="device-badge" style="background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); padding:4px 10px; border-radius:6px; font-size:11.5px; color:#94a3b8;"><i class="fas fa-tablet-alt"></i> 平板端</span>
+                <span class="device-badge" style="background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); padding:4px 10px; border-radius:6px; font-size:11.5px; color:#94a3b8;"><i class="fas fa-tv"></i> 触摸教学大屏</span>
+            </div>
+            <div style="text-align:right;">
+                <div>© 2026 创新创业金课智能体团队 保留所有权利</div>
+                <div style="font-size:11px; color:#475569; margin-top:2px;">服务端状态: Normal | 端口: 8000</div>
+            </div>
+        </div>
+    </footer>
+
+</body>
+</html>
+
+

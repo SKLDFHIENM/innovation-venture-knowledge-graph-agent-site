@@ -1,0 +1,57 @@
+{
+  "extends": [
+    "stylelint-config-standard"
+  ],
+  "plugins": [
+    "stylelint-order"
+  ],
+  "rules": {
+    "color-no-invalid-hex": true,
+    "font-family-no-duplicate-names": true,
+    "function-calc-no-unspaced-operator": true,
+    "string-no-newline": true,
+    "unit-no-unknown": true,
+    "property-no-unknown": [true, {
+      "ignoreProperties": [
+        "container-type"
+      ]
+    }],
+    "declaration-block-no-duplicate-properties": [true, {
+      "ignore": ["consecutive-duplicates-with-different-values"]
+    }],
+    "declaration-block-no-shorthand-property-overrides": true,
+    "block-no-empty": true,
+    "selector-pseudo-class-no-unknown": [true, {
+      "ignorePseudoClasses": ["global", "local"]
+    }],
+    "selector-pseudo-element-no-unknown": true,
+    "selector-type-no-unknown": [true, {
+      "ignoreTypes": ["model-viewer"]
+    }],
+    "no-duplicate-selectors": true,
+    "no-empty-source": true,
+    "no-descending-specificity": null,
+    "font-family-name-quotes": "always-unless-keyword",
+    "color-function-notation": null,
+    "alpha-value-notation": null,
+    "value-keyword-case": ["lower", {
+      "ignoreKeywords": ["BlinkMacSystemFont"]
+    }],
+    "declaration-empty-line-before": null,
+    "rule-empty-line-before": null,
+    "comment-empty-line-before": null,
+    "custom-property-empty-line-before": null,
+    "at-rule-empty-line-before": null,
+    "selector-class-pattern": null,
+    "custom-property-pattern": null,
+    "keyframes-name-pattern": null,
+    "import-notation": null,
+    "order/properties-alphabetical-order": null
+  },
+  "ignoreFiles": [
+    "node_modules/**",
+    "创新创业课程知识图谱智能体（V6.0 CODEX）/**",
+    "fonts/**",
+    "**/*.min.css"
+  ]
+}

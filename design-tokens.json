@@ -1,0 +1,251 @@
+{
+  "$schema": "https://json.schemastore.org/design-tokens",
+  "name": "创新创业课程知识图谱智能体 Design Tokens",
+  "version": "1.0.0",
+  "description": "全站视觉设计规范 Design Tokens 标准 JSON 文档，供前端开发与设计系统对接使用",
+  "meta": {
+    "theme": "Dark Tech / Futuristic Glassmorphism",
+    "updatedAt": "2026-08-07",
+    "author": "UI Designer"
+  },
+  "color": {
+    "background": {
+      "main": {
+        "value": "#0a1128",
+        "type": "color",
+        "description": "深色暗蓝全局背景色"
+      },
+      "secondary": {
+        "value": "#001f3f",
+        "type": "color",
+        "description": "次级卡片/容器暗蓝背景"
+      },
+      "card": {
+        "value": "#111c44",
+        "type": "color",
+        "description": "标准面板/卡片底色"
+      },
+      "glass": {
+        "value": "rgba(17, 28, 68, 0.75)",
+        "type": "color",
+        "description": "毛玻璃拟态半透明背景"
+      },
+      "glassHover": {
+        "value": "rgba(23, 38, 88, 0.85)",
+        "type": "color",
+        "description": "毛玻璃悬浮高亮背景"
+      },
+      "lightMode": {
+        "value": "#f4f7fe",
+        "type": "color",
+        "description": "白天/浅色模式全局背景色"
+      }
+    },
+    "brand": {
+      "primary": {
+        "value": "#0077b6",
+        "type": "color",
+        "description": "主色调（科技蓝）"
+      },
+      "primaryHover": {
+        "value": "#0096c7",
+        "type": "color",
+        "description": "主色调 Hover 悬停态"
+      },
+      "primaryDark": {
+        "value": "#023e8a",
+        "type": "color",
+        "description": "主色调深色变体"
+      },
+      "secondary": {
+        "value": "#00b4d8",
+        "type": "color",
+        "description": "辅色调（明蓝）"
+      },
+      "accent": {
+        "value": "#ff6b6b",
+        "type": "color",
+        "description": "强调色（珊瑚红/高亮点缀）"
+      },
+      "cyan": {
+        "value": "#00c2e0",
+        "type": "color",
+        "description": "核心科技青发光色"
+      },
+      "cyanGlow": {
+        "value": "rgba(0, 194, 224, 0.3)",
+        "type": "color",
+        "description": "青色弥散发光带"
+      }
+    },
+    "semantic": {
+      "success": {
+        "value": "#10b981",
+        "type": "color",
+        "description": "成功/正确/通过状态"
+      },
+      "warning": {
+        "value": "#f59e0b",
+        "type": "color",
+        "description": "警告/提醒/关注状态"
+      },
+      "danger": {
+        "value": "#ef4444",
+        "type": "color",
+        "description": "危险/错误/拒绝状态"
+      },
+      "info": {
+        "value": "#3b82f6",
+        "type": "color",
+        "description": "提示/信息/通知状态"
+      },
+      "purple": {
+        "value": "#8b5cf6",
+        "type": "color",
+        "description": "紫罗兰/高级特权/竞赛标志"
+      }
+    },
+    "text": {
+      "main": {
+        "value": "#ffffff",
+        "type": "color",
+        "description": "正文主要高亮文本（纯白）"
+      },
+      "sub": {
+        "value": "#a0aec0",
+        "type": "color",
+        "description": "次要说明文本（淡灰蓝）"
+      },
+      "muted": {
+        "value": "#64748b",
+        "type": "color",
+        "description": "弱化/辅助/占位文本"
+      },
+      "lightModeMain": {
+        "value": "#0f172a",
+        "type": "color",
+        "description": "白天模式主要文本（深蓝黑）"
+      },
+      "lightModeSub": {
+        "value": "#475569",
+        "type": "color",
+        "description": "白天模式次要文本（深灰）"
+      }
+    },
+    "border": {
+      "glass": {
+        "value": "rgba(255, 255, 255, 0.12)",
+        "type": "color",
+        "description": "标准玻璃态边框色"
+      },
+      "light": {
+        "value": "rgba(255, 255, 255, 0.2)",
+        "type": "color",
+        "description": "半透明亮色边框"
+      },
+      "active": {
+        "value": "#00c2e0",
+        "type": "color",
+        "description": "选中/焦点高亮边框"
+      },
+      "lightMode": {
+        "value": "#e2e8f0",
+        "type": "color",
+        "description": "白天模式边框色"
+      }
+    }
+  },
+  "typography": {
+    "fontFamily": {
+      "primary": {
+        "value": "'Inter', 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif",
+        "type": "fontFamily",
+        "description": "无衬线通用主字体"
+      },
+      "mono": {
+        "value": "'JetBrains Mono', 'Fira Code', 'Consolas', monospace",
+        "type": "fontFamily",
+        "description": "等宽代码/数据字体"
+      }
+    },
+    "fontSize": {
+      "xs": { "value": "12px", "type": "dimension" },
+      "sm": { "value": "14px", "type": "dimension" },
+      "base": { "value": "16px", "type": "dimension" },
+      "lg": { "value": "18px", "type": "dimension" },
+      "xl": { "value": "20px", "type": "dimension" },
+      "2xl": { "value": "24px", "type": "dimension" },
+      "3xl": { "value": "30px", "type": "dimension" },
+      "4xl": { "value": "36px", "type": "dimension" }
+    },
+    "fontWeight": {
+      "regular": { "value": 400, "type": "number" },
+      "medium": { "value": 500, "type": "number" },
+      "semibold": { "value": 600, "type": "number" },
+      "bold": { "value": 700, "type": "number" },
+      "extrabold": { "value": 800, "type": "number" },
+      "black": { "value": 900, "type": "number" }
+    },
+    "lineHeight": {
+      "tight": { "value": 1.2, "type": "number" },
+      "snug": { "value": 1.4, "type": "number" },
+      "normal": { "value": 1.6, "type": "number" },
+      "relaxed": { "value": 1.8, "type": "number" }
+    }
+  },
+  "spacing": {
+    "1": { "value": "4px", "type": "dimension" },
+    "2": { "value": "8px", "type": "dimension" },
+    "3": { "value": "12px", "type": "dimension" },
+    "4": { "value": "16px", "type": "dimension" },
+    "5": { "value": "20px", "type": "dimension" },
+    "6": { "value": "24px", "type": "dimension" },
+    "8": { "value": "32px", "type": "dimension" },
+    "10": { "value": "40px", "type": "dimension" },
+    "12": { "value": "48px", "type": "dimension" },
+    "16": { "value": "64px", "type": "dimension" }
+  },
+  "borderRadius": {
+    "xs": { "value": "4px", "type": "dimension" },
+    "sm": { "value": "6px", "type": "dimension" },
+    "md": { "value": "12px", "type": "dimension" },
+    "lg": { "value": "16px", "type": "dimension" },
+    "xl": { "value": "24px", "type": "dimension" },
+    "pill": { "value": "50px", "type": "dimension" },
+    "circle": { "value": "50%", "type": "dimension" }
+  },
+  "shadow": {
+    "sm": {
+      "value": "0 2px 8px rgba(0, 0, 0, 0.2)",
+      "type": "shadow"
+    },
+    "md": {
+      "value": "0 4px 16px rgba(0, 0, 0, 0.3)",
+      "type": "shadow"
+    },
+    "lg": {
+      "value": "0 10px 30px rgba(0, 0, 0, 0.4)",
+      "type": "shadow"
+    },
+    "cyanGlow": {
+      "value": "0 0 20px rgba(0, 194, 224, 0.35)",
+      "type": "shadow"
+    },
+    "primaryGlow": {
+      "value": "0 0 25px rgba(0, 119, 182, 0.4)",
+      "type": "shadow"
+    }
+  },
+  "transition": {
+    "fast": { "value": "0.15s ease", "type": "transition" },
+    "normal": { "value": "0.3s ease", "type": "transition" },
+    "slow": { "value": "0.5s ease", "type": "transition" },
+    "bounce": { "value": "0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55)", "type": "transition" }
+  },
+  "breakpoint": {
+    "mobile": { "value": "640px", "type": "dimension" },
+    "tablet": { "value": "768px", "type": "dimension" },
+    "desktop": { "value": "1024px", "type": "dimension" },
+    "wide": { "value": "1280px", "type": "dimension" }
+  }
+}

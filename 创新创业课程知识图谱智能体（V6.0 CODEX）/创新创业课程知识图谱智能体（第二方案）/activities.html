@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>闪电活动 - 《大学生创新创业基础》24 个 45分钟启发微课中心</title>
+    <!-- FontAwesome 6.x SVG+JS 离线库 -->
+    <script src="js/all.min.js" defer></script>
+    <!-- 自定义主样式表 -->
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        /* ═══════════════════════════════════════════════════════
+           全站 Day/Night 双色调适配 & 闪电活动专属 Token
+           ═══════════════════════════════════════════════════════ */
+        :root {
+            --act-bg-page: #090D16;
+            --act-bg-card: #131C2E;
+            --act-bg-modal: #111827;
+            --act-bg-console: #1E293B;
+            --act-border-modal: rgba(0, 242, 254, 0.35);
+            --act-text-main: #F8FAFC;
+            --act-text-sub: #94A3B8;
+
+            /* Badge 状态体系 - 暗黑模式 */
+            --badge-submit-bg: rgba(16, 185, 129, 0.18);
+            --badge-submit-text: #34D399;
+            --badge-submit-border: rgba(16, 185, 129, 0.4);
+
+            --badge-think-bg: rgba(245, 158, 11, 0.18);
+            --badge-think-text: #FBBF24;
+            --badge-think-border: rgba(245, 158, 11, 0.4);
+
+            --badge-help-bg: rgba(239, 68, 68, 0.18);
+            --badge-help-text: #F87171;
+            --badge-help-border: rgba(239, 68, 68, 0.4);
+        }
+
+        .day-mode {
+            --act-bg-page: #F1F5F9;
+            --act-bg-card: #FFFFFF;
+            --act-bg-modal: #FFFFFF;
+            --act-bg-console: #F8FAFC;
+            --act-border-modal: rgba(2, 132, 199, 0.3);
+            --act-text-main: #0F172A;
+            --act-text-sub: #475569;
+
+            /* Badge 状态体系 - 亮色模式 */
+            --badge-submit-bg: #DCFCE7;
+            --badge-submit-text: #15803D;
+            --badge-submit-border: #86EFAC;
+
+            --badge-think-bg: #FEF9C3;
+            --badge-think-text: #A16207;
+            --badge-think-border: #FDE047;
+
+            --badge-help-bg: #FEE2E2;
+            --badge-help-text: #B91C1C;
+            --badge-help-border: #FCA5A5;
+        }
+
+        body {
+            background-color: var(--act-bg-page) !important;
+            color: var(--act-text-main) !important;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .act-filter-btn {
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            color: var(--act-text-sub);
+            padding: 8px 18px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .day-mode .act-filter-btn {
+            border-color: rgba(0, 0, 0, 0.15);
+        }
+
+        .act-filter-btn:hover {
+            border-color: #00f2fe;
+            color: var(--act-text-main);
+        }
+
+        .act-filter-btn.active {
+            background: #00f2fe !important;
+            color: #090D16 !important;
+            border-color: #00f2fe !important;
+            font-weight: 900 !important;
+            box-shadow: 0 0 15px rgba(0, 242, 254, 0.5) !important;
+        }
+
+        /* ── 三角色流程看板呼吸灯高亮动画 ── */
+        @keyframes role-pulse-glow {
+            0% {
+                border-color: rgba(245, 158, 11, 0.4);
+                box-shadow: 0 0 5px rgba(245, 158, 11, 0.2);
+            }
+            50% {
+                border-color: #f59e0b;
+                box-shadow: 0 0 20px rgba(245, 158, 11, 0.65);
+            }
+            100% {
+                border-color: rgba(245, 158, 11, 0.4);
+                box-shadow: 0 0 5px rgba(245, 158, 11, 0.2);
+            }
+        }
+
+        .role-glowing-active {
+            animation: role-pulse-glow 2s infinite ease-in-out;
+            background: rgba(245, 158, 11, 0.08) !important;
+            border-width: 1.5px !important;
+        }
+
+        /* ── 组别芯片卡样式 ── */
+        .group-chip {
+            padding: 8px 10px;
+            border-radius: 10px;
+            font-size: 11.5px;
+            font-weight: 800;
+            text-align: center;
+            cursor: pointer;
+            user-select: none;
+            transition: all 0.2s ease;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+        }
+
+        .group-chip:hover {
+            transform: translateY(-2px);
+            filter: brightness(1.1);
+        }
+
+        .group-chip.status-submit {
+            background: var(--badge-submit-bg);
+            color: var(--badge-submit-text);
+            border: 1px solid var(--badge-submit-border);
+        }
+
+        .group-chip.status-think {
+            background: var(--badge-think-bg);
+            color: var(--badge-think-text);
+            border: 1px solid var(--badge-think-border);
+        }
+
+        .group-chip.status-help {
+            background: var(--badge-help-bg);
+            color: var(--badge-help-text);
+            border: 1px solid var(--badge-help-border);
+        }
+
+        /* 悬停微预览浮层 Tooltip */
+        .group-chip-tooltip {
+            visibility: hidden;
+            opacity: 0;
+            width: 210px;
+            background: #0f172a;
+            color: #f8fafc;
+            text-align: left;
+            border-radius: 10px;
+            padding: 10px 12px;
+            position: absolute;
+            z-index: 100;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            border: 1px solid rgba(0, 242, 254, 0.4);
+            font-weight: normal;
+            font-size: 11px;
+            line-height: 1.45;
+            transition: opacity 0.25s ease, visibility 0.25s ease;
+            pointer-events: none;
+        }
+        
+        .day-mode .group-chip-tooltip {
+            background: #ffffff;
+            color: #0f172a;
+            border-color: rgba(2, 132, 199, 0.4);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        }
+
+        .group-chip-tooltip::after {
+            content: "";
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            margin-left: -5px;
+            border-width: 5px;
+            border-style: solid;
+            border-color: #0f172a transparent transparent transparent;
+        }
+
+        .day-mode .group-chip-tooltip::after {
+            border-color: #ffffff transparent transparent transparent;
+        }
+
+        .group-chip:hover .group-chip-tooltip {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        /* ── 评分按钮 ── */
+        .score-btn {
+            border: 1px solid rgba(255,255,255,0.15);
+            background: rgba(255,255,255,0.06);
+            color: var(--act-text-sub);
+            padding: 6px 14px;
+            border-radius: 10px;
+            font-size: 11.5px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .day-mode .score-btn {
+            background: #f1f5f9;
+            border-color: #cbd5e1;
+            color: #475569;
+        }
+
+        .score-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .score-btn.active-grade {
+            transform: scale(1.06);
+            box-shadow: 0 0 12px rgba(245, 158, 11, 0.5);
+        }
+
+        .score-btn.btn-grade-95.active-grade {
+            background: rgba(16, 185, 129, 0.25) !important;
+            border-color: #10b981 !important;
+            color: #34d399 !important;
+        }
+
+        .score-btn.btn-grade-85.active-grade {
+            background: rgba(245, 158, 11, 0.25) !important;
+            border-color: #f59e0b !important;
+            color: #fbbf24 !important;
+        }
+
+        .score-btn.btn-grade-75.active-grade {
+            background: rgba(59, 130, 246, 0.25) !important;
+            border-color: #3b82f6 !important;
+            color: #60a5fa !important;
+        }
+
+        .score-btn.btn-grade-redo.active-grade {
+            background: rgba(239, 68, 68, 0.25) !important;
+            border-color: #ef4444 !important;
+            color: #f87171 !important;
+        }
+
+        /* AI 质问模态框 */
+        .ai-q-modal {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            z-index: 2147483648;
+            background: rgba(5, 10, 20, 0.85);
+            backdrop-filter: blur(10px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .ai-q-card {
+            background: var(--act-bg-modal);
+            border: 1.5px solid #a855f7;
+            border-radius: 20px;
+            padding: 26px 30px;
+            max-width: 580px;
+            width: 100%;
+            box-shadow: 0 20px 50px rgba(168, 85, 247, 0.3);
+            position: relative;
+        }
+    </style>
+</head>
+<body id="app-root" class="dark-mode" style="background:var(--act-bg-page);">
+
+<!-- 动态粒子背景画布 -->
+<canvas id="particles-canvas"></canvas>
+
+<!-- 顶部导航 Header -->
+<header style="background:rgba(19,28,46,0.92); border-bottom:1px solid rgba(0,242,254,0.25);">
+    <div class="logo-area" style="display:flex; align-items:center;">
+        <div class="school-badge">
+            <i class="fas fa-graduation-cap"></i>
+        </div>
+        <div class="logo-text-group">
+            <span class="logo-main" style="color:#ffffff;">高校双创平台</span>
+            <span class="logo-course" style="color:#00f2fe;">《大学生创新创业基础》· 课程学习智能体</span>
+        </div>
+    </div>
+
+    <div class="header-tools">
+        <nav>
+            <a class="nav-item" href="index.html"><i class="fas fa-home"></i><span class="nav-text"> 首页</span></a>
+            <a class="nav-item" href="map.html"><i class="fas fa-map-marked-alt"></i><span class="nav-text"> 课程地图</span></a>
+            <a class="nav-item" href="knowledge_graph.html"><i class="fas fa-brain"></i><span class="nav-text"> 理论知识图谱</span></a>
+            <a class="nav-item" href="graph.html"><i class="fas fa-chart-radar"></i><span class="nav-text"> 实战能力图谱</span></a>
+            <a class="nav-item" href="chat.html"><i class="fas fa-comments"></i><span class="nav-text"> AI导师</span></a>
+            <a class="nav-item active" href="activities.html"><i class="fas fa-bolt"></i><span class="nav-text"> 闪电活动</span></a>
+            <a class="nav-item" href="resources.html"><i class="fas fa-cubes"></i><span class="nav-text"> 任务资源</span></a>
+            <a class="nav-item" href="admin.html" style="color:#fbbf24; font-weight:800;"><i class="fas fa-user-tie"></i><span class="nav-text"> 教师控制台</span></a>
+            <a class="nav-item" href="student.html"><i class="fas fa-user-graduate"></i><span class="nav-text"> 我的档案</span></a>
+            <div class="nav-dropdown">
+                <span class="nav-item nav-dropdown-trigger"><i class="fas fa-ellipsis-h"></i> 更多 ▾</span>
+                <div class="nav-dropdown-menu">
+                    <a href="glossary.html"><i class="fas fa-book"></i> 术语词典</a>
+                    <a href="presentation.html"><i class="fas fa-desktop"></i> 大屏演示</a>
+                    <a href="exam.html"><i class="fas fa-poll-h"></i> 综合测评</a>
+                </div>
+            </div>
+        </nav>
+        <button class="nav-search-trigger" onclick="openCmdKModal()" title="全站快捷搜索 (Ctrl + K)">
+            <i class="fas fa-search"></i> <span>搜索...</span> <kbd>Ctrl K</kbd>
+        </button>
+        <button id="theme-toggle-btn" onclick="toggleTheme()" title="切换日夜主题" aria-label="切换主题">🌙</button>
+    </div>
+</header>
+
+<main>
+    <div class="view-pane active" style="display:block;">
+        <div class="home-container">
+            
+            <!-- 头部 Banner 区域 -->
+            <div class="glass-panel" style="padding:32px 30px; text-align:center; margin-bottom:25px; border-radius:24px; background:var(--act-bg-card); border:1.5px solid var(--act-border-modal); box-shadow:0 15px 45px rgba(0,0,0,0.3);">
+                <div style="display:inline-flex; align-items:center; gap:8px; background:rgba(0,242,254,0.12); border:1px solid rgba(0,242,254,0.35); color:#00f2fe; padding:6px 20px; border-radius:20px; font-size:13px; font-weight:800; margin-bottom:12px;">
+                    <i class="fas fa-bolt"></i> 45 分钟金课启发微课闪电活动库
+                </div>
+                <h1 style="font-size:26px; font-weight:900; color:var(--act-text-main); margin-bottom:10px;">
+                    24 项 45分钟金课启发微课闪电活动中心
+                </h1>
+                <p style="color:var(--act-text-sub); font-size:14px; max-width:850px; margin:0 auto; line-height:1.7;">
+                    深度对齐教育部国家级双创金课教学大纲，精选 24 个高互动、限时决胜的课堂启发微课。全量装备<strong>“活动规则”</strong>、<strong>“硬性考核产出”</strong>与<strong>“三角色标准化操作看板”</strong>，赋能课堂教学与大屏实训。
+                </p>
+            </div>
+
+            <!-- 6 大模块分类筛选 Tab 栏 -->
+            <div style="display:flex; justify-content:center; gap:10px; flex-wrap:wrap; margin-bottom:25px;" id="act-filters">
+                <button class="act-filter-btn active" onclick="filterActivities('all', this)">🌟 全部活动 (24)</button>
+                <button class="act-filter-btn" onclick="filterActivities('team', this)">👥 团队搭建 (4)</button>
+                <button class="act-filter-btn" onclick="filterActivities('painpoint', this)">💡 痛点发散 (4)</button>
+                <button class="act-filter-btn" onclick="filterActivities('bm', this)">🧩 商业模式 (4)</button>
+                <button class="act-filter-btn" onclick="filterActivities('feasibility', this)">📊 市场可行 (4)</button>
+                <button class="act-filter-btn" onclick="filterActivities('mvp', this)">🧪 精益验证 (4)</button>
+                <button class="act-filter-btn" onclick="filterActivities('competition', this)">🏆 大赛答辩 (4)</button>
+            </div>
+
+            <!-- 24 项活动卡片网格容器 -->
+            <div id="activities-grid" style="display:grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap:20px;">
+            </div>
+
+        </div>
+    </div>
+</main>
+
+<!-- 活动详情与 3 角色看板弹出 Modal -->
+<div id="activity-detail-modal" class="presentation-modal" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; z-index:2147483647; background:rgba(15,23,42,0.85); backdrop-filter:blur(15px); justify-content:center; align-items:center; padding:20px;">
+    <div style="background:var(--act-bg-modal); border:1.5px solid var(--act-border-modal); color:var(--act-text-main); border-radius:24px; max-width:860px; width:100%; max-height:90vh; overflow-y:auto; padding:30px; box-shadow:0 25px 60px rgba(0,0,0,0.5); position:relative;" id="activity-modal-content">
+    </div>
+</div>
+
+<!-- AI 投资人质问弹出 Modal -->
+<div id="ai-question-modal" class="ai-q-modal" style="display:none;">
+    <div class="ai-q-card">
+        <button onclick="closeAIQuestionModal()" style="position:absolute; top:18px; right:20px; background:none; border:none; color:var(--act-text-sub); font-size:20px; cursor:pointer;" aria-label="关闭"><i class="fas fa-times"></i></button>
+        <div style="display:flex; align-items:center; gap:10px; margin-bottom:14px;">
+            <div style="width:36px; height:36px; border-radius:50%; background:linear-gradient(135deg, #a855f7, #7c3aed); display:flex; align-items:center; justify-content:center; color:#fff; font-size:18px;"><i class="fas fa-robot"></i></div>
+            <div>
+                <h3 style="color:var(--act-text-main); font-size:17px; font-weight:900; margin:0;">🤖 AI 投资人高压 3 质问弹窗</h3>
+                <span style="font-size:11.5px; color:#c084fc; font-weight:700;">对标真实答辩场景 · 随机抽选质问卡</span>
+            </div>
+        </div>
+        <div id="ai-q-list" style="display:flex; flex-direction:column; gap:12px; margin-bottom:20px;">
+        </div>
+        <div style="text-align:right;">
+            <button onclick="closeAIQuestionModal()" style="background:linear-gradient(135deg, #a855f7, #7c3aed); border:none; color:#fff; padding:8px 22px; border-radius:10px; font-weight:800; font-size:12.5px; cursor:pointer;" aria-label="关闭">已接收质问 (开始答辩)</button>
+        </div>
+    </div>
+</div>
+
+<!-- 脚本引入 -->
+<script src="js/data.js"></script>
+<script src="js/activities.js"></script>
+<script src="js/modules/framework.js"></script>
+<script src="js/modules/main_framework.js"></script>
+<script src="js/modules/utils.js"></script>
+<script src="js/modules/presentation.js"></script>
+<script src="js/app.js"></script>
+
+<script>
+let currentCategory = 'all';
+let activeActivityItem = null;
+let actTimerInterval = null;
+
+// 10 个组的状态数据结构存储 (status: 0: 思考中, 1: 已提交, 2: 需辅导)
+let groupsStatusState = [
+    { id: 1, status: 1, time: '09:42', draft: '已完成 MVP 九要素闭环，核心痛点已验证。' },
+    { id: 2, status: 0, time: '--:--', draft: '正在讨论商业模式第 5 项：核心资源配置。' },
+    { id: 3, status: 1, time: '08:15', draft: '方案定稿：聚焦云南本地三农电商 AIGC 赋能。' },
+    { id: 4, status: 0, time: '--:--', draft: '组内推演保本线 BEP 测算中。' },
+    { id: 5, status: 1, time: '10:04', draft: '拼图拆解完成，核心合伙人协议要素已确认。' },
+    { id: 6, status: 1, time: '07:50', draft: '零代码 Demo 框架已通过组内走查。' },
+    { id: 7, status: 2, time: '--:--', draft: '⚠️ 遇到的瓶颈：股权划分 Vesting 4 年 Cliff 比例卡住。' },
+    { id: 8, status: 1, time: '09:12', draft: '5 分钟 Pitch 演播结构已就绪。' },
+    { id: 9, status: 0, time: '--:--', draft: '对标“互联网+”评审指标自查中。' },
+    { id: 10, status: 1, time: '08:30', draft: '已完成 100 次痛点用户问卷交叉对比。' }
+];
+
+function renderActivitiesGrid() {
+    const container = document.getElementById('activities-grid');
+    if (!container || !window.ACTIVITIES_DATA) return;
+
+    const list = currentCategory === 'all' 
+        ? window.ACTIVITIES_DATA 
+        : window.ACTIVITIES_DATA.filter(a => a.category === currentCategory);
+
+    container.innerHTML = list.map(a => `
+        <div class="glass-panel" style="background:var(--act-bg-card); border:1px solid rgba(255,255,255,0.08); border-radius:18px; padding:22px; box-shadow:0 10px 30px rgba(0,0,0,0.2); display:flex; flex-direction:column; justify-content:space-between; transition:all 0.25s ease;" onmouseenter="this.style.transform='translateY(-3px)'" onmouseleave="this.style.transform='translateY(0)'">
+            <div>
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                    <span style="background:rgba(0,242,254,0.12); color:#00f2fe; font-weight:800; font-size:12px; padding:4px 12px; border-radius:12px;">${a.badge}</span>
+                    <span style="background:#EF4444; color:#ffffff; font-weight:900; font-size:11.5px; padding:3px 10px; border-radius:6px; box-shadow:0 0 10px rgba(239,68,68,0.4);"><i class="far fa-clock"></i> ${a.time}</span>
+                </div>
+                <h3 style="color:var(--act-text-main); font-size:17px; font-weight:800; margin-bottom:8px;">${a.title}</h3>
+                <div style="color:#00f2fe; font-size:12px; font-weight:700; margin-bottom:10px;"><i class="fas fa-link"></i> ${a.pblNode}</div>
+                <p style="color:var(--act-text-sub); font-size:13px; line-height:1.6; margin-bottom:12px;">${a.desc}</p>
+                <div style="font-size:12px; color:#fbbf24; font-weight:800; margin-bottom:12px; background:rgba(245,158,11,0.08); padding:6px 10px; border-radius:6px; border-left:3px solid #fbbf24;">
+                    <i class="fas fa-file-signature"></i> 考核产出：${a.deliverable || '提交 1 份标准组内讨论记录与 MVP 画布成果'}
+                </div>
+            </div>
+            
+            <div style="border-top:1px dashed rgba(255,255,255,0.1); padding-top:14px; display:flex; justify-content:space-between; align-items:center;">
+                <span style="color:var(--act-text-sub); font-size:12px; font-weight:600;"><i class="fas fa-layer-group"></i> ${a.categoryName}</span>
+                <button onclick="openActivityDetail('${a.id}')" style="background:linear-gradient(135deg, #4facfe, #00f2fe); border:none; color:#050b18; padding:8px 18px; border-radius:14px; font-size:12.5px; font-weight:900; cursor:pointer; box-shadow:0 0 15px rgba(0,242,254,0.4);">
+                    <i class="fas fa-play-circle"></i> 启动微课活动
+                </button>
+            </div>
+        </div>
+    `).join('');
+}
+
+function filterActivities(cat, btn) {
+    currentCategory = cat;
+    document.querySelectorAll('.act-filter-btn').forEach(b => b.classList.remove('active'));
+    if (btn) btn.classList.add('active');
+    renderActivitiesGrid();
+}
+
+function openActivityDetail(id) {
+    const item = window.ACTIVITIES_DATA.find(a => a.id === id);
+    if (!item) return;
+    activeActivityItem = item;
+
+    const modal = document.getElementById('activity-detail-modal');
+    const content = document.getElementById('activity-modal-content');
+    if (!modal || !content) return;
+
+    renderModalInnerHTML(item);
+    modal.style.display = 'flex';
+}
+
+function renderModalInnerHTML(item) {
+    const content = document.getElementById('activity-modal-content');
+    if (!content) return;
+
+    content.innerHTML = `
+        <button onclick="closeActivityDetail()" style="position:absolute; top:20px; right:20px; background:none; border:none; color:var(--act-text-sub); font-size:20px; cursor:pointer;" aria-label="关闭"><i class="fas fa-times"></i></button>
+        
+        <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
+            <span style="background:rgba(0,242,254,0.15); color:#00f2fe; font-weight:800; font-size:12.5px; padding:4px 14px; border-radius:14px;">${item.badge}</span>
+            <span style="background:#EF4444; color:#ffffff; font-weight:900; font-size:12px; padding:3px 10px; border-radius:6px; box-shadow:0 0 10px rgba(239,68,68,0.4);"><i class="far fa-clock"></i> 建议用时: ${item.time}</span>
+        </div>
+
+        <h2 style="color:var(--act-text-main); font-size:22px; font-weight:900; margin-bottom:8px;">${item.title}</h2>
+        <div style="color:#00f2fe; font-size:13.5px; font-weight:700; margin-bottom:14px;"><i class="fas fa-link"></i> 金课对齐: ${item.pblNode}</div>
+
+        <!-- 硬性考核产出说明 -->
+        <div style="background:rgba(245,158,11,0.08); border:1.5px solid rgba(245,158,11,0.3); border-radius:12px; padding:12px 16px; margin-bottom:16px;">
+            <div style="color:#fbbf24; font-weight:900; font-size:13.5px;"><i class="fas fa-file-signature"></i> 本次启发微课硬性考核产出：</div>
+            <div style="color:var(--act-text-main); font-size:13px; margin-top:4px;">${item.deliverable || '提交 1 份标准组内讨论记录与 MVP 画布成果，成果将自动计入平时过程性评价分值。'}</div>
+        </div>
+
+        <!-- 活动规则 -->
+        <div style="background:rgba(0,194,224,0.06); border:1px solid rgba(0,194,224,0.2); border-radius:14px; padding:16px; margin-bottom:20px;">
+            <div style="color:#00f2fe; font-weight:800; font-size:14px; margin-bottom:6px;"><i class="fas fa-gavel"></i> 闪电活动规则</div>
+            <div style="color:var(--act-text-main); font-size:13px; line-height:1.7;">${item.rules}</div>
+        </div>
+
+        <!-- 3 角色标准化操作流程看板 -->
+        <h3 style="color:var(--act-text-main); font-size:16px; font-weight:800; margin-bottom:14px;"><i class="fas fa-users-cog" style="color:#00f2fe;"></i> “老师 / 学生 / 小组”三角色标准化操作流程看板</h3>
+        <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:14px; margin-bottom:20px;">
+            <div class="role-card" style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.1); border-radius:14px; padding:14px; transition:all 0.3s ease;">
+                <div style="color:#60a5fa; font-weight:800; font-size:13.5px; margin-bottom:6px;"><i class="fas fa-chalkboard-teacher"></i> 👨‍🏫 老师怎么做</div>
+                <div style="color:var(--act-text-sub); font-size:12px; line-height:1.6;">${item.workflows.teacher}</div>
+            </div>
+            <div class="role-card" style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.1); border-radius:14px; padding:14px; transition:all 0.3s ease;">
+                <div style="color:#34d399; font-weight:800; font-size:13.5px; margin-bottom:6px;"><i class="fas fa-user-graduate"></i> 👩‍🎓 学生怎么做</div>
+                <div style="color:var(--act-text-sub); font-size:12px; line-height:1.6;">${item.workflows.student}</div>
+            </div>
+            <div class="role-card" id="role-group-card" style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.1); border-radius:14px; padding:14px; transition:all 0.3s ease;">
+                <div style="color:#fbbf24; font-weight:800; font-size:13.5px; margin-bottom:6px;"><i class="fas fa-users"></i> 👥 小组怎么做</div>
+                <div style="color:var(--act-text-sub); font-size:12px; line-height:1.6;">${item.workflows.group}</div>
+            </div>
+        </div>
+
+        <!-- 重构大屏控制面板：消除浅色突兀感，深色底色风格 -->
+        <div style="background:var(--act-bg-console); border:1.5px solid var(--act-border-modal); border-radius:16px; padding:18px; margin-bottom:20px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px dashed rgba(255,255,255,0.1); padding-bottom:12px; margin-bottom:12px;">
+                <div>
+                    <div style="font-size:12px; color:var(--act-text-sub); font-weight:700;">🖥️ 课堂大屏现场实操控制台</div>
+                    <div style="font-size:42px; font-weight:900; color:#00f2fe; text-shadow:0 0 20px rgba(0,242,254,0.6);" id="act-timer-display">10:00</div>
+                </div>
+                <div style="display:flex; gap:10px; flex-direction:column; align-items:flex-end;">
+                    <button id="btn-timer-toggle" onclick="startActivityTimer(10)" style="background:linear-gradient(135deg, #10b981, #059669); border:none; color:#fff; font-weight:900; padding:10px 20px; border-radius:12px; font-size:13px; cursor:pointer; box-shadow:0 0 15px rgba(16,185,129,0.4);"><i class="fas fa-play"></i> 启动 10分钟 大屏倒计时</button>
+                    <button onclick="invokeAIInvestorQuestion()" style="background:rgba(168,85,247,0.2); border:1px solid rgba(168,85,247,0.5); color:#c084fc; padding:6px 14px; border-radius:10px; font-size:11.5px; font-weight:800; cursor:pointer;"><i class="fas fa-robot"></i> 🤖 AI 投资人高压 3 质问</button>
+                </div>
+            </div>
+
+            <!-- 全班 10 小组实时提交进度看板（可点击循环切换，Hover 显示草稿微框） -->
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                <div style="font-size:12px; color:var(--act-text-main); font-weight:700;">全班 10 个项目小组微课产出实时提交看板 <span style="font-size:11px; color:var(--act-text-sub); font-weight:normal;">(点击切换状态 | 悬停预览微草稿)</span>：</div>
+                <div style="font-size:11px; color:#10b981; font-weight:800;" id="submitted-counter">已完成: 6/10 组</div>
+            </div>
+            
+            <div style="display:grid; grid-template-columns:repeat(5, 1fr); gap:8px;" id="groups-grid">
+                ${renderGroupsGridHTML()}
+            </div>
+        </div>
+
+        <!-- 教师评分与评级按钮（扩充为 4 档梯度） -->
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+            <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+                <span style="font-size:12px; color:var(--act-text-sub); font-weight:700;">教师现场评级：</span>
+                <button onclick="submitFormativeGrade('95', this)" class="score-btn btn-grade-95">⭐️ 优秀 95分</button>
+                <button onclick="submitFormativeGrade('85', this)" class="score-btn btn-grade-85">👍 良好 85分</button>
+                <button onclick="submitFormativeGrade('75', this)" class="score-btn btn-grade-75">👌 合格 75分</button>
+                <button onclick="submitFormativeGrade('60', this)" class="score-btn btn-grade-redo">🔄 重提交</button>
+            </div>
+            <div style="display:flex; gap:10px;">
+                <button id="modal-close-btn" onclick="closeActivityDetail()" style="background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.15); color:var(--act-text-main); padding:8px 18px; border-radius:12px; font-size:12.5px; font-weight:700; cursor:pointer;" aria-label="关闭">关闭</button>
+                <button onclick="triggerFullscreenAndPPT()" style="background:linear-gradient(135deg, #4facfe, #00f2fe); border:none; color:#050b18; padding:8px 20px; border-radius:12px; font-size:12.5px; font-weight:900; cursor:pointer; box-shadow:0 0 15px rgba(0,242,254,0.4);">
+                    <i class="fas fa-desktop"></i> 🖥️ 联动大屏 PPT 演播
+                </button>
+            </div>
+        </div>
+        
+        <div id="grade-toast-msg" style="font-size:11.5px; color:#10b981; font-weight:700; margin-top:8px; display:none; text-align:left;">
+        </div>
+    `;
+}
+
+function renderGroupsGridHTML() {
+    return groupsStatusState.map(g => {
+        let statusCls = 'status-think';
+        let statusText = '⌛ 思考中...';
+        if (g.status === 1) {
+            statusCls = 'status-submit';
+            statusText = `✅ 已提交 (${g.time})`;
+        } else if (g.status === 2) {
+            statusCls = 'status-help';
+            statusText = '⚠️ 需辅导';
+        }
+
+        return `
+            <div class="group-chip ${statusCls}" onclick="cycleGroupStatus(${g.id})">
+                第 ${g.id} 组: ${statusText}
+                <div class="group-chip-tooltip">
+                    <strong style="color:#00f2fe; display:block; margin-bottom:2px;">第 ${g.id} 组产出草稿微框：</strong>
+                    ${g.draft}
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+function cycleGroupStatus(groupId) {
+    const item = groupsStatusState.find(g => g.id === groupId);
+    if (!item) return;
+
+    // 循环切换： 0 (思考中) -> 1 (已提交) -> 2 (需辅导) -> 0
+    item.status = (item.status + 1) % 3;
+    if (item.status === 1 && item.time === '--:--') {
+        const now = new Date();
+        item.time = `${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}`;
+    }
+
+    // 重新渲染小组 Grid
+    const gridEl = document.getElementById('groups-grid');
+    if (gridEl) gridEl.innerHTML = renderGroupsGridHTML();
+
+    // 更新计数
+    const submittedCount = groupsStatusState.filter(g => g.status === 1).length;
+    const counterEl = document.getElementById('submitted-counter');
+    if (counterEl) counterEl.textContent = `已完成: ${submittedCount}/10 组`;
+}
+
+function startActivityTimer(minutes) {
+    clearInterval(actTimerInterval);
+    let sec = minutes * 60;
+    const disp = document.getElementById('act-timer-display');
+    const roleGroupCard = document.getElementById('role-group-card');
+    
+    // 给【👥 小组怎么做】卡片加上呼吸灯边框
+    if (roleGroupCard) {
+        roleGroupCard.classList.add('role-glowing-active');
+    }
+
+    const btn = document.getElementById('btn-timer-toggle');
+    if (btn) {
+        btn.innerHTML = '<i class="fas fa-pause"></i> 计时中 (点击重置)';
+        btn.onclick = () => {
+            clearInterval(actTimerInterval);
+            if (disp) disp.textContent = '10:00';
+            if (roleGroupCard) roleGroupCard.classList.remove('role-glowing-active');
+            btn.innerHTML = '<i class="fas fa-play"></i> 启动 10分钟 大屏倒计时';
+            btn.onclick = () => startActivityTimer(10);
+        };
+    }
+
+    actTimerInterval = setInterval(() => {
+        sec--;
+        if (sec <= 0) {
+            clearInterval(actTimerInterval);
+            if (disp) {
+                disp.textContent = '00:00';
+                disp.style.color = '#ef4444';
+            }
+            if (roleGroupCard) roleGroupCard.classList.remove('role-glowing-active');
+            alert('🔔 【闪电活动时间到】请老师叫停讨论，开始小组汇报与交叉质询！');
+            return;
+        }
+        const m = Math.floor(sec / 60).toString().padStart(2, '0');
+        const s = (sec % 60).toString().padStart(2, '0');
+        if (disp) {
+            disp.textContent = `${m}:${s}`;
+            if (sec <= 60) {
+                disp.style.color = '#ef4444';
+            }
+        }
+    }, 1000);
+}
+
+function invokeAIInvestorQuestion() {
+    const modal = document.getElementById('ai-question-modal');
+    const qList = document.getElementById('ai-q-list');
+    if (!modal || !qList) return;
+
+    const questions = [
+        "1. 【商业壁垒质问】：你们的痛点在市场上已有巨头替代方案，客户凭什么放弃既有产品选用你们？",
+        "2. 【技术自主质问】：团队的核心技术与 MVP 模型，如何证明具有自主可控性而非调用简单 API？",
+        "3. 【极端生存质问】：如果竞品开展价格战降低 50% 利润率，团队的现金流能支撑多少个月？"
+    ];
+
+    qList.innerHTML = questions.map(q => `
+        <div style="background:rgba(168,85,247,0.1); border-left:3px solid #a855f7; padding:10px 14px; border-radius:0 8px 8px 0; font-size:12.5px; color:var(--act-text-main); line-height:1.5;">
+            ${q}
+        </div>
+    `).join('');
+
+    modal.style.display = 'flex';
+}
+
+function closeAIQuestionModal() {
+    const modal = document.getElementById('ai-question-modal');
+    if (modal) modal.style.display = 'none';
+}
+
+function submitFormativeGrade(score, btnEl) {
+    // 按钮选中的 scale & 高亮反馈
+    document.querySelectorAll('.score-btn').forEach(b => b.classList.remove('active-grade'));
+    if (btnEl) btnEl.classList.add('active-grade');
+
+    const scores = JSON.parse(localStorage.getItem('ag_formative_scores') || '[]');
+    scores.push({ score: score, timestamp: new Date().toISOString() });
+    localStorage.setItem('ag_formative_scores', JSON.stringify(scores));
+
+    const toast = document.getElementById('grade-toast-msg');
+    const closeBtn = document.getElementById('modal-close-btn');
+    if (toast) {
+        toast.style.display = 'block';
+        toast.innerHTML = `<i class="fas fa-check-circle"></i> 已将全班本次微课评级（${score}分）自动归档至平时成绩库！`;
+    }
+
+    if (closeBtn) {
+        closeBtn.style.background = 'rgba(16,185,129,0.2)';
+        closeBtn.style.borderColor = '#10b981';
+        closeBtn.style.color = '#34d399';
+        closeBtn.textContent = '保存并返回活动中心';
+    }
+
+    if (typeof showToast === 'function') {
+        showToast(`✅ 已成功提交闪电活动平时成绩评分：${score}分！已归档入 OBE 过程性评价系统。`);
+    }
+}
+
+function triggerFullscreenAndPPT() {
+    // 触发 Javascript 全屏模式
+    if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(err => {
+            console.log("Full screen request failed: ", err);
+        });
+    }
+
+    closeActivityDetail();
+    
+    const pblNum = activeActivityItem ? (activeActivityItem.pblNode.replace(/[^0-9]/g, '') || '11') : '11';
+    if (window.openPresentation) {
+        window.openPresentation(pblNum);
+    } else {
+        window.location.href = `presentation.html?nodeId=${pblNum}`;
+    }
+}
+
+function closeActivityDetail() {
+    clearInterval(actTimerInterval);
+    const roleGroupCard = document.getElementById('role-group-card');
+    if (roleGroupCard) roleGroupCard.classList.remove('role-glowing-active');
+
+    const modal = document.getElementById('activity-detail-modal');
+    if (modal) modal.style.display = 'none';
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+    if (localStorage.getItem('ag_theme') === 'day') {
+        const root = document.getElementById('app-root');
+        const btn = document.getElementById('theme-toggle-btn');
+        if (root) root.classList.add('day-mode');
+        if (btn) btn.textContent = '☀️';
+    }
+    renderActivitiesGrid();
+    
+    // 自动化点击测试代理
+    if (window.location.search.includes('testClick=1')) {
+        if (typeof showActivityDetail === 'function') {
+            showActivityDetail(1);
+            if (typeof window.openPresentation === 'function') {
+                window.openPresentation('11');
+            }
+        }
+    }
+});
+</script>
+
+</body>
+</html>

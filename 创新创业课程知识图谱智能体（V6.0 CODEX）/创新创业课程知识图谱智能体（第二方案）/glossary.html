@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>术语词典 - 《大学生创新创业基础》项目制智能体</title>
+    <!-- FontAwesome 6.x SVG+JS 离线库 -->
+    <script src="js/all.min.js" defer></script>
+    <!-- 自定义主样式表 -->
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        main {
+            overflow-y: auto !important;
+            height: calc(100vh - 70px) !important;
+            padding-bottom: 60px;
+        }
+        .glossary-container {
+            max-width: 1300px;
+            margin: 0 auto;
+            padding: 24px 20px;
+        }
+        .glossary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 18px;
+            margin-top: 20px;
+        }
+        .glossary-card {
+            background: rgba(0, 119, 182, 0.04);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 20px;
+            transition: all 0.25s ease;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .glossary-card:hover {
+            transform: translateY(-3px);
+            border-color: var(--cyan);
+            box-shadow: 0 8px 24px rgba(0, 194, 224, 0.12);
+        }
+        body.day-mode .glossary-card,
+        body.light-mode .glossary-card {
+            background: #ffffff !important;
+            border: 1px solid rgba(2, 132, 199, 0.2) !important;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.04);
+        }
+        .cat-chip {
+            font-size: 11px;
+            font-weight: 800;
+            padding: 3px 10px;
+            border-radius: 12px;
+            text-transform: uppercase;
+        }
+        .filter-btn {
+            background: rgba(0, 194, 224, 0.08);
+            border: 1px solid rgba(0, 194, 224, 0.22);
+            color: var(--text-main);
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .filter-btn.active {
+            background: var(--cyan);
+            color: #0b1835;
+            border-color: var(--cyan);
+        }
+    </style>
+</head>
+<body id="app-root" class="dark-mode" style="background:#090D16; color:#f8fafc;">
+
+<!-- 动态粒子背景画布 -->
+<canvas id="particles-canvas"></canvas>
+
+<!-- 顶部导航 Header -->
+<header>
+    <div class="logo-area" style="display:flex; align-items:center;">
+        <div class="school-badge">
+            <i class="fas fa-graduation-cap"></i>
+        </div>
+        <div class="logo-text-group">
+            <span class="logo-main">高校双创平台</span>
+            <span class="logo-course">《大学生创新创业基础》· 课程学习智能体</span>
+        </div>
+        <a href="help.html" class="logo-version-badge" title="查看使用说明与开发更新日志" style="text-decoration:none; display:inline-flex; align-items:center; gap:5px; background:rgba(0,194,224,0.12); border:1px solid rgba(0,194,224,0.25); color:var(--cyan); font-size:11px; padding:3px 8px; border-radius:12px; margin-left:12px; font-weight:700; transition:all 0.2s;">
+            <span class="version-dot" style="width:6px; height:6px; background:#10b981; border-radius:50%; box-shadow:0 0 5px #10b981;"></span>
+            v6.6 Refactored (2026.07.21)
+        </a>
+    </div>
+
+    <div class="header-tools">
+        <nav>
+            <a class="nav-item" href="index.html">
+                <i class="fas fa-home"></i><span class="nav-text"> 首页</span>
+            </a>
+            <a class="nav-item" href="map.html">
+                <i class="fas fa-map-marked-alt"></i><span class="nav-text"> 课程地图</span>
+            </a>
+            <a class="nav-item" href="knowledge_graph.html">
+                <i class="fas fa-brain"></i><span class="nav-text"> 理论知识图谱</span>
+            </a>
+            <a class="nav-item" href="graph.html">
+                <i class="fas fa-chart-radar"></i><span class="nav-text"> 实战能力图谱</span>
+            </a>
+            <a class="nav-item" href="chat.html">
+                <i class="fas fa-comments"></i><span class="nav-text"> AI导师</span>
+            </a>
+            <a class="nav-item" href="activities.html">
+                <i class="fas fa-bolt"></i><span class="nav-text"> 闪电活动</span>
+            </a>
+            <a class="nav-item" href="exam.html">
+                <i class="fas fa-poll-h"></i><span class="nav-text"> 综合测评</span>
+            </a>
+            <a class="nav-item active" href="glossary.html">
+                <i class="fas fa-book"></i><span class="nav-text"> 术语词典</span>
+            </a>
+            <a class="nav-item" href="resources.html">
+                <i class="fas fa-cubes"></i><span class="nav-text"> 任务资源</span>
+            </a>
+            <a class="nav-item" href="presentation.html"><i class="fas fa-desktop"></i><span class="nav-text"> 大屏演示</span></a>
+        </nav>
+        <button id="theme-toggle-btn" onclick="toggleTheme()" title="切换日夜主题" aria-label="切换主题">🌙</button>
+    </div>
+</header>
+
+<main>
+    <div class="view-pane active" id="pane-glossary" style="display:block;">
+        <div class="glossary-container">
+            
+            <!-- 头部搜索与过滤区 -->
+            <div class="glass-panel" style="padding:24px; margin-bottom:20px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px; margin-bottom:18px;">
+                    <div>
+                        <h2 style="margin:0; font-size:22px; font-weight:900; color:var(--text-main);"><i class="fas fa-book-open" style="color:var(--cyan);"></i> 《大学生创新创业基础》双创与 AI 核心术语词典</h2>
+                        <p style="margin:4px 0 0 0; font-size:13px; color:var(--text-muted);">收录学术理论、商业模型、股权治理、政策红利与 AI 硬科技 32 条权威专业词条</p>
+                    </div>
+                    <div style="display:flex; align-items:center; gap:10px; background:rgba(0,194,224,0.1); border:1px solid rgba(0,194,224,0.3); padding:6px 14px; border-radius:20px; font-size:12.5px; font-weight:800; color:var(--cyan);">
+                        <i class="fas fa-database"></i> 词库总量：<span id="glossary-count">32</span> 条
+                    </div>
+                </div>
+
+                <!-- 搜索框 -->
+                <div style="position:relative; margin-bottom:16px;">
+                    <i class="fas fa-search" style="position:absolute; left:16px; top:50%; transform:translateY(-50%); color:var(--text-muted); font-size:15px;"></i>
+                    <input type="text" id="glossary-search-input" class="chat-input" placeholder="输入术语名称、英文缩写或关键词（如 SCAMPER、LTV、Vesting、AIGC、贴息贷）..." oninput="filterGlossary()" style="width:100%; padding:12px 16px 12px 45px; border-radius:12px; font-size:14px; outline:none;" />
+                </div>
+
+                <!-- A-Z 悬浮字母快速索引栏 -->
+                <div style="display:flex; gap:6px; flex-wrap:wrap; margin-top:12px; padding-top:10px; border-top:1px dashed var(--glass-border);" id="az-index-bar">
+                    <span style="font-size:11px; font-weight:800; color:var(--text-muted); align-self:center; margin-right:4px;">字母索引：</span>
+                    ${'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('').map(letter => `
+                        <button onclick="filterByLetter('${letter}')" style="background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); color:var(--text-sub); width:24px; height:24px; border-radius:6px; font-size:11px; font-weight:800; cursor:pointer; transition:all 0.15s;" onmouseover="this.style.borderColor='#00f2fe';this.style.color='#00f2fe';" onmouseout="this.style.borderColor='rgba(255,255,255,0.1)';this.style.color='var(--text-sub)';">
+                            ${letter}
+                        </button>
+                    `).join('')}
+                </div>
+            </div>
+
+            <!-- 词典卡片展示网格 -->
+            <div class="glossary-grid" id="glossary-cards-container">
+                <!-- 由 JS 动态渲染 -->
+            </div>
+
+        </div>
+    </div>
+</main>
+
+<!-- 脚本引入 -->
+<script src="js/all.min.js"></script>
+<script src="js/data.js"></script>
+<script src="js/glossary.js"></script>
+<script src="js/modules/utils.js"></script>
+<script src="js/app.js"></script>
+<script>
+// 全局过滤状态
+let currentCategory = 'all';
+
+function toggleBookmarkTerm(termName) {
+    let saved = JSON.parse(localStorage.getItem('iekg_saved_vocab') || '[]');
+    if (saved.includes(termName)) {
+        saved = saved.filter(t => t !== termName);
+        if (typeof showToast === 'function') showToast(`已从生词本移除：${termName}`);
+    } else {
+        saved.push(termName);
+        if (typeof showToast === 'function') showToast(`✅ 已加入我的双创生词本：${termName}`);
+    }
+    localStorage.setItem('iekg_saved_vocab', JSON.stringify(saved));
+    filterGlossary();
+}
+
+function filterByLetter(letter) {
+    document.getElementById('glossary-search-input').value = letter;
+    filterGlossary();
+}
+
+function renderGlossaryCards(dataList) {
+    const container = document.getElementById('glossary-cards-container');
+    const countEl = document.getElementById('glossary-count');
+    if (!container) return;
+
+    if (countEl) countEl.textContent = dataList.length;
+
+    const savedVocab = JSON.parse(localStorage.getItem('iekg_saved_vocab') || '[]');
+
+    if (dataList.length === 0) {
+        container.innerHTML = `
+            <div style="grid-column: 1 / -1; text-align:center; padding:50px; color:var(--text-muted);">
+                <div style="font-size:42px; margin-bottom:10px;">🔍</div>
+                <div style="font-size:16px; font-weight:700;">未找到符合条件的双创或 AI 术语</div>
+                <div style="font-size:13px; margin-top:6px;">请尝试更换搜索关键字或切换分类标签</div>
+            </div>
+        `;
+        return;
+    }
+
+    container.innerHTML = dataList.map(item => {
+        let catColor = '#0284c7';
+        let catBg = 'rgba(2,132,199,0.12)';
+        if (item.cat === '商业') { catColor = '#ea580c'; catBg = 'rgba(234,88,12,0.12)'; }
+        else if (item.cat === '团队') { catColor = '#8b5cf6'; catBg = 'rgba(139,92,246,0.12)'; }
+        else if (item.cat === '政策') { catColor = '#10b981'; catBg = 'rgba(16,185,129,0.12)'; }
+        else if (item.cat === 'AI硬科技') { catColor = '#00c2e0'; catBg = 'rgba(0,194,224,0.12)'; }
+
+        const isSaved = savedVocab.includes(item.name);
+
+        return `
+            <div class="glossary-card" style="position:relative;">
+                <div>
+                    <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:8px;">
+                        <h3 style="margin:0; font-size:17px; font-weight:800; color:var(--text-main);">${item.name}</h3>
+                        <div style="display:flex; align-items:center; gap:6px;">
+                            <span class="cat-chip" style="color:${catColor}; background:${catBg};">${item.cat}</span>
+                            <button onclick="toggleBookmarkTerm('${item.name}')" style="background:${isSaved ? 'rgba(245,158,11,0.2)' : 'rgba(255,255,255,0.06)'}; border:1px solid ${isSaved ? '#f59e0b' : 'rgba(255,255,255,0.15)'}; color:${isSaved ? '#fbbf24' : 'var(--text-muted)'}; padding:2px 8px; border-radius:10px; font-size:11px; cursor:pointer; transition:all 0.2s;" title="收藏至生词本">
+                                ${isSaved ? '★ 已收藏' : '☆ 收藏'}
+                            </button>
+                        </div>
+                    </div>
+                    <div style="font-size:12px; font-weight:700; color:var(--cyan); margin-bottom:10px;">${item.en}</div>
+                    <p style="font-size:13px; line-height:1.65; color:var(--text-sub); margin:0 0 12px 0;">${item.desc}</p>
+                </div>
+                <div>
+                    <div style="padding:10px 12px; background:rgba(0,180,216,0.04); border-left:3px solid ${catColor}; border-radius:6px; font-size:12px; line-height:1.5; color:var(--text-muted); margin-bottom:8px;">
+                        <strong style="color:var(--text-main);"><i class="fas fa-graduation-cap"></i> 课程实操应用：</strong><br/>
+                        ${item.application}
+                    </div>
+                    <div style="font-size:11.5px; color:var(--text-muted); line-height:1.5;">
+                        💡 <strong>落地案例：</strong> ${item.example}
+                    </div>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+
+function filterGlossary() {
+    const searchVal = document.getElementById('glossary-search-input').value.trim().toLowerCase();
+    
+    let filtered = GLOSSARY_DATA;
+
+    if (currentCategory !== 'all') {
+        filtered = filtered.filter(item => item.cat === currentCategory);
+    }
+
+    if (searchVal) {
+        filtered = filtered.filter(item => 
+            item.name.toLowerCase().includes(searchVal) ||
+            item.en.toLowerCase().includes(searchVal) ||
+            item.desc.toLowerCase().includes(searchVal) ||
+            item.application.toLowerCase().includes(searchVal) ||
+            item.example.toLowerCase().includes(searchVal)
+        );
+    }
+
+    renderGlossaryCards(filtered);
+}
+
+function setCategoryFilter(cat) {
+    currentCategory = cat;
+
+    const btns = document.querySelectorAll('#filter-buttons-box .filter-btn');
+    btns.forEach(btn => btn.classList.remove('active'));
+
+    event.target.classList.add('active');
+    filterGlossary();
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    if (typeof GLOSSARY_DATA !== 'undefined') {
+        renderGlossaryCards(GLOSSARY_DATA);
+    }
+});
+</script>
+</body>
+</html>

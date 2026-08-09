@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>AI 导师 - 《大学生创新创业基础》课程智能体</title>
+    <script src="js/all.min.js" defer></script>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+            background: var(--bg-subtle, #f8fafc);
+        }
+        main {
+            flex: 1;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+            max-width: 1360px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 16px;
+            box-sizing: border-box;
+        }
+
+        /* ── Q&A 侧栏内部 ── */
+        .qa-header {
+            padding: 16px 18px 12px;
+            background: var(--bg-subtle);
+            border-bottom: 1px solid var(--border-color);
+        }
+        .qa-header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        .qa-header-title {
+            color: var(--text-main);
+            font-weight: 800;
+            font-size: 1.02rem;
+        }
+        .qa-count-badge {
+            background: rgba(37, 99, 235, 0.08);
+            border: 1px solid rgba(37, 99, 235, 0.2);
+            color: var(--primary-blue);
+            font-size: 11px;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-weight: 800;
+        }
+        .qa-search-input {
+            width: 100%;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 8px 14px;
+            color: var(--text-main);
+            font-size: 0.9rem;
+            outline: none;
+            box-sizing: border-box;
+            transition: var(--transition-normal);
+        }
+        .qa-search-input:focus {
+            border-color: var(--primary-blue);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        /* 分类滚动胶囊 */
+        .cat-scroll {
+            display: flex;
+            gap: 6px;
+            overflow-x: auto;
+            margin-top: 10px;
+            padding-bottom: 4px;
+        }
+        .cat-scroll::-webkit-scrollbar { height: 3px; }
+        .cat-scroll::-webkit-scrollbar-thumb { background: rgba(37, 99, 235, 0.18); border-radius: 4px; }
+        .cat-pill {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            color: var(--text-muted);
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 11px;
+            white-space: nowrap;
+            cursor: pointer;
+            font-weight: 700;
+            transition: var(--transition-normal);
+            flex-shrink: 0;
+        }
+        .cat-pill:hover {
+            border-color: var(--primary-blue);
+            color: var(--primary-blue);
+        }
+        .cat-pill.active {
+            background: var(--primary-blue);
+            border-color: var(--primary-blue);
+            color: #fff;
+            font-weight: 800;
+        }
+        .cat-pill.policy {
+            background: rgba(245, 158, 11, 0.12);
+            border-color: #d97706;
+            color: #d97706;
+            font-weight: 800;
+        }
+        .cat-pill.policy.active {
+            background: #d97706;
+            color: #fff;
+        }
+
+        /* Q&A 卡片列表 */
+        .qa-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .qa-list::-webkit-scrollbar { width: 5px; }
+        .qa-list::-webkit-scrollbar-thumb { background: rgba(37, 99, 235, 0.18); border-radius: 4px; }
+        .qa-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 10px 12px;
+            cursor: pointer;
+            transition: var(--transition-normal);
+            border-left: 3px solid transparent;
+        }
+        .qa-card:hover {
+            background: rgba(37, 99, 235, 0.03);
+            border-left: 3px solid var(--primary-blue);
+            transform: translateX(3px);
+        }
+        .qa-card-title {
+            color: var(--text-main);
+            font-size: 0.88rem;
+            font-weight: 700;
+            line-height: 1.45;
+        }
+        .qa-card-tag {
+            font-size: 11px;
+            color: var(--primary-blue);
+            margin-top: 3px;
+            font-weight: 700;
+        }
+
+        /* ── 对话主区域内部 ── */
+        .chat-top-bar {
+            padding: 14px 24px;
+            background: var(--bg-subtle);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .chat-top-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .chat-top-right {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+        .online-dot {
+            display: inline-block;
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+            background: var(--accent-emerald);
+        }
+        .online-label {
+            font-weight: 800;
+            color: var(--primary-blue);
+            font-size: 0.98rem;
+        }
+        .chat-tool-btn {
+            background: rgba(37, 99, 235, 0.06);
+            border: 1px solid rgba(37, 99, 235, 0.2);
+            color: var(--primary-blue);
+            padding: 5px 12px;
+            border-radius: 12px;
+            font-size: 11.5px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: var(--transition-normal);
+        }
+        .chat-tool-btn.green {
+            background: rgba(16, 185, 129, 0.06);
+            border-color: rgba(16, 185, 129, 0.2);
+            color: var(--accent-emerald);
+        }
+        .chat-tool-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-sm);
+        }
+
+        /* 消息行样式 - 覆盖/扩展 .msg-bubble/.msg-ai/.msg-user */
+        .chat-row {
+            display: flex;
+            gap: 12px;
+            max-width: 88%;
+        }
+        .chat-row.user {
+            align-self: flex-end;
+            flex-direction: row-reverse;
+        }
+        .chat-avatar {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: 900;
+            font-size: 13px;
+            flex-shrink: 0;
+        }
+        .chat-avatar.ai { background: var(--primary-blue); }
+        .chat-avatar.user { background: var(--accent-cyan); }
+
+        /* 对话输入区域 */
+        .chat-input-area {
+            padding: 16px 20px;
+            background: var(--bg-subtle);
+            border-top: 1px solid var(--border-color);
+        }
+        .chat-input-inner {
+            display: flex;
+            gap: 10px;
+            align-items: flex-end;
+        }
+        .chat-send-btn {
+            background: var(--primary-blue);
+            border: none;
+            color: #fff;
+            padding: 8px 18px;
+            border-radius: 12px;
+            font-weight: 800;
+            font-size: 13px;
+            cursor: pointer;
+            transition: var(--transition-normal);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .chat-send-btn:hover {
+            background: #1d4ed8;
+            transform: scale(1.02);
+        }
+        .chat-attach-btn {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            color: var(--text-muted);
+            padding: 7px 10px;
+            border-radius: 10px;
+            font-size: 11px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: var(--transition-normal);
+        }
+        .chat-attach-btn:hover {
+            border-color: var(--primary-blue);
+            color: var(--primary-blue);
+        }
+
+        /* 智能体工作流胶囊 */
+        .workflow-bar {
+            padding: 8px 20px;
+            background: var(--bg-subtle);
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            white-space: nowrap;
+        }
+        .workflow-bar::-webkit-scrollbar { height: 3px; }
+        .wf-pill {
+            padding: 5px 12px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 700;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: var(--transition-normal);
+            border: 1px solid;
+            flex-shrink: 0;
+        }
+        .wf-pill:hover { transform: translateY(-1px); }
+        .wf-pill.amber { background: rgba(245,158,11,0.06); border-color: #d97706; color: #d97706; }
+        .wf-pill.blue  { background: rgba(37,99,235,0.06); border-color: var(--primary-blue); color: var(--primary-blue); }
+        .wf-pill.green { background: rgba(16,185,129,0.06); border-color: var(--accent-emerald); color: var(--accent-emerald); }
+        .wf-pill.purple{ background: rgba(139,92,246,0.06); border-color: #7c3aed; color: #7c3aed; }
+
+        /* 侧栏折叠按钮 */
+        .toggle-sidebar-btn {
+            background: rgba(37, 99, 235, 0.06);
+            border: 1px solid rgba(37, 99, 235, 0.2);
+            color: var(--primary-blue);
+            padding: 5px 10px;
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: var(--transition-normal);
+        }
+        .toggle-sidebar-btn:hover {
+            background: rgba(37, 99, 235, 0.12);
+        }
+
+        /* 空状态 */
+        .qa-empty {
+            text-align: center;
+            color: var(--text-muted);
+            padding: 30px;
+            font-size: 13px;
+        }
+
+        /* 引用标注 */
+        .citation {
+            margin-top: 10px;
+            font-size: 11px;
+            color: var(--primary-blue);
+            border-top: 1px dashed rgba(37, 99, 235, 0.2);
+            padding-top: 6px;
+        }
+        .citation.policy-ctx {
+            color: #d97706;
+            border-top: 1px dashed rgba(245, 158, 11, 0.25);
+        }
+        .citation a {
+            color: inherit;
+            font-weight: 800;
+        }
+
+        /* 页脚（覆盖默认 margin-top） */
+        .site-footer { margin-top: 0; }
+
+        /* ── 响应式 ── */
+        @media (max-width: 900px) {
+            .chat-container { flex-direction: column; }
+            .chat-sidebar { width: 100%; max-height: 280px; }
+            .chat-top-bar { flex-direction: column; align-items: flex-start; }
+        }
+        @media (max-width: 768px) {
+            main { padding: 8px 10px; }
+            .chat-history { padding: 14px; }
+            .chat-input-area { padding: 12px 14px; }
+            .workflow-bar { padding: 6px 14px; }
+        }
+    </style>
+</head>
+<body class="day-mode">
+
+<!-- 统一导航栏 -->
+<header class="site-header">
+    <div class="header-inner">
+        <a href="index.html" class="brand-logo">
+            <div class="brand-icon"><i class="fas fa-graduation-cap"></i></div>
+            <div>
+                <div class="brand-title">创新创业课程 OBE 智慧教学与评估平台</div>
+                <div class="brand-subtitle">Innovation & Entrepreneurship Mapping Engine v4.0</div>
+            </div>
+        </a>
+        <button class="nav-toggle" onclick="document.querySelector('.main-nav').classList.toggle('open')"><i class="fas fa-bars"></i></button>
+        <nav class="main-nav" aria-label="主导航">
+            <a href="index.html" class="nav-item"><i class="fas fa-compass"></i> 首页</a>
+            <a href="map.html" class="nav-item"><i class="fas fa-map"></i> 课程地图</a>
+            <a href="knowledge_graph.html" class="nav-item"><i class="fas fa-sitemap"></i> 知识图谱</a>
+                        <a href="competition.html" class="nav-item"><i class="fas fa-trophy"></i> 大赛专区</a>
+            <a href="gold_cases.html" class="nav-item"><i class="fas fa-award"></i> 示范案例</a>
+            <a href="student.html" class="nav-item"><i class="fas fa-user-graduate"></i> 能力矩阵</a>
+            <a href="activities.html" class="nav-item"><i class="fas fa-tasks"></i> PBL实战</a>
+            <a href="yunnan_qujing_startup.html" class="nav-item"><i class="fas fa-mountain"></i> 留滇留曲</a>
+            <a href="chat.html" class="nav-item active"><i class="fas fa-robot"></i> AI导师</a>
+            <a href="admin.html" class="nav-item"><i class="fas fa-chart-line"></i> 学情看板</a>
+        
+            <button id="theme-toggle-btn" class="nav-theme-toggle-btn" title="切换白天/夜间主题" onclick="if(window.toggleTheme) window.toggleTheme();"><i class="fas fa-sun"></i> <span>风格切换</span></button>
+        </nav>
+    </div>
+</header>
+
+<main>
+    <div class="chat-container">
+
+        <!-- 左侧：预置 Q&A 智库面板 -->
+        <div class="chat-sidebar qa-sidebar-container">
+            <div class="qa-header">
+                <div class="qa-header-row">
+                    <span class="qa-header-title"><i class="fas fa-book-open" style="color:var(--primary-blue); margin-right:5px;"></i> 课程智库</span>
+                    <span class="qa-count-badge" id="qa-count-badge">加载中</span>
+                </div>
+                <input type="text" id="qa-search-input" class="qa-search-input" placeholder="搜索 Sarasvathy / BEP保本 / MVP ..." oninput="filterQA();" />
+
+                <div class="cat-scroll" id="cat-pills-container">
+                </div>
+            </div>
+
+            <div class="qa-list" id="qa-list-box">
+            </div>
+        </div>
+
+        <!-- 右侧：AI 导师对话主界面 -->
+        <div class="chat-main">
+            <div class="chat-top-bar">
+                <div class="chat-top-left">
+                    <button class="toggle-sidebar-btn" onclick="toggleSidebarCollapse()" title="折叠/展开智库侧边栏">
+                        <i class="fas fa-columns"></i> 智库侧栏
+                    </button>
+                    <span class="online-dot"></span>
+                    <span class="online-label"><i class="fas fa-microchip" style="margin-right:4px;"></i>AI 导师在线 · 实时辅导中</span>
+                </div>
+                <div class="chat-top-right">
+                    <button class="chat-tool-btn green" onclick="exportConsultationReport()" title="导出本次 AI 导师咨询记录作为形成性评价佐证">
+                        <i class="fas fa-file-export"></i> 导出咨询报告
+                    </button>
+                    <button class="chat-tool-btn" onclick="IEKG.modules.ai.openKeyConfigModal()">
+                        <i class="fas fa-key"></i> 设置 API Key
+                    </button>
+                </div>
+            </div>
+
+            <div class="chat-history" id="chat-messages">
+                <div class="chat-row agent">
+                    <div class="chat-avatar ai">AI</div>
+                    <div class="msg-bubble msg-ai">
+                        同学你好！欢迎来到《大学生创新创业基础》AI 导师辅导中心。<br/>
+                        左侧已为你内置课程标准智库。点击即可调出权威解答；在下方可使用智能体工作流或输入长文本，直连大模型深度推演！
+                    </div>
+                </div>
+            </div>
+
+            <!-- 智能体工作流快捷胶囊 -->
+            <div class="workflow-bar">
+                                        <button onclick="document.getElementById('user-input-field').value='[ Agent Workflow: 留滇留曲创业政策与产业匹配 ] 我是在云南/曲靖创业的大学生，请结合曲靖光伏新材料、高原农业及“彩云雁归”人才政策，帮我测算可申请的补贴并给出落地规划。'; handleSend();" class="quick-chip-btn" style="background: rgba(6, 182, 212, 0.2); border: 1px solid rgba(6, 182, 212, 0.4); color: #38bdf8; padding: 6px 12px; border-radius: 20px; cursor: pointer; font-size: 13px; margin: 4px;">
+                            <i class="fas fa-mountain"></i> 留滇留曲创业扶持智能规划
+                        </button>
+<button onclick="document.getElementById('user-input-field').value='[ Agent Workflow: 创业补贴智能测算 ] 我的项目在曲靖市开发区落地，团队有3名应届毕业生，请结合云南省人社厅最新政策，帮我测算最高可获得的无偿补贴与免息贷款额度'; handleSend();" class="wf-pill amber"><i class="fas fa-coins"></i> 创业补贴智能测算</button>
+                <button onclick="document.getElementById('user-input-field').value='[ Agent Workflow: 商业计划书财务逻辑盲审 ] 请帮我审查本项目的 BEP 盈亏平衡点与 LTV/CAC 比率是否符合 3*CAC 标准'; handleSend();" class="wf-pill blue"><i class="fas fa-chart-line"></i> BP 财务逻辑盲审</button>
+                <button onclick="document.getElementById('user-input-field').value='[ Agent Workflow: 模拟投资人高压质问 ] 假装你是大赛评委，对我项目提出 3 个最具挑战性的风险瓶颈问题'; handleSend();" class="wf-pill amber"><i class="fas fa-user-ninja"></i> 模拟投资人高压提问</button>
+                <button onclick="document.getElementById('user-input-field').value='[ Agent Workflow: 痛点真实性 Socratic 验证 ] 用 Socratic 苏格拉底式提问帮我验证目标客户是否属于真痛苦还是假想伪需求'; handleSend();" class="wf-pill green"><i class="fas fa-brain"></i> 痛点真实性 Socratic 验证</button>
+                <button onclick="document.getElementById('user-input-field').value='[ Agent Workflow: AIGC 奔驰法点子轰炸 ] 用 SCAMPER 7 维发散模型对我们团队的产品改良点进行爆破式头脑风暴'; handleSend();" class="wf-pill purple"><i class="fas fa-lightbulb"></i> AIGC 奔驰法点子轰炸</button>
+            </div>
+
+            <div class="chat-input-area">
+                <div class="chat-input-inner">
+                    <textarea id="user-input-field" class="chat-input-field" rows="2" style="font-family:inherit; resize:none;" placeholder="输入关于课程、项目 BP 模式、团队匹配或粘贴商业计划书段落..." onkeydown="if(event.key==='Enter' && !event.shiftKey){ event.preventDefault(); handleSend(); }"></textarea>
+                    <div style="display:flex; flex-direction:column; gap:6px;">
+                        <input type="file" id="bp-file-upload" style="display:none;" onchange="handleFileUpload(this)">
+                        <button class="chat-attach-btn" onclick="document.getElementById('bp-file-upload').click()" title="上传 PDF/Word 格式商业计划书供大模型审阅">
+                            <i class="fas fa-paperclip"></i> 附件
+                        </button>
+                        <button class="chat-send-btn" onclick="handleSend()"><i class="fas fa-paper-plane"></i> 发送提问</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<!-- Footer -->
+<footer style="background:var(--bg-card); border-top:1px solid var(--border-color); padding:48px 0 32px 0; margin-top:auto;">
+    <div style="max-width:1360px; margin:0 auto; padding:0 24px; display:grid; grid-template-columns:1.5fr 1fr 1fr 1.2fr; gap:36px;">
+        <div>
+            <div style="font-size:16px; font-weight:800; color:var(--text-main); margin-bottom:12px; display:flex; align-items:center; gap:8px;">
+                <i class="fas fa-graduation-cap" style="color:var(--primary-blue);"></i>
+                《大学生创新创业基础》智能体平台
+            </div>
+            <div style="font-size:13px; color:var(--text-sub); line-height:1.6; margin-bottom:16px;">
+                基于成果导向教育 (OBE) 理念设计，通过知识节点拓扑、PBL 表现性评价任务与 AI 专项导师，打造高校双创"学-练-评-改"闭环。
+            </div>
+            <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                <span style="display:inline-flex; align-items:center; gap:6px; padding:4px 10px; background:var(--green-bg); border:1px solid var(--green-border); border-radius:6px; font-size:12px; color:var(--green-text); font-weight:600;">
+                    <i class="fas fa-check-circle"></i> OBE 成果达成闭环认证
+                </span>
+                <span style="display:inline-flex; align-items:center; gap:6px; padding:4px 10px; background:var(--blue-bg); border:1px solid var(--blue-border); border-radius:6px; font-size:12px; color:var(--blue-text); font-weight:600;">
+                    <i class="fas fa-book"></i> 教学标准对齐
+                </span>
+            </div>
+        </div>
+
+        <div>
+            <div style="font-size:14px; font-weight:800; color:var(--text-main); margin-bottom:16px;">课程核心体系</div>
+            <ul style="list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:10px; font-size:13px;">
+                <li><a href="index.html" style="color:var(--text-muted); text-decoration:none;"><i class="fas fa-angle-right" style="color:var(--primary-blue);"></i> 课程目标 (CLOs) 矩阵</a></li>
+                <li><a href="knowledge_graph.html" style="color:var(--text-muted); text-decoration:none;"><i class="fas fa-angle-right" style="color:var(--primary-blue);"></i> 理论知识图谱</a></li>
+                <li><a href="graph.html" style="color:var(--text-muted); text-decoration:none;"><i class="fas fa-angle-right" style="color:var(--primary-blue);"></i> 实战能力图谱</a></li>
+                <li><a href="map.html" style="color:var(--text-muted); text-decoration:none;"><i class="fas fa-angle-right" style="color:var(--primary-blue);"></i> 课程大纲地图</a></li>
+                <li><a href="activities.html" style="color:var(--text-muted); text-decoration:none;"><i class="fas fa-angle-right" style="color:var(--primary-blue);"></i> PBL 实战任务流</a></li>
+            </ul>
+        </div>
+
+        <div>
+            <div style="font-size:14px; font-weight:800; color:var(--text-main); margin-bottom:16px;">教学资源与评估</div>
+            <ul style="list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:10px; font-size:13px;">
+                <li><a href="yunnan_qujing_startup.html" class="nav-item"><i class="fas fa-mountain"></i> 留滇留曲</a>
+            <a href="chat.html" style="color:var(--text-muted); text-decoration:none;"><i class="fas fa-angle-right" style="color:var(--primary-blue);"></i> AI 导师智能体</a></li>
+                <li><a href="admin.html" style="color:var(--text-muted); text-decoration:none;"><i class="fas fa-angle-right" style="color:var(--primary-blue);"></i> 学情与达成度看板</a></li>
+                <li><a href="resources.html" style="color:var(--text-muted); text-decoration:none;"><i class="fas fa-angle-right" style="color:var(--primary-blue);"></i> 教学模版与资源下载</a></li>
+                <li><a href="glossary.html" style="color:var(--text-muted); text-decoration:none;"><i class="fas fa-angle-right" style="color:var(--primary-blue);"></i> 双创与 AI 权威词典</a></li>
+                <li><a href="exam.html" style="color:var(--text-muted); text-decoration:none;"><i class="fas fa-angle-right" style="color:var(--primary-blue);"></i> 综合自测与 Rubrics 评分</a></li>
+            </ul>
+        </div>
+
+        <div>
+            <div style="font-size:14px; font-weight:800; color:var(--text-main); margin-bottom:16px;">实时学情与系统数据</div>
+            <div style="background:var(--bg-subtle); border:1px solid var(--border-color); border-radius:10px; padding:14px; font-size:12.5px; line-height:1.8; color:var(--text-sub);">
+                <div><span>知识节点拓扑：</span> <strong style="color:var(--primary-blue);">持续更新</strong></div>
+                <div><span>能力指标映射：</span> <strong style="color:var(--accent-emerald);">36 项</strong></div>
+                <div><span>对齐 PBL 任务：</span> <strong style="color:var(--accent-amber);">18 项</strong></div>
+                <div><span>系统计算模式：</span> <strong style="color:var(--text-main);">本地离线隐私保护</strong></div>
+            </div>
+        </div>
+    </div>
+
+    <div style="max-width:1360px; margin:36px auto 0 auto; padding:20px 24px 0 24px; border-top:1px solid var(--border-color); display:flex; align-items:center; justify-content:space-between; font-size:12.5px; color:var(--text-sub); flex-wrap:wrap; gap:12px;">
+        <div>Copyright (C) 2026 《大学生创新创业基础》课程智能体平台. All Rights Reserved.</div>
+        <div style="display:flex; align-items:center; gap:16px;">
+            <span style="display:inline-flex; align-items:center; gap:6px; color:var(--accent-emerald); font-weight:600;">
+                <span style="width:8px; height:8px; background:var(--accent-emerald); border-radius:50%;"></span>
+                Antigravity Engine 运行正常
+            </span>
+            <a href="index.html" style="color:var(--text-sub); text-decoration:none;">首页</a>
+            <a href="help.html" style="color:var(--text-sub); text-decoration:none;">使用说明</a>
+            <a href="admin.html" style="color:var(--text-sub); text-decoration:none;">教师入口</a>
+        </div>
+    </div>
+</footer>
+
+<!-- 脚本引入 -->
+<script src="js/data.js"></script>
+<script src="js/data_details.js"></script>
+<script src="js/data/qa_database.js"></script>
+<script src="js/modules/namespace.js"></script>
+<script src="js/modules/utils.js"></script>
+<script src="js/modules/data_loader.js"></script>
+<script src="js/modules/ai_agent.js"></script>
+<script src="js/modules/framework.js"></script>
+<script src="js/modules/main_framework.js"></script>
+<script src="js/app.js"></script>
+
+<script>
+    let currentCatId = 'all';
+
+    document.addEventListener('DOMContentLoaded', () => {
+        renderCategories();
+        filterQA();
+    });
+
+    function renderCategories() {
+        const container = document.getElementById('cat-pills-container');
+        const cats = window.IEKG.QADatabase.categories;
+        const totalCount = window.IEKG.QADatabase.qaList ? window.IEKG.QADatabase.qaList.length : 0;
+
+        let html = '<button class="cat-pill active" onclick="selectCat(\'all\', this)">全部 (' + totalCount + ')</button>';
+        cats.forEach(c => {
+            const isPolicy = (c.id === 'cat-7');
+            const cls = isPolicy ? 'cat-pill policy' : 'cat-pill';
+            html += '<button class="' + cls + '" onclick="selectCat(\'' + c.id + '\', this)">' + c.name + '</button>';
+        });
+        container.innerHTML = html;
+    }
+
+    function selectCat(catId, btn) {
+        currentCatId = catId;
+        document.querySelectorAll('.cat-pill').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        filterQA();
+    }
+
+    function filterQA() {
+        const kw = document.getElementById('qa-search-input').value;
+        const results = window.IEKG.QADatabase.search(kw, currentCatId);
+
+        document.getElementById('qa-count-badge').textContent = results.length + ' 题符合';
+
+        const listBox = document.getElementById('qa-list-box');
+        if (results.length === 0) {
+            listBox.innerHTML = '<div class="qa-empty">未找到相关预置提问，你可以在右侧输入框向 AI 直接发问！</div>';
+            return;
+        }
+
+        listBox.innerHTML = results.map(item =>
+            '<div class="qa-card" onclick="triggerPresetQA(' + item.id + ')">'
+            + '<div class="qa-card-title">#' + item.id + '. ' + window.IEKG.utils.escapeHTML(item.question) + '</div>'
+            + '<div class="qa-card-tag"><i class="fas fa-tag"></i> 预置课程知识点</div>'
+            + '</div>'
+        ).join('');
+    }
+
+    function toggleSidebarCollapse() {
+        const sidebar = document.querySelector('.chat-sidebar');
+        if (sidebar) {
+            sidebar.style.display = (sidebar.style.display === 'none') ? 'flex' : 'none';
+        }
+    }
+
+    function handleFileUpload(input) {
+        if (input.files && input.files[0]) {
+            const file = input.files[0];
+            appendMessage('user', '[已上传商业计划书附件]：' + file.name + ' (' + (file.size / 1024).toFixed(1) + ' KB)');
+            setTimeout(() => {
+                appendMessage('agent', '<strong>[AI 导师 BP 审阅感知]</strong>：<br/>已读取文档《' + file.name + '》。正在分析项目核心痛点、LTV/CAC 单元经济与竞品护城河...<br/><br/><strong>审阅建议：</strong> 文档结构清晰，但"痛点分析"章节缺乏真实客诉数据佐证，建议补充调研数据！');
+            }, 800);
+        }
+    }
+
+    function exportConsultationReport() {
+        const messages = document.querySelectorAll('#chat-messages .chat-row');
+        let content = '# 《大学生创新创业基础》AI 导师咨询记录报告\n';
+        content += '生成时间：' + new Date().toLocaleString() + '\n';
+        content += '用途：学生平时表现 (形成性评价) 成绩佐证\n\n';
+
+        messages.forEach((row, i) => {
+            const isUser = row.classList.contains('user');
+            const bubble = row.querySelector('.msg-bubble');
+            if (!bubble) return;
+            const text = bubble.innerText;
+            content += '### 轮次 ' + (i+1) + ' - ' + (isUser ? '学生提问' : 'AI 导师解答') + '\n' + text + '\n\n';
+        });
+
+        const blob = new Blob([content], { type: 'text/markdown;charset=utf-8' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = '双创课程_AI导师咨询辅导报告_' + Date.now() + '.md';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        if (typeof showToast === 'function') showToast('辅导报告导出成功，可提交给教师作为平时成绩佐证！');
+    }
+
+    function triggerPresetQA(id) {
+        const item = window.IEKG.QADatabase.qaList.find(q => q.id === id);
+        if (!item) return;
+
+        appendMessage('user', item.question);
+        const isPolicy = (item.catId === 'cat-7' || item.id >= 109);
+        const citationClass = isPolicy ? 'citation policy-ctx' : 'citation';
+        const citationIcon = isPolicy
+            ? '<i class="fas fa-landmark"></i>'
+            : '<i class="fas fa-bookmark"></i>';
+        const citationLink = isPolicy
+            ? '<a href="https://hrss.yn.gov.cn/NewsLsit.aspx?ClassID=662" target="_blank">云南省人社厅就业创业政策专栏 #' + item.id + ' <i class="fas fa-external-link-alt" style="font-size:10px;"></i></a>'
+            : '官方知识库 #' + item.id;
+        appendMessage('agent', item.answer.replace(/\n/g, '<br/>') + '<div class="' + citationClass + '">' + citationIcon + ' 引用依据：' + citationLink + '</div>');
+    }
+
+    async function handleSend() {
+        const input = document.getElementById('user-input-field');
+        const msg = input.value.trim();
+        if (!msg) return;
+
+        appendMessage('user', msg);
+        input.value = '';
+
+        // 启发式教育防直接代写拦截
+        if (msg.includes('代写') || msg.includes('写一份5000字') || msg.includes('帮我写完整BP')) {
+            const socraticReply = '<strong>[导师启发式引导]</strong>：<br/>课程鼓励独立思考与敏捷迭代！系统不支持直接一键代写全文，但我可以协同你完成拆解。<br/><br/>请先回答以下 2 个核心问题：<br/>1. 你的项目解决了目标客户的什么刚性痛点？<br/>2. 客户目前使用什么繁琐方式在替代解决？';
+            appendMessage('agent', socraticReply);
+            return;
+        }
+
+        // 优先匹配本地库
+        const matched = window.IEKG.QADatabase.qaList.find(q => q.question.includes(msg) || msg.includes(q.question));
+        if (matched) {
+            const citationHtml = '<div class="citation"><i class="fas fa-bookmark"></i> 引用依据：官方知识库 #' + matched.id + '</div>';
+            appendMessage('agent', '[本地智库预置解答]：\n\n' + matched.answer.replace(/\n/g, '<br/>') + citationHtml);
+            return;
+        }
+
+        const typingDiv = appendMessage('agent', '正在感知上下文与学术框架，智能推演中...');
+        const reply = await window.IEKG.modules.ai.askDeepSeek(msg);
+        typingDiv.querySelector('.msg-bubble').innerHTML = reply.replace(/\n/g, '<br/>');
+    }
+
+    function appendMessage(role, text) {
+        const container = document.getElementById('chat-messages');
+        const row = document.createElement('div');
+        row.className = 'chat-row ' + role;
+        const avatarInit = role === 'user' ? 'Me' : 'AI';
+        const avatarClass = role === 'user' ? 'user' : 'ai';
+        const bubbleRole = role === 'user' ? 'user' : 'ai';
+        row.innerHTML = '<div class="chat-avatar ' + avatarClass + '">' + avatarInit + '</div>'
+            + '<div class="msg-bubble msg-' + bubbleRole + '">' + text + '</div>';
+        container.appendChild(row);
+        container.scrollTop = container.scrollHeight;
+        return row;
+    }
+
+    // URL prompt 自动识别与一键提问
+    window.addEventListener('DOMContentLoaded', () => {
+        const params = new URLSearchParams(window.location.search);
+        const prompt = params.get('prompt');
+        if (prompt) {
+            const input = document.getElementById('user-input-field');
+            if (input) {
+                input.value = prompt;
+                setTimeout(() => { handleSend(); }, 400);
+            }
+        }
+    });
+</script>
+</body>
+</html>

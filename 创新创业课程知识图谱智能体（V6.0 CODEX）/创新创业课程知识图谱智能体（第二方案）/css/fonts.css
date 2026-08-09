@@ -1,0 +1,111 @@
+/* ============================================================
+   本地字体系统 (Local Fonts System)
+   《大学生创新创业基础》知识图谱智能体 - 字体注册文件
+   所有字体均为本地 woff2 格式，支持离线运行
+   ============================================================ */
+
+/* Inter - 现代英文主字体 */
+@font-face {
+    font-family: 'Inter';
+    src: local('Inter Regular'), local('Inter-Regular'),
+         url('../fonts/Inter-Regular.woff2') format('woff2');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Inter';
+    src: local('Inter SemiBold'), local('Inter-SemiBold'),
+         url('../fonts/Inter-SemiBold.woff2') format('woff2');
+    font-weight: 600;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Inter';
+    src: local('Inter Bold'), local('Inter-Bold'),
+         url('../fonts/Inter-Bold.woff2') format('woff2');
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Inter';
+    src: local('Inter Bold'), local('Inter-Bold'),
+         url('../fonts/Inter-Bold.woff2') format('woff2');
+    font-weight: 800;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Inter';
+    src: local('Inter Bold'), local('Inter-Bold'),
+         url('../fonts/Inter-Bold.woff2') format('woff2');
+    font-weight: 900;
+    font-style: normal;
+    font-display: swap;
+}
+
+/* Noto Sans SC - 高质量中文字体 */
+@font-face {
+    font-family: 'Noto Sans SC';
+    src: local('Noto Sans SC'), local('NotoSansSC'),
+         url('../fonts/NotoSansSC-Regular.woff2') format('woff2');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+    unicode-range: U+4E00-9FFF, U+3400-4DBF, U+20000-2A6DF, U+2A700-2B73F, 
+                   U+2B740-2B81F, U+2B820-2CEAF, U+F900-FAFF, U+3300-33FF, 
+                   U+FE30-FE4F, U+FE10-FE1F, U+3000-303F, U+2000-206F;
+}
+
+@font-face {
+    font-family: 'Noto Sans SC';
+    src: local('Noto Sans SC Bold'), local('NotoSansSC-Bold'),
+         url('../fonts/NotoSansSC-Bold.woff2') format('woff2');
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+    unicode-range: U+4E00-9FFF, U+3400-4DBF, U+20000-2A6DF, U+2A700-2B73F, 
+                   U+2B740-2B81F, U+2B820-2CEAF, U+F900-FAFF, U+3300-33FF, 
+                   U+FE30-FE4F, U+FE10-FE1F, U+3000-303F, U+2000-206F;
+}
+
+@font-face {
+    font-family: 'Noto Sans SC';
+    src: url('../fonts/NotoSansSC-Bold.woff2') format('woff2');
+    font-weight: 800;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Noto Sans SC';
+    src: url('../fonts/NotoSansSC-Bold.woff2') format('woff2');
+    font-weight: 900;
+    font-style: normal;
+    font-display: swap;
+}
+
+/* JetBrains Mono - 代码与数字等宽字体 */
+@font-face {
+    font-family: 'JetBrains Mono';
+    src: local('JetBrains Mono'), local('JetBrainsMono'),
+         url('../fonts/JetBrainsMono-Regular.woff2') format('woff2');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'JetBrains Mono';
+    src: local('JetBrains Mono Bold'), local('JetBrainsMono-Bold'),
+         url('../fonts/JetBrainsMono-Bold.woff2') format('woff2');
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+}

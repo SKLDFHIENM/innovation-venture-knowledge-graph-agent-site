@@ -1,0 +1,855 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>综合测评 - 《大学生创新创业基础》项目制智能体</title>
+    <script src="js/all.min.js" defer></script>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .exam-main {
+            padding-top: calc(var(--nav-height) + 20px);
+            min-height: calc(100vh - var(--nav-height));
+            padding: 22px 30px;
+            box-sizing: border-box;
+        }
+        #pane-exam {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            height: 100%;
+        }
+        .policy-content-area {
+            flex: 1;
+            overflow-y: auto;
+            position: relative;
+        }
+        .policy-pane {
+            display: none;
+            width: 100%;
+            height: 100%;
+            flex-direction: column;
+            overflow: hidden;
+            box-sizing: border-box;
+        }
+        .policy-pane.active { display: flex; }
+        .exam-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            height: 100%;
+            align-items: stretch;
+        }
+        .scrollable-col {
+            overflow-y: auto;
+            padding-right: 8px;
+            height: 100%;
+        }
+        .chart-col {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            background: var(--bg-card);
+            border-left: 1px solid var(--border-color);
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        @media (max-width: 768px) {
+            .exam-main {
+                overflow-y: auto !important;
+                height: auto !important;
+                min-height: calc(100vh - var(--nav-height));
+                padding: 15px !important;
+            }
+            .exam-grid {
+                grid-template-columns: 1fr;
+                height: auto;
+            }
+            .chart-col {
+                border-left: none;
+                border-top: 1px solid var(--border-color);
+                height: 450px;
+                padding-top: 20px;
+            }
+            .policy-pane {
+                height: auto;
+                overflow: visible;
+            }
+        }
+
+        /* ── 双栏起始屏布局 ── */
+        #quiz-start-screen { overflow: hidden; }
+        @media (max-width: 900px) {
+            #quiz-start-screen { flex-direction: column !important; overflow-y: auto !important; }
+            .qs-right-panel { max-width: 100% !important; min-width: unset !important; }
+        }
+
+        .qs-main-card {
+            flex: 1; min-width: 0; max-width: 620px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-xl);
+            padding: 32px 30px 28px;
+            box-shadow: var(--shadow-md);
+            display: flex; flex-direction: column; gap: 18px;
+            position: relative; overflow: hidden;
+        }
+
+        .qs-badge-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+        .qs-level-badge {
+            display: inline-flex; align-items: center; gap: 5px;
+            background: linear-gradient(90deg, #D97706, #F59E0B);
+            color: #fff; font-size: 11px; font-weight: 800;
+            padding: 3px 10px; border-radius: 20px;
+            letter-spacing: 0.5px;
+        }
+        .qs-new-badge {
+            display: inline-flex; align-items: center; gap: 4px;
+            background: var(--bg-accent); border: 1px solid var(--border-accent);
+            color: var(--accent-cyan); font-size: 10.5px; font-weight: 700;
+            padding: 3px 9px; border-radius: 20px;
+        }
+        .qs-title {
+            font-size: 20px; font-weight: 900; line-height: 1.35;
+            color: var(--text-main);
+            margin: 0;
+            background: linear-gradient(90deg, var(--primary), var(--primary-blue));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .qs-desc {
+            font-size: 13.5px; color: var(--text-muted); line-height: 1.75;
+            margin: 0; border-left: 3px solid var(--primary-blue);
+            padding-left: 12px;
+        }
+
+        .qs-tag-cloud { display: flex; flex-wrap: wrap; gap: 8px; }
+        .qs-topic-tag {
+            display: inline-flex; align-items: center; gap: 4px;
+            background: var(--bg-accent); border: 1px solid var(--border-accent);
+            color: var(--primary-blue); font-size: 11.5px; font-weight: 600;
+            padding: 4px 10px; border-radius: 20px;
+            transition: all 0.25s ease; cursor: default;
+        }
+        .qs-topic-tag:hover {
+            background: var(--bg-hover); border-color: var(--primary-blue);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(37,99,235,0.15);
+        }
+
+        .qs-stats-grid {
+            display: grid; grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+        .qs-stat-card {
+            display: flex; align-items: center; gap: 10px;
+            background: var(--bg-card); border: 1px solid var(--border-color);
+            border-radius: 12px; padding: 12px 14px;
+            transition: all 0.25s ease;
+            box-shadow: var(--shadow-sm);
+        }
+        .qs-stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+        .qs-stat-icon {
+            width: 38px; height: 38px; border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 17px; flex-shrink: 0;
+        }
+        .qs-stat-icon.blue  { background: var(--blue-bg); color: var(--primary-blue); }
+        .qs-stat-icon.orange{ background: var(--amber-bg); color: var(--amber-text); }
+        .qs-stat-icon.cyan  { background: #ECFEFF; color: var(--accent-cyan); }
+        .qs-stat-icon.green { background: var(--green-bg); color: var(--green-text); }
+        .qs-stat-label { font-size: 11px; color: var(--text-muted); margin-bottom: 2px; }
+        .qs-stat-value { font-size: 15px; font-weight: 800; color: var(--text-main); }
+
+        .qs-cta-btn {
+            display: flex; align-items: center; justify-content: center; gap: 10px;
+            padding: 14px 28px; border-radius: 50px;
+            background: linear-gradient(135deg, #D97706 0%, #F59E0B 100%);
+            color: #fff; font-size: 15px; font-weight: 800;
+            border: none; cursor: pointer; width: 100%;
+            box-shadow: 0 6px 24px rgba(217,119,6,0.35);
+            transition: all 0.3s ease;
+            letter-spacing: 0.5px;
+        }
+        .qs-cta-btn:hover {
+            box-shadow: 0 8px 30px rgba(217,119,6,0.5);
+            transform: translateY(-2px) scale(1.01);
+        }
+        .qs-cta-btn:active { transform: scale(0.98); }
+        .qs-cta-sub { font-size: 11.5px; color: var(--amber-text); text-align:center; margin-top:-4px; }
+
+        .qs-right-panel {
+            min-width: 260px; max-width: 310px; width: 300px;
+            display: flex; flex-direction: column; gap: 14px;
+        }
+        .qs-hist-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 18px; padding: 20px 18px;
+            box-shadow: var(--shadow-sm);
+            display: flex; flex-direction: column; gap: 14px;
+        }
+        .qs-hist-title {
+            font-size: 12.5px; font-weight: 800; color: var(--text-muted);
+            letter-spacing: 0.5px; text-transform: uppercase;
+            display: flex; align-items: center; gap: 6px;
+        }
+        .qs-best-score-ring {
+            display: flex; flex-direction: column; align-items: center; gap: 4px;
+            padding: 12px 0 8px;
+        }
+        .qs-score-ring-wrap {
+            width: 80px; height: 80px; position: relative;
+        }
+        .qs-score-ring-svg { width: 80px; height: 80px; transform: rotate(-90deg); }
+        .qs-ring-bg { fill: none; stroke: var(--bg-subtle); stroke-width: 7; }
+        .qs-ring-fg {
+            fill: none; stroke: url(#ringGrad); stroke-width: 7;
+            stroke-linecap: round;
+            stroke-dasharray: 220; stroke-dashoffset: 220;
+            transition: stroke-dashoffset 1.2s cubic-bezier(0.22,1,0.36,1);
+        }
+        .qs-ring-center {
+            position: absolute; inset: 0;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+        }
+        .qs-ring-num { font-size: 22px; font-weight: 900; color: var(--text-main); line-height: 1; }
+        .qs-ring-unit { font-size: 10px; color: var(--text-muted); }
+        .qs-score-label { font-size: 11.5px; color: var(--text-muted); }
+        .qs-score-rank {
+            display: flex; justify-content: space-between;
+            font-size: 12px;
+        }
+        .qs-rank-item { display:flex; flex-direction:column; align-items:center; gap:2px; }
+        .qs-rank-val { font-size:14px; font-weight:800; color:var(--text-main); }
+        .qs-rank-label { font-size:10.5px; color:var(--text-muted); }
+
+        .qs-unlock-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 14px; padding: 16px 16px;
+            display: flex; flex-direction: column; gap: 10px;
+        }
+        .qs-unlock-title {
+            font-size: 12px; font-weight: 800; color: var(--accent-cyan);
+            display: flex; align-items: center; gap: 5px;
+        }
+        .qs-unlock-item {
+            display: flex; align-items: center; gap: 8px;
+            font-size: 12px; color: var(--text-sub);
+            padding: 6px 10px; border-radius: 8px;
+            background: var(--bg-subtle);
+            border: 1px solid var(--border-color);
+            transition: all 0.2s ease;
+        }
+        .qs-unlock-item:hover { background: var(--bg-hover); border-color: var(--accent-cyan); }
+        .qs-unlock-icon { font-size: 15px; flex-shrink: 0; }
+        .qs-lock-badge {
+            margin-left: auto; font-size: 10px; color: var(--text-muted);
+            background: var(--bg-subtle); border-radius: 10px;
+            padding: 1px 7px; border: 1px solid var(--border-color);
+        }
+
+        /* policy-tabs */
+        .policy-tabs {
+            display: flex;
+            gap: 0;
+            background: var(--bg-card);
+            border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+            border-bottom: 2px solid var(--border-color);
+            overflow: hidden;
+        }
+        .policy-tab {
+            flex: 1;
+            text-align: center;
+            padding: 14px 16px;
+            font-size: var(--text-base);
+            font-weight: 700;
+            cursor: pointer;
+            color: var(--text-muted);
+            border-bottom: 3px solid transparent;
+            transition: var(--transition-normal);
+            background: none;
+            border-top: none;
+            border-left: none;
+            border-right: none;
+        }
+        .policy-tab:hover { color: var(--primary-blue); }
+        .policy-tab.active {
+            color: var(--primary-blue);
+            border-bottom-color: var(--primary-blue);
+        }
+
+        /* Glass panel simulation for light theme */
+        .glass-panel {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+        }
+
+        .action-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 16px;
+            border-radius: var(--radius-sm);
+            font-size: var(--text-sm);
+            font-weight: 700;
+            cursor: pointer;
+            border: 1px solid var(--border-color);
+            background: var(--bg-card);
+            color: var(--text-main);
+            transition: var(--transition-normal);
+            text-decoration: none;
+        }
+        .action-btn:hover {
+            border-color: var(--primary-blue);
+            color: var(--primary-blue);
+        }
+        .action-btn.primary {
+            background: var(--primary-blue);
+            color: #FFFFFF;
+            border-color: var(--primary-blue);
+        }
+        .action-btn.primary:hover {
+            background: var(--primary);
+        }
+    </style>
+</head>
+<body class="day-mode">
+
+<header class="site-header">
+    <div class="header-inner">
+        <a href="index.html" class="brand-logo">
+            <div class="brand-icon"><i class="fas fa-graduation-cap"></i></div>
+            <div>
+                <div class="brand-title">创新创业课程 OBE 智慧教学与评估平台</div>
+                <div class="brand-subtitle">Innovation & Entrepreneurship Mapping Engine v4.0</div>
+            </div>
+        </a>
+        <button class="nav-toggle" onclick="document.querySelector('.main-nav').classList.toggle('open')">
+            <i class="fas fa-bars"></i>
+        </button>
+        <nav class="main-nav" aria-label="主导航">
+            <a href="index.html" class="nav-item"><i class="fas fa-compass"></i> 首页</a>
+            <a href="map.html" class="nav-item"><i class="fas fa-map"></i> 课程地图</a>
+            <a href="knowledge_graph.html" class="nav-item"><i class="fas fa-sitemap"></i> 知识图谱</a>
+                        <a href="competition.html" class="nav-item"><i class="fas fa-trophy"></i> 大赛专区</a>
+            <a href="gold_cases.html" class="nav-item"><i class="fas fa-award"></i> 示范案例</a>
+            <a href="student.html" class="nav-item"><i class="fas fa-user-graduate"></i> 能力矩阵</a>
+            <a href="activities.html" class="nav-item"><i class="fas fa-tasks"></i> PBL实战</a>
+            <a href="yunnan_qujing_startup.html" class="nav-item"><i class="fas fa-mountain"></i> 留滇留曲</a>
+            <a href="chat.html" class="nav-item"><i class="fas fa-robot"></i> AI导师</a>
+            <a href="admin.html" class="nav-item active"><i class="fas fa-chart-line"></i> 学情看板</a>
+        
+            <button id="theme-toggle-btn" class="nav-theme-toggle-btn" title="切换白天/夜间主题" onclick="if(window.toggleTheme) window.toggleTheme();"><i class="fas fa-sun"></i> <span>风格切换</span></button>
+        </nav>
+        <div class="nav-actions">
+            <a href="admin.html" class="btn-nav"><i class="fas fa-user-shield"></i> 教师/专家视图</a>
+        </div>
+    </div>
+</header>
+
+<main class="exam-main">
+    <div class="view-pane active glass-panel" id="pane-exam" style="padding:0; overflow:hidden;">
+        <!-- 顶部 Tab 导航 -->
+        <div class="policy-tabs">
+            <button class="policy-tab active" data-pane="exam-quiz"><i class="fas fa-file-signature"></i> 知识闯关测验</button>
+            <button class="policy-tab" data-pane="exam-radar"><i class="fas fa-chart-line"></i> 能力维度评估</button>
+            <button class="policy-tab" data-pane="exam-project"><i class="fas fa-clipboard-check"></i> 项目提案评估</button>
+        </div>
+
+        <!-- 测评主显示区 -->
+        <div class="policy-content-area" style="padding:24px;">
+
+            <!-- 板块 A：知识闯关 -->
+            <div class="policy-pane active" id="exam-quiz">
+                <div id="quiz-start-screen" style="display:flex; align-items:stretch; justify-content:center; height:100%; gap:24px; padding:4px 0;">
+
+                    <svg width="0" height="0" style="position:absolute;">
+                        <defs>
+                            <linearGradient id="ringGrad" x1="0%" y1="0%" x2="完整" y2="0%">
+                                <stop offset="0%" stop-color="#D97706"/>
+                                <stop offset="完整" stop-color="#2563EB"/>
+                            </linearGradient>
+                        </defs>
+                    </svg>
+
+                    <!-- 左侧：主信息卡片 -->
+                    <div class="qs-main-card">
+                        <div>
+                            <div class="qs-badge-row">
+                                <span class="qs-level-badge"><i class="fas fa-trophy"></i> 实战能力挑战</span>
+                                <span class="qs-new-badge"><i class="fas fa-robot"></i> AI智能诊断版</span>
+                            </div>
+                            <h2 class="qs-title" style="margin-top:10px;">《大学生创新创业基础》<br>实战能力与知识闯关</h2>
+                        </div>
+
+                        <p class="qs-desc">
+                            本测验精选 <strong style="color:var(--amber-text);">20 道</strong>涵盖单选、多选与<strong style="color:var(--accent-cyan);">案例场景诊断题</strong>，全面覆盖 SCAMPER（奔驰法）、精益画布、股权设计、电梯演说、政策红利等核心大纲，并包含真实双创项目模拟案例，系统限时 <strong style="color:var(--amber-text);">30 分钟</strong>。
+                        </p>
+
+                        <div>
+                            <div style="font-size:11.5px; color:var(--text-muted); font-weight:700; margin-bottom:8px; letter-spacing:0.5px;">考查维度覆盖</div>
+                            <div class="qs-tag-cloud">
+                                <span class="qs-topic-tag"># 商业模式</span>
+                                <span class="qs-topic-tag"># 团队股权</span>
+                                <span class="qs-topic-tag"># 路演表达</span>
+                                <span class="qs-topic-tag"># 政策红利</span>
+                                <span class="qs-topic-tag"># SCAMPER创新</span>
+                                <span class="qs-topic-tag"># 精益创业</span>
+                                <span class="qs-topic-tag"># 红旅实践</span>
+                                <span class="qs-topic-tag"># MVP验证</span>
+                            </div>
+                        </div>
+
+                        <div class="qs-stats-grid">
+                            <div class="qs-stat-card">
+                                <div class="qs-stat-icon blue"><i class="fas fa-question-circle"></i></div>
+                                <div><div class="qs-stat-label">题目数量</div><div class="qs-stat-value">20 题</div></div>
+                            </div>
+                            <div class="qs-stat-card">
+                                <div class="qs-stat-icon orange"><i class="fas fa-clock"></i></div>
+                                <div><div class="qs-stat-label">限时时长</div><div class="qs-stat-value">30 分钟</div></div>
+                            </div>
+                            <div class="qs-stat-card">
+                                <div class="qs-stat-icon cyan"><i class="fas fa-bullseye"></i></div>
+                                <div><div class="qs-stat-label">及格标准</div><div class="qs-stat-value">80 分通关</div></div>
+                            </div>
+                            <div class="qs-stat-card">
+                                <div class="qs-stat-icon green"><i class="fas fa-layer-group"></i></div>
+                                <div><div class="qs-stat-label">题型</div><div class="qs-stat-value">混合题型</div></div>
+                            </div>
+                        </div>
+
+                        <div style="display:flex; flex-direction:column; gap:8px; margin-top:2px;">
+                            <button class="qs-cta-btn" onclick="startKnowledgeQuiz()">
+                                <i class="fas fa-flag-checkered"></i>
+                                开启实战挑战测验
+                                <i class="fas fa-arrow-right"></i>
+                            </button>
+                            <div class="qs-cta-sub">80分通关 · 解锁 AI 导师深度诊断 & 项目提案评估权限</div>
+                        </div>
+                    </div>
+
+                    <!-- 右侧：历史战报 + 通关奖励 -->
+                    <div class="qs-right-panel">
+                        <div class="qs-hist-card">
+                            <div class="qs-hist-title">
+                                <i class="fas fa-medal" style="color:var(--amber-text);"></i> 我的历史战报
+                            </div>
+                            <div class="qs-best-score-ring">
+                                <div class="qs-score-ring-wrap">
+                                    <svg class="qs-score-ring-svg" viewBox="0 0 80 80">
+                                        <circle class="qs-ring-bg" cx="40" cy="40" r="35"/>
+                                        <circle class="qs-ring-fg" id="qs-ring-circle" cx="40" cy="40" r="35"/>
+                                    </svg>
+                                    <div class="qs-ring-center">
+                                        <div class="qs-ring-num" id="qs-best-score-num">--</div>
+                                        <div class="qs-ring-unit">分</div>
+                                    </div>
+                                </div>
+                                <div class="qs-score-label">历史最高分</div>
+                            </div>
+                            <div class="qs-score-rank">
+                                <div class="qs-rank-item">
+                                    <div class="qs-rank-val" id="qs-attempt-count">0</div>
+                                    <div class="qs-rank-label">参与次数</div>
+                                </div>
+                                <div class="qs-rank-item">
+                                    <div class="qs-rank-val" id="qs-pass-count">0</div>
+                                    <div class="qs-rank-label">通关次数</div>
+                                </div>
+                                <div class="qs-rank-item">
+                                    <div class="qs-rank-val" id="qs-pass-rate">--%</div>
+                                    <div class="qs-rank-label">通关率</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="qs-unlock-card">
+                            <div class="qs-unlock-title">
+                                <i class="fas fa-unlock-alt"></i> 通关后可解锁
+                            </div>
+                            <div class="qs-unlock-item">
+                                <span class="qs-unlock-icon">...</span>
+                                <span>AI 导师深度能力诊断</span>
+                                <span class="qs-lock-badge">>=80分</span>
+                            </div>
+                            <div class="qs-unlock-item">
+                                <span class="qs-unlock-icon">...</span>
+                                <span>项目提案专业评估</span>
+                                <span class="qs-lock-badge">>=80分</span>
+                            </div>
+                            <div class="qs-unlock-item">
+                                <span class="qs-unlock-icon">...</span>
+                                <span>三维能力图谱生成</span>
+                                <span class="qs-lock-badge">完成即解</span>
+                            </div>
+                            <div class="qs-unlock-item">
+                                <span class="qs-unlock-icon">...</span>
+                                <span>OBE学情诊断报告</span>
+                                <span class="qs-lock-badge">完成即解</span>
+                            </div>
+                        </div>
+
+                        <div style="text-align:center; padding:10px 8px; font-size:11.5px; color:var(--text-muted); line-height:1.7;">
+                            <i class="fas fa-infinity" style="color:var(--accent-cyan);"></i>
+                            支持<strong style="color:var(--text-sub);">无限次</strong>重考 · 每次作答独立计分<br>
+                            <span>历史最高分将自动同步至学情档案</span>
+                        </div>
+                    </div>
+                </div><!-- /quiz-start-screen -->
+
+                <!-- 答题进行区 -->
+                <div id="quiz-main-area" style="display:none; height:100%;">
+                    <!-- 由 JS 动态填充 -->
+                </div>
+            </div>
+
+            <!-- 板块 B：能力维度评估 -->
+            <div class="policy-pane" id="exam-radar">
+                <div class="exam-grid">
+                    <div class="scrollable-col">
+                        <h3 style="color:var(--text-main); font-size:15.5px; font-weight:700; margin:0 0 15px 0;">
+                            <i class="fas fa-sliders-h" style="color:var(--accent-cyan);"></i> 知识、素养、能力自评维度调节
+                        </h3>
+                        <p style="color:var(--text-muted); font-size:12.5px; line-height:1.6; margin:0 0 20px 0;">
+                            请根据你目前的真实掌握情况，拖动滑块调整以下 9 个核心维度（涵盖知识图谱、素养图谱、能力图谱）的得分（1-10分）。
+                        </p>
+                        <div id="radar-sliders" style="display:flex; flex-direction:column; gap:16px; margin-bottom:20px;">
+                            <!-- 动态填充 -->
+                        </div>
+                        <button class="action-btn primary" onclick="generateRadarChart()" style="width:100%; padding:12px; justify-content:center;">
+                            <i class="fas fa-sync-alt"></i> 生成我的三维评估图谱（知识/素养/能力）
+                        </button>
+
+                        <div class="glass-panel" style="margin-top:20px; padding:20px; border:1px solid var(--border-color); border-radius:12px;">
+                            <h4 style="margin:0 0 10px 0; color:var(--text-main); font-size:15px;">
+                                <i class="fas fa-calculator" style="color:var(--accent-cyan); margin-right:6px;"></i> OBE（成果导向教育）"3+3+4"总评成绩一键结算
+                            </h4>
+                            <p style="color:var(--text-muted); font-size:12px; line-height:1.5; margin-bottom:15px; margin-top:0;">
+                                考核比重：平时表现 30%（PBL打卡与探索） + 期中成果 30%（商业画布与MVP诊断） + 期末终极 40%（综合测评测验）。
+                            </p>
+                            <div style="display:flex; flex-direction:column; gap:8px; font-size:13px; color:var(--text-sub); margin-bottom:15px;">
+                                <div style="display:flex; justify-content:space-between;">
+                                    <span>平时分 (30%权重)：</span>
+                                    <span id="obe-calc-regular" style="font-weight:700; color:var(--accent-cyan);">0 分 (折合 0.0)</span>
+                                </div>
+                                <div style="display:flex; justify-content:space-between;">
+                                    <span>期中分 (30%权重)：</span>
+                                    <span id="obe-calc-mid" style="font-weight:700; color:var(--accent-cyan);">0 分 (折合 0.0)</span>
+                                </div>
+                                <div style="display:flex; justify-content:space-between;">
+                                    <span>期末分 (40%权重)：</span>
+                                    <span id="obe-calc-final" style="font-weight:700; color:var(--accent-cyan);">0 分 (折合 0.0)</span>
+                                </div>
+                                <div style="border-top:1px dashed var(--border-color); padding-top:8px; display:flex; justify-content:space-between; font-size:14.5px; color:var(--text-main); font-weight:800;">
+                                    <span>终期综合总成绩：</span>
+                                    <span id="obe-calc-total" style="color:var(--accent-amber);">0 分</span>
+                                </div>
+                            </div>
+                            <button class="action-btn primary" onclick="window.calculateOBEFinalScore()" style="width:100%; padding:10px; justify-content:center; background:linear-gradient(135deg, var(--accent-cyan), var(--primary-blue)); border:none; border-radius:6px; font-weight:700; color:#fff; cursor:pointer;">
+                                <i class="fas fa-magic"></i> 提取数据并一键结算
+                            </button>
+                            <button class="action-btn" onclick="window.openStudentReportModal()" style="width:100%; margin-top:8px; padding:10px; justify-content:center; background:var(--green-bg); border:1px solid var(--green-border); border-radius:6px; font-weight:700; color:var(--green-text); cursor:pointer;">
+                                <i class="fas fa-file-invoice"></i> 生成/打印平时成绩学情诊断书
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="chart-col">
+                        <div id="radar-chart-container" style="width:100%; height:320px;"></div>
+                        <div id="radar-result" style="display:none; margin-top:15px; text-align:center; width:100%; padding:12px; background:var(--bg-subtle); border:1px solid var(--border-color); border-radius:10px;">
+                            <!-- 动态报告 -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 板块 C：项目提案评分墙 -->
+            <div class="policy-pane" id="exam-project">
+                <div class="exam-grid">
+                    <div class="scrollable-col">
+                        <h3 style="color:var(--text-main); font-size:15.5px; font-weight:700; margin:0 0 10px 0;">
+                            <i class="fas fa-edit" style="color:var(--accent-amber);"></i> 提交你的项目概要
+                        </h3>
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                            <label style="font-size:12px; color:var(--text-muted);">请输入或填入提案设想：</label>
+                            <button onclick="document.getElementById('project-proposal-input').value='【高原特色农产品边缘 AI 智能分拣与数字化出海系统】针对本地果农采摘后果品手工分拣效率低下、冷链损耗率高达 25% 的核心痛点，团队研发了基于嵌入式视觉识别的智能分拣硬件与 2.5D 数字人跨境直播带货系统，实现自动化精准分级与 24 小时出海销售，预计为合作社提效 300%、户均增收 1.2 万元。'" style="background:var(--bg-accent); border:1px solid var(--border-accent); color:var(--primary-blue); padding:3px 10px; border-radius:6px; font-size:11.5px; cursor:pointer; font-weight:700;">
+                                <i class="fas fa-magic"></i> 填入示例提案
+                            </button>
+                        </div>
+                        <textarea id="project-proposal-input" class="chat-input" placeholder="例如：传统非遗美食实体店目前难以规模化，我们团队开发了一套 24小时数字人自动跨国直播带货与跨境私域流量运营系统，解决实体店高昂的销售人资与出海翻译成本，实现特色餐饮的高效出海与变现..." style="width:100%; min-height:140px; padding:15px; border-radius:12px; margin-bottom:15px; border:1px solid var(--border-color); background:var(--bg-card); color:var(--text-main);"></textarea>
+                        <button class="action-btn primary" onclick="rateProjectProposal()" style="width:100%; padding:12px; justify-content:center; background:linear-gradient(135deg,var(--accent-amber),var(--amber-text)); border-color:rgba(245,158,11,0.5);">
+                            <i class="fas fa-magic"></i> 提交项目提案进行 AI 诊断
+                        </button>
+
+                        <div id="project-score-summary" style="display:none; margin-top:20px; padding:15px; border:1px solid var(--border-color); border-radius:12px; font-size:13px; line-height:1.7;">
+                            <!-- 动态简报 -->
+                        </div>
+                    </div>
+
+                    <div class="chart-col">
+                        <div id="project-radar-chart" style="width:100%; height:280px;"></div>
+                        <div id="project-rating-text" style="display:none; width:100%; margin-top:10px;">
+                            <!-- 详细得分条 -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Tab 3 Content: PBL 成果高阶评价量表 -->
+    <div id="tab-rubric" class="tab-pane" style="display:none; padding: 20px 0;">
+        <div class="card" style="padding: 24px; border-radius: var(--radius-lg); background: var(--bg-card); border: 1px solid var(--border-color);">
+            <h3 style="margin-top:0; color:var(--text-main); font-size:18px; display:flex; align-items:center; gap:8px;">
+                <i class="fas fa-clipboard-check" style="color:var(--primary-blue);"></i> 18 学时 PBL 项目成果高阶能力评价量表 (Outcome Rubrics)
+            </h3>
+            <p style="color:var(--text-muted); font-size:14px;">涵盖“学生自评”、“组内互评 Peer Review”、“教师评估”与“AI 智能诊断”四维评估体系，精准度量分析、评估与创造高阶认知层级。</p>
+
+            <div style="overflow-x:auto; margin-top:20px;">
+                <table style="width:100%; border-collapse:collapse; text-align:left; font-size:13px;">
+                    <thead>
+                        <tr style="background:var(--bg-subtle); border-bottom:2px solid var(--border-color);">
+                            <th style="padding:12px; min-width:120px;">评估维度</th>
+                            <th style="padding:12px; min-width:180px;">优秀 (90-100分)</th>
+                            <th style="padding:12px; min-width:180px;">良好 (75-89分)</th>
+                            <th style="padding:12px; min-width:180px;">合格 (60-74分)</th>
+                            <th style="padding:12px; min-width:80px;">自评得分</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="border-bottom:1px solid var(--border-color);">
+                            <td style="padding:12px; font-weight:bold; color:var(--text-main);">1. 痛点验证与真实性</td>
+                            <td style="padding:12px; color:var(--text-muted);">痛点来自 15+ 真实深度访谈，数据完整清晰，完成同理心地图绘制。</td>
+                            <td style="padding:12px; color:var(--text-muted);">有真实访谈支撑（5-10人），能清晰区分刚需与伪需求。</td>
+                            <td style="padding:12px; color:var(--text-muted);">痛点多为逻辑推测，缺乏二手或一手实调数据支撑。</td>
+                            <td style="padding:12px;"><input type="number" min="0" max="100" class="form-input" style="width:70px;" value="90"></td>
+                        </tr>
+                        <tr style="border-bottom:1px solid var(--border-color);">
+                            <td style="padding:12px; font-weight:bold; color:var(--text-main);">2. MVP 原型与迭代验证</td>
+                            <td style="padding:12px; color:var(--text-muted);">搭建可测试高保真样机/小程序/流程原型，获取真实定金或意向反馈。</td>
+                            <td style="padding:12px; color:var(--text-muted);">制作可演示样机或线框图，完成至少 1 轮测试修改。</td>
+                            <td style="padding:12px; color:var(--text-muted);">仅有文字概念描述或 PPT 方案，未制作实体原型。</td>
+                            <td style="padding:12px;"><input type="number" min="0" max="100" class="form-input" style="width:70px;" value="85"></td>
+                        </tr>
+                        <tr style="border-bottom:1px solid var(--border-color);">
+                            <td style="padding:12px; font-weight:bold; color:var(--text-main);">3. 股权治理与 Vesting 规范</td>
+                            <td style="padding:12px; color:var(--text-muted);">制定动态 Vesting 4 年成熟规则，大股东占比 ≥ 51%，预留期权池。</td>
+                            <td style="padding:12px; color:var(--text-muted);">避免 50:50 平分死局，有明确带头人与核心分工协议。</td>
+                            <td style="padding:12px; color:var(--text-muted);">股权对半平分或无明确书面协议，存在法律风险。</td>
+                            <td style="padding:12px;"><input type="number" min="0" max="100" class="form-input" style="width:70px;" value="92"></td>
+                        </tr>
+                        <tr style="border-bottom:1px solid var(--border-color);">
+                            <td style="padding:12px; font-weight:bold; color:var(--text-main);">4. 财务测算与风控防范</td>
+                            <td style="padding:12px; color:var(--text-muted);">算清 Unit Economics（CAC/LTV），测算损益平衡点，设 6 个月储备资金。</td>
+                            <td style="padding:12px; color:var(--text-muted);">列出主要成本与收入结构，能预测前 12 个月现金流。</td>
+                            <td style="padding:12px; color:var(--text-muted);">财务预测凭空捏造，未考虑固定成本与账期延误风险。</td>
+                            <td style="padding:12px;"><input type="number" min="0" max="100" class="form-input" style="width:70px;" value="88"></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div style="margin-top:20px; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-weight:bold; color:var(--primary-blue);">加权评估总得分：<span id="rubric-total-score">88.75</span> 分 (优秀级)</span>
+                <button class="btn btn-primary" onclick="alert('已成功提交 PBL 成果量规评估，评价数据将实时存入学情档案！')">
+                    <i class="fas fa-save"></i> 提交保存量规评价
+                </button>
+            </div>
+        </div>
+    </div>
+
+</main>
+
+<footer style="background:var(--bg-card); border-top:1px solid var(--border-color); padding:48px 0 32px 0; margin-top:auto;">
+    <div style="max-width:1360px; margin:0 auto; padding:0 24px; display:grid; grid-template-columns:1.5fr 1fr 1fr 1.2fr; gap:36px;">
+        <div>
+            <div style="font-size:16px; font-weight:800; color:var(--text-main); margin-bottom:12px; display:flex; align-items:center; gap:8px;">
+                <i class="fas fa-graduation-cap" style="color:var(--primary-blue);"></i>
+                《大学生创新创业基础》智能体平台
+            </div>
+            <div style="font-size:13px; color:var(--text-sub); line-height:1.6; margin-bottom:16px;">
+                基于成果导向教育 (OBE) 理念设计，通过知识节点拓扑、PBL 表现性评价任务与 AI 专项导师，打造高校双创"学-练-评-改"闭环。
+            </div>
+            <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                <span style="display:inline-flex; align-items:center; gap:6px; padding:4px 10px; background:var(--green-bg); border:1px solid var(--green-border); border-radius:6px; font-size:12px; color:var(--green-text); font-weight:600;">
+                    <i class="fas fa-check-circle"></i> OBE 成果达成闭环认证
+                </span>
+                <span style="display:inline-flex; align-items:center; gap:6px; padding:4px 10px; background:var(--blue-bg); border:1px solid var(--blue-border); border-radius:6px; font-size:12px; color:var(--blue-text); font-weight:600;">
+                    <i class="fas fa-book"></i> 教学标准对齐
+                </span>
+            </div>
+        </div>
+
+        <div>
+            <div style="font-size:14px; font-weight:800; color:var(--text-main); margin-bottom:16px;">课程核心体系</div>
+            <ul style="list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:10px; font-size:13px;">
+                <li><a href="index.html" style="color:var(--text-muted); text-decoration:none;"><i class="fas fa-angle-right" style="color:var(--primary-blue);"></i> 课程目标 (CLOs) 矩阵</a></li>
+                <li><a href="knowledge_graph.html" style="color:var(--text-muted); text-decoration:none;"><i class="fas fa-angle-right" style="color:var(--primary-blue);"></i> 理论知识图谱</a></li>
+                <li><a href="graph.html" style="color:var(--text-muted); text-decoration:none;"><i class="fas fa-angle-right" style="color:var(--primary-blue);"></i> 实战能力图谱</a></li>
+                <li><a href="map.html" style="color:var(--text-muted); text-decoration:none;"><i class="fas fa-angle-right" style="color:var(--primary-blue);"></i> 课程大纲地图</a></li>
+                <li><a href="activities.html" style="color:var(--text-muted); text-decoration:none;"><i class="fas fa-angle-right" style="color:var(--primary-blue);"></i> PBL 实战任务流</a></li>
+            </ul>
+        </div>
+
+        <div>
+            <div style="font-size:14px; font-weight:800; color:var(--text-main); margin-bottom:16px;">教学资源与评估</div>
+            <ul style="list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:10px; font-size:13px;">
+                <li><a href="yunnan_qujing_startup.html" class="nav-item"><i class="fas fa-mountain"></i> 留滇留曲</a>
+            <a href="chat.html" style="color:var(--text-muted); text-decoration:none;"><i class="fas fa-angle-right" style="color:var(--primary-blue);"></i> AI 导师智能体</a></li>
+                <li><a href="admin.html" style="color:var(--text-muted); text-decoration:none;"><i class="fas fa-angle-right" style="color:var(--primary-blue);"></i> 学情与达成度看板</a></li>
+                <li><a href="resources.html" style="color:var(--text-muted); text-decoration:none;"><i class="fas fa-angle-right" style="color:var(--primary-blue);"></i> 教学模版与资源下载</a></li>
+                <li><a href="glossary.html" style="color:var(--text-muted); text-decoration:none;"><i class="fas fa-angle-right" style="color:var(--primary-blue);"></i> 双创与 AI 权威词典</a></li>
+                <li><a href="exam.html" style="color:var(--text-muted); text-decoration:none;"><i class="fas fa-angle-right" style="color:var(--primary-blue);"></i> 综合自测与 Rubrics 评分</a></li>
+            </ul>
+        </div>
+
+        <div>
+            <div style="font-size:14px; font-weight:800; color:var(--text-main); margin-bottom:16px;">实时学情与系统数据</div>
+            <div style="background:var(--bg-subtle); border:1px solid var(--border-color); border-radius:10px; padding:14px; font-size:12.5px; line-height:1.8; color:var(--text-sub);">
+                <div><span>知识节点拓扑：</span> <strong style="color:var(--primary-blue);">持续更新</strong></div>
+                <div><span>能力指标映射：</span> <strong style="color:var(--accent-emerald);">36 项</strong></div>
+                <div><span>对齐 PBL 任务：</span> <strong style="color:var(--accent-amber);">18 项</strong></div>
+                <div><span>系统计算模式：</span> <strong style="color:var(--text-main);">本地离线隐私保护</strong></div>
+            </div>
+        </div>
+    </div>
+
+    <div style="max-width:1360px; margin:36px auto 0 auto; padding:20px 24px 0 24px; border-top:1px solid var(--border-color); display:flex; align-items:center; justify-content:space-between; font-size:12.5px; color:var(--text-sub); flex-wrap:wrap; gap:12px;">
+        <div>Copyright (C) 2026 《大学生创新创业基础》课程智能体平台. All Rights Reserved.</div>
+        <div style="display:flex; align-items:center; gap:16px;">
+            <span style="display:inline-flex; align-items:center; gap:6px; color:var(--accent-emerald); font-weight:600;">
+                <span style="width:8px; height:8px; background:var(--accent-emerald); border-radius:50%;"></span>
+                Antigravity Engine 运行正常
+            </span>
+            <a href="index.html" style="color:var(--text-sub); text-decoration:none;">首页</a>
+            <a href="help.html" style="color:var(--text-sub); text-decoration:none;">使用说明</a>
+            <a href="admin.html" style="color:var(--text-sub); text-decoration:none;">教师入口</a>
+        </div>
+    </div>
+</footer>
+
+<script src="js/echarts.min.js"></script>
+<script src="js/data.js"></script>
+<script src="js/data_policies.js"></script>
+<script src="js/data_details.js"></script>
+<script src="js/data_academic.js"></script>
+<script src="js/data_practical.js"></script>
+<script src="js/data_competition.js"></script>
+<script src="js/modules/framework.js"></script>
+<script src="js/modules/main_framework.js"></script>
+<script src="js/modules/tools.js"></script>
+<script src="js/modules/student.js"></script>
+<script src="js/exam.js"></script>
+<script src="js/modules/utils.js"></script>
+<script src="js/modules/presentation.js"></script>
+<script src="js/app.js"></script>
+<script>
+// 综合测评成绩自动记录到学生档案
+(function() {
+    document.addEventListener('DOMContentLoaded', () => {
+        setTimeout(() => {
+            if (typeof window.finishKnowledgeQuiz === 'function') {
+                const orig = window.finishKnowledgeQuiz;
+                window.finishKnowledgeQuiz = function(score, total, dimension) {
+                    const pct = Math.round((score / (total || 20)) * 100);
+                    if (window.IEKG && window.IEKG.student && window.IEKG.student.isLoggedIn()) {
+                        window.IEKG.student.recordExamScore(pct, dimension || '知识闯关测验');
+                        if (typeof showToast === 'function') showToast('成绩已记录到学情档案！前往 我的档案 查看');
+                    }
+                    return orig.apply(this, arguments);
+                };
+            }
+        }, 500);
+    });
+})();
+
+// 历史战报看板初始化
+(function initQsHistoryPanel() {
+    function getHistory() {
+        try {
+            return JSON.parse(localStorage.getItem('exam_knowledge_history') || '{"scores":[],"best":0,"attempts":0,"passes":0}');
+        } catch(e) { return { scores:[], best:0, attempts:0, passes:0 }; }
+    }
+    function saveHistory(h) {
+        try { localStorage.setItem('exam_knowledge_history', JSON.stringify(h)); } catch(e){}
+    }
+
+    function renderPanel() {
+        const h = getHistory();
+        const best = h.best || 0;
+        const attempts = h.attempts || 0;
+        const passes = h.passes || 0;
+        const rate = attempts > 0 ? Math.round((passes / attempts) * 100) : 0;
+
+        const numEl   = document.getElementById('qs-best-score-num');
+        const ringEl  = document.getElementById('qs-ring-circle');
+        const attEl   = document.getElementById('qs-attempt-count');
+        const passEl  = document.getElementById('qs-pass-count');
+        const rateEl  = document.getElementById('qs-pass-rate');
+
+        if (!numEl) return;
+
+        numEl.textContent  = best > 0 ? best : '--';
+        attEl.textContent  = attempts;
+        passEl.textContent = passes;
+        rateEl.textContent = attempts > 0 ? rate + '%' : '--%';
+
+        if (ringEl && best > 0) {
+            const offset = 220 - (220 * best / 100);
+            setTimeout(() => { ringEl.style.strokeDashoffset = offset; }, 300);
+        }
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', renderPanel);
+    } else {
+        renderPanel();
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        setTimeout(() => {
+            if (typeof window.finishKnowledgeQuiz === 'function') {
+                const origFn = window.finishKnowledgeQuiz;
+                window.finishKnowledgeQuiz = function(score, total, dimension) {
+                    const pct = Math.round((score / (total || 20)) * 100);
+                    const h = getHistory();
+                    h.attempts = (h.attempts || 0) + 1;
+                    if (pct >= 80) h.passes = (h.passes || 0) + 1;
+                    if (pct > (h.best || 0)) h.best = pct;
+                    saveHistory(h);
+                    renderPanel();
+                    return origFn.apply(this, arguments);
+                };
+            }
+        }, 600);
+    });
+})();
+
+// policy-tabs 切换逻辑
+document.addEventListener('DOMContentLoaded', () => {
+    setTimeout(() => {
+        document.querySelectorAll('.policy-tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                const paneName = this.getAttribute('data-pane');
+                document.querySelectorAll('.policy-tab').forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+                document.querySelectorAll('.policy-pane').forEach(p => p.classList.remove('active'));
+                const pane = document.getElementById(paneName);
+                if (pane) pane.classList.add('active');
+            });
+        });
+    }, 100);
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,17 @@
+{
+  "name": "innovation-venture-knowledge-graph-agent",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "lint:css": "stylelint \"css/**/*.css\"",
+    "test:visual": "playwright test",
+    "test:visual:update": "playwright test --update-snapshots"
+  },
+  "devDependencies": {
+    "stylelint": "^16.2.0",
+    "stylelint-config-standard": "^36.0.0"
+  },
+  "dependencies": {
+    "playwright": "^1.61.1"
+  }
+}

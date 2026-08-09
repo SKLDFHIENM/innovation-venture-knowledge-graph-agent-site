@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>项目评估报告 - 三专家视角 | 创新创业课程知识图谱智能体</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+            background: #0B0F19;
+            color: #E2E8F0;
+            line-height: 1.8;
+            padding: 0;
+        }
+        .report-container {
+            max-width: 960px;
+            margin: 0 auto;
+            padding: 60px 32px 80px;
+        }
+        .report-header {
+            text-align: center;
+            margin-bottom: 48px;
+            padding-bottom: 32px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        .report-header h1 {
+            font-size: 28px;
+            font-weight: 900;
+            background: linear-gradient(135deg, #06B6D4, #3B82F6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 12px;
+        }
+        .report-header .subtitle {
+            font-size: 14px;
+            color: #64748B;
+        }
+        .report-header .meta {
+            font-size: 12px;
+            color: #475569;
+            margin-top: 8px;
+        }
+
+        /* Expert Section */
+        .expert-section {
+            margin-bottom: 56px;
+        }
+        .expert-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 24px;
+            padding: 20px 24px;
+            border-radius: 16px;
+            border: 1px solid rgba(255,255,255,0.08);
+        }
+        .expert-header.ui { background: linear-gradient(135deg, rgba(59,130,246,0.12), rgba(6,182,212,0.08)); border-color: rgba(59,130,246,0.25); }
+        .expert-header.course { background: linear-gradient(135deg, rgba(16,185,129,0.12), rgba(34,197,94,0.08)); border-color: rgba(16,185,129,0.25); }
+        .expert-header.design { background: linear-gradient(135deg, rgba(245,158,11,0.12), rgba(239,68,68,0.08)); border-color: rgba(245,158,11,0.25); }
+
+        .expert-icon {
+            width: 52px; height: 52px;
+            border-radius: 14px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 24px; font-weight: 900;
+            flex-shrink: 0;
+        }
+        .expert-icon.ui { background: linear-gradient(135deg, #2563EB, #06B6D4); color: #fff; }
+        .expert-icon.course { background: linear-gradient(135deg, #059669, #10B981); color: #fff; }
+        .expert-icon.design { background: linear-gradient(135deg, #D97706, #F59E0B); color: #fff; }
+
+        .expert-title h2 { font-size: 19px; font-weight: 800; color: #F8FAFC; }
+        .expert-title p { font-size: 12.5px; color: #94A3B8; }
+
+        /* Score Badge */
+        .score-badge {
+            margin-left: auto;
+            text-align: center;
+            flex-shrink: 0;
+        }
+        .score-num {
+            font-size: 32px;
+            font-weight: 900;
+            font-family: ui-monospace, monospace;
+        }
+        .score-num.a { color: #10B981; }
+        .score-num.b { color: #06B6D4; }
+        .score-num.c { color: #F59E0B; }
+        .score-label { font-size: 10px; color: #64748B; text-transform: uppercase; letter-spacing: 0.05em; }
+
+        /* Content Blocks */
+        .content-block {
+            margin-bottom: 28px;
+        }
+        .block-title {
+            font-size: 15px;
+            font-weight: 800;
+            color: #F8FAFC;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .block-title .dot {
+            width: 8px; height: 8px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+        .dot.green { background: #10B981; }
+        .dot.amber { background: #F59E0B; }
+        .dot.red { background: #EF4444; }
+        .dot.blue { background: #3B82F6; }
+
+        .issue-list {
+            list-style: none;
+            padding: 0;
+        }
+        .issue-list li {
+            padding: 12px 16px;
+            margin-bottom: 8px;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 10px;
+            font-size: 14px;
+            color: #CBD5E1;
+            line-height: 1.7;
+            position: relative;
+            padding-left: 38px;
+        }
+        .issue-list li::before {
+            content: '';
+            position: absolute;
+            left: 16px;
+            top: 18px;
+            width: 6px; height: 6px;
+            border-radius: 50%;
+        }
+        .issue-list li.good::before { background: #10B981; }
+        .issue-list li.warn::before { background: #F59E0B; }
+        .issue-list li.critical::before { background: #EF4444; }
+        .issue-list li.info::before { background: #3B82F6; }
+
+        .issue-list strong { color: #F8FAFC; }
+        .issue-list code {
+            background: rgba(6,182,212,0.12);
+            color: #06B6D4;
+            padding: 1px 6px;
+            border-radius: 4px;
+            font-size: 12.5px;
+            font-family: ui-monospace, monospace;
+        }
+
+        /* Summary Table */
+        .summary-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 16px;
+            font-size: 13.5px;
+        }
+        .summary-table th {
+            background: rgba(255,255,255,0.06);
+            color: #06B6D4;
+            font-weight: 800;
+            padding: 12px 14px;
+            text-align: left;
+            border-bottom: 2px solid rgba(255,255,255,0.1);
+            font-size: 13px;
+        }
+        .summary-table td {
+            padding: 12px 14px;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+            color: #94A3B8;
+            vertical-align: top;
+        }
+        .summary-table tr:hover td { background: rgba(255,255,255,0.02); color: #CBD5E1; }
+
+        .priority-tag {
+            display: inline-block;
+            font-size: 11px;
+            font-weight: 800;
+            padding: 2px 8px;
+            border-radius: 4px;
+        }
+        .priority-tag.p0 { background: rgba(239,68,68,0.15); color: #F87171; border: 1px solid rgba(239,68,68,0.3); }
+        .priority-tag.p1 { background: rgba(245,158,11,0.15); color: #FBBF24; border: 1px solid rgba(245,158,11,0.3); }
+        .priority-tag.p2 { background: rgba(59,130,246,0.15); color: #60A5FA; border: 1px solid rgba(59,130,246,0.3); }
+
+        .overall-summary {
+            margin-top: 48px;
+            padding: 32px;
+            background: linear-gradient(135deg, rgba(37,99,235,0.08), rgba(6,182,212,0.05));
+            border: 1px solid rgba(59,130,246,0.2);
+            border-radius: 16px;
+        }
+        .overall-summary h2 {
+            font-size: 20px;
+            font-weight: 900;
+            color: #F8FAFC;
+            margin-bottom: 16px;
+        }
+        .overall-summary p {
+            font-size: 14px;
+            color: #94A3B8;
+            line-height: 1.8;
+            margin-bottom: 12px;
+        }
+        .action-checklist {
+            margin-top: 20px;
+        }
+        .action-checklist h3 {
+            font-size: 15px;
+            font-weight: 800;
+            color: #06B6D4;
+            margin-bottom: 12px;
+        }
+        .action-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            font-size: 13.5px;
+            color: #CBD5E1;
+        }
+        .action-item:last-child { border-bottom: none; }
+        .action-num {
+            width: 24px; height: 24px;
+            border-radius: 6px;
+            background: rgba(6,182,212,0.15);
+            color: #06B6D4;
+            font-size: 12px;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+    </style>
+</head>
+<body class="day-mode">
+<div class="report-container">
+
+    <div class="report-header">
+        <h1>创新创业课程知识图谱智能体 - 项目评估报告</h1>
+        <div class="subtitle">从 UI 设计师 / 课程专家 / 教学设计专家 三个维度进行系统性评审</div>
+        <div class="meta">评估日期：2026-08-04 · 评估范围：全部 11 个核心页面 + 27 个 Deck + 数据层 + 样式架构</div>
+    </div>
+
+    <!-- ════════════════════════════════════════════ -->
+    <!-- 专家一：UI 设计师视角 -->
+    <!-- ════════════════════════════════════════════ -->
+    <div class="expert-section">
+        <div class="expert-header ui">
+            <div class="expert-icon ui">UI</div>
+            <div class="expert-title">
+                <h2>专家一：UI 设计师视角</h2>
+                <p>视觉一致性 · 设计系统 · 交互体验 · 响应式 · 可访问性</p>
+            </div>
+            <div class="score-badge">
+                <div class="score-num c">72</div>
+                <div class="score-label">综合评分 / 100</div>
+            </div>
+        </div>
+
+        <div class="content-block">
+            <div class="block-title"><span class="dot green"></span> 亮点做得好的地方</div>
+            <ul class="issue-list">
+                <li class="good"><strong>暗色玻璃拟态视觉语言高级感强</strong>：<code>index.html</code> 首屏采用了 <code>backdrop-filter: blur(16px)</code> + 半透明卡片 + 微光边框的组合，在教育类平台中辨识度很高，整体"科技+学术"调性统一。</li>
+                <li class="good"><strong>CSS 变量体系已建立基础</strong>：<code>:root</code> 中定义了 <code>--accent-emerald</code>、<code>--accent-cyan</code>、<code>--accent-blue</code> 等语义化色值，为后续主题切换打了基础。</li>
+                <li class="good"><strong>PPT 主题库极其丰富</strong>：<code>css/ppt/themes/</code> 下有 39 套主题（Tokyo Night、Cyberpunk Neon、Swiss Grid 等），展示了很强的设计探索能力，适合不同教学场景。</li>
+                <li class="good"><strong>知识图谱大屏交互完整</strong>：ECharts 力导向图 + 缩放/复位工具栏 + 节点点击侧栏详情，形成了完整的图谱探索交互闭环。</li>
+                <li class="good"><strong>响应式断点已覆盖</strong>：<code>@media (max-width: 1200px)</code> 和 <code>768px</code> 两级断点处理了核心布局的移动端降级。</li>
+            </ul>
+        </div>
+
+        <div class="content-block">
+            <div class="block-title"><span class="dot red"></span> 需要立即修复的问题 (P0)</div>
+            <table class="summary-table">
+                <thead>
+                    <tr><th style="width:60px;">优先级</th><th>问题</th><th>影响</th></tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><span class="priority-tag p0">P0</span></td>
+                        <td><strong>设计系统碎片化严重</strong>：<code>style.css</code> 定义的是亮色主题（<code>--bg-app: #F8FAFC</code>），而 <code>index.html</code> 在 <code>&lt;style&gt;</code> 标签中重新定义了完整的暗色变量体系并使用 <code>!important</code> 覆盖。多个页面（<code>exam.html</code>、<code>resources.html</code>、<code>glossary.html</code>）又在 <code>&lt;body&gt;</code> 标签上用内联样式硬编码 <code>background-color: #0b0f19</code>。导致全局样式表形同虚设。</td>
+                        <td>维护成本极高，任何颜色调整需要逐页修改</td>
+                    </tr>
+                    <tr>
+                        <td><span class="priority-tag p0">P0</span></td>
+                        <td><strong>页面间视觉风格不统一</strong>：<code>index.html</code> 是暗色玻璃拟态、<code>map.html</code> 是亮色学术风格、<code>admin.html</code> 有独立的锁屏动画和 Tab 系统、<code>chat.html</code> 又是另一种暗色科技风。用户在页面间跳转时视觉断裂感明显。</td>
+                        <td>用户认知负荷高，品牌一致性弱</td>
+                    </tr>
+                    <tr>
+                        <td><span class="priority-tag p0">P0</span></td>
+                        <td><strong>导航栏不统一</strong>：<code>index.html</code> 导航有 7 个锚点链接，<code>resources.html</code> 导航有 7 个页面链接（内容不同），<code>knowledge_graph.html</code> 又是另一套导航。部分页面导航缺少当前页高亮状态。</td>
+                        <td>用户迷失，无法快速定位当前位置</td>
+                    </tr>
+                    <tr>
+                        <td><span class="priority-tag p0">P0</span></td>
+                        <td><strong>内联样式泛滥</strong>：<code>resources.html</code>、<code>exam.html</code> 等页面在 HTML 标签上大量使用 <code>style="..."</code> 内联样式，例如 <code>&lt;header style="position:fixed; top:0; left:0; right:0; height:64px; background:rgba(11,15,25,0.85)..."&gt;</code>，几乎把整个导航栏写死在 HTML 中。</td>
+                        <td>无法复用、难以维护、违反关注点分离</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="content-block">
+            <div class="block-title"><span class="dot amber"></span> 需要优化的设计问题 (P1)</div>
+            <ul class="issue-list">
+                <li class="warn"><strong>字号层级过密</strong>：页面中大量使用 <code>12px</code>、<code>12.5px</code>、<code>13px</code>、<code>13.5px</code>、<code>14px</code> 等接近的字号，缺乏清晰的排版尺度阶梯（建议建立 <code>--text-xs / sm / base / lg / xl / 2xl</code> 体系）。</li>
+                <li class="warn"><strong>暗色模式对比度不足</strong>：<code>--text-muted: #64748B</code> 在 <code>#0B0F19</code> 背景上的对比度约为 3.2:1，低于 WCAG AA 标准的 4.5:1。大量辅助文字使用该颜色，影响可读性。</li>
+                <li class="warn"><strong>按钮和卡片缺少 focus 状态</strong>：键盘导航时无法看到焦点位置，不满足可访问性要求。仅有 <code>:hover</code> 而无 <code>:focus-visible</code>。</li>
+                <li class="warn"><strong>动效缺乏节奏感</strong>：所有 <code>transition</code> 统一使用 <code>0.25s</code>，没有根据交互层级区分动效时长（如微交互 100-150ms、区域切换 250-300ms、场景过渡 400ms+）。</li>
+                <li class="warn"><strong>图标使用过于密集</strong>：导航栏、卡片标题、按钮中几乎处处有 FontAwesome 图标，视觉噪音较大。建议在同级文字链中保持一致性，不要部分有图标部分没有。</li>
+                <li class="warn"><strong>亮/暗模式切换不完整</strong>：<code>student.html</code> 和 <code>admin.html</code> 有 <code>body.day-mode</code> / <code>body.dark-mode</code> 的样式分支，但 <code>index.html</code> 完全没有模式切换能力，亮暗模式支持是碎片化的。</li>
+                <li class="warn"><strong>移动端导航缺失</strong>：<code>index.html</code> 在 <code>768px</code> 以下直接 <code>display: none</code> 隐藏导航菜单，但没有提供汉堡菜单替代方案，移动用户无法导航到其他页面。</li>
+            </ul>
+        </div>
+
+        <div class="content-block">
+            <div class="block-title"><span class="dot blue"></span> 改进建议</div>
+            <ul class="issue-list">
+                <li class="info"><strong>建立统一设计 Token 系统</strong>：将所有颜色、字号、间距、圆角、阴影抽离为 CSS 变量，放入 <code>style.css</code> 的 <code>:root</code> 中，各页面引用而非重复定义。建议参考 Tailwind / Design Tokens 规范。</li>
+                <li class="info"><strong>统一导航组件</strong>：抽取为 <code>js/components/navbar.js</code> 或服务端 include，所有页面共享同一套导航结构和样式，通过 <code>data-active</code> 属性标记当前页。</li>
+                <li class="info"><strong>选择统一的主视觉风格</strong>：建议以暗色玻璃拟态为主基调（因为已有大量暗色页面），将 <code>map.html</code> 等亮色页面统一为暗色，或建立完整的亮/暗双主题并全量适配。</li>
+                <li class="info"><strong>建立排版尺度</strong>：建议使用 <code>12 / 14 / 16 / 18 / 24 / 32 / 48px</code> 的 7 级尺度，页面中不使用这 7 个值以外的字号。</li>
+                <li class="info"><strong>添加移动端汉堡菜单</strong>：使用 CSS <code>transform</code> + JS toggle 实现抽屉式移动导航。</li>
+                <li class="info"><strong>清理内联样式</strong>：将所有 <code>style="..."</code> 内联样式迁移到 CSS class 中，预计可减少 40%+ 的 HTML 体积。</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- ════════════════════════════════════════════ -->
+    <!-- 专家二：课程专家视角 -->
+    <!-- ════════════════════════════════════════════ -->
+    <div class="expert-section">
+        <div class="expert-header course">
+            <div class="expert-icon course">课</div>
+            <div class="expert-title">
+                <h2>专家二：课程专家视角</h2>
+                <p>课程目标对齐 · 内容完整性 · 知识体系 · 实践衔接 · 评价标准</p>
+            </div>
+            <div class="score-badge">
+                <div class="score-num b">81</div>
+                <div class="score-label">综合评分 / 100</div>
+            </div>
+        </div>
+
+        <div class="content-block">
+            <div class="block-title"><span class="dot green"></span> 课程设计的亮点</div>
+            <ul class="issue-list">
+                <li class="good"><strong>OBE 成果导向框架清晰</strong>：6 大 CLO（课程学习成果）与知识模块、PBL 任务、评价方式形成了四列对齐矩阵，权重分配合理（20%/25%/25%/30%），符合 OBE 理念"以终为始"的设计逻辑。</li>
+                <li class="good"><strong>9 课 18 学时结构紧凑</strong>：从"认识双创→商机识别→环境研判→客户定位→画布设计→原型验证→股权治理→融资谈判→路演答辩"的链条完整覆盖了精益创业方法论的核心环节。</li>
+                <li class="good"><strong>PBL 任务设计有梯度</strong>：18 个子任务从"技能清单与角色连结"（低门槛破冰）到"Term Sheet 模拟谈判"（高阶实战），认知层次递进合理。</li>
+                <li class="good"><strong>优秀奖案例库有真实感</strong>：4 个创新创业大赛优秀奖案例（智农芯云、医路同行、绿能未来、文创智绘）覆盖了农业科技、医疗健康、绿色低碳、数字硬科技四个赛道，与当前国家"四新"战略对齐。</li>
+                <li class="good"><strong>术语词典功能完善</strong>：独立的双创核心术语词典页面（<code>glossary.html</code>）对 JTBD、BMC、MVP、LTV/CAC 等专业术语进行解释，降低了学生的认知门槛。</li>
+            </ul>
+        </div>
+
+        <div class="content-block">
+            <div class="block-title"><span class="dot red"></span> 需要立即关注的问题 (P0)</div>
+            <table class="summary-table">
+                <thead>
+                    <tr><th style="width:60px;">优先级</th><th>问题</th><th>建议</th></tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><span class="priority-tag p0">P0</span></td>
+                        <td><strong>知识节点数量声称与实际不符</strong>：首屏宣称"28 个知识图谱节点"，但 <code>data.js</code> 中实际定义的节点数量为 28 个（1 个根节点 + 9 个课时节点 + 18 个子任务节点）。数据差距 4 倍以上。</td>
+                        <td>要么补充节点数据至 28 个（建议拆分到知识点级别，如"SCAMPER 七法"的 7 个子技术各为一个节点），要么修改宣传数字为实际值。</td>
+                    </tr>
+                    <tr>
+                        <td><span class="priority-tag p0">P0</span></td>
+                        <td><strong>CLO 编号在页面间不一致</strong>：<code>index.html</code> 中 CLO 矩阵列了 4 行（CLO 1-4），但雷达图和学情看板中出现了 CLO 5 和 CLO 6。首屏声称"6 大 CLO 能力维度"，但矩阵表只展示了 4 个。</td>
+                        <td>统一为 6 个 CLO 并在矩阵中完整展示，或将雷达图维度与矩阵对齐。</td>
+                    </tr>
+                    <tr>
+                        <td><span class="priority-tag p0">P0</span></td>
+                        <td><strong>PBL 任务编号不连续</strong>：<code>index.html</code> 的 PBL 卡片展示了 Task 01/02/03/05，缺少 Task 04。但 <code>data.js</code> 中 18 个子任务编号为 11/12/21/22.../92，两套编号体系混用。</td>
+                        <td>统一任务编号体系，确保所有任务在首页可见或提供"查看全部"入口。</td>
+                    </tr>
+                    <tr>
+                        <td><span class="priority-tag p0">P0</span></td>
+                        <td><strong>缺少教学大纲 PDF 的深度结构化</strong>：项目目录中有 <code>支撑材料11.《大学生创新创业基础》必修课教学大纲.pdf</code>，但平台未将其内容结构化呈现到 <code>map.html</code> 中，仅作为下载资源。</td>
+                        <td>将大纲的学时分配、教学方法、考核方式等核心信息结构化展示在课程地图页面。</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="content-block">
+            <div class="block-title"><span class="dot amber"></span> 课程内容优化建议 (P1)</div>
+            <ul class="issue-list">
+                <li class="warn"><strong>缺少"失败案例"或"反面教材"</strong>：所有案例都是优秀奖成功案例，建议增加"创业失败案例分析"模块，帮助学生建立风险意识和避坑能力，这本身就是创业教育的核心目标之一。</li>
+                <li class="warn"><strong>知识产权与法律合规内容薄弱</strong>：9 次课中仅第 3 课"环境研判与合规防错"涉及法律内容，建议增加"知识产权保护（专利/商标/著作权）"和"创业法律风险防范"专题。</li>
+                <li class="warn"><strong>AI 工具与创业的结合不够深入</strong>：虽然提到了"AI 落地页开发"和"AI 导师智能体"，但缺少系统性的"AI 赋能创业"教学内容，如 AI 辅助市场调研、AI 生成商业计划书、AI 驱动的 MVP 快速验证等方法论。</li>
+                <li class="warn"><strong>跨学科融合体现不足</strong>：双创课程应面向不同专业学生，但现有内容偏重互联网/科技创业，缺少社会创新、文创创业、乡村振兴等多元路径的针对性指导。</li>
+                <li class="warn"><strong>Rubric 评分量规信息过于简略</strong>：<code>index.html</code> 中 Task 评价规程仅用一两句话描述"优秀/合格/待改进"三档，缺少具体的评分维度和评分点描述。专业 Rubric 应包含 3-5 个维度 × 4 级表现的详细矩阵。</li>
+                <li class="warn"><strong>缺少课程思政元素</strong>：作为高校必修课，应融入"家国情怀""社会责任""科技向善"等思政元素。当前案例虽有绿色低碳等主题，但未显性化提炼思政教学目标。</li>
+            </ul>
+        </div>
+
+        <div class="content-block">
+            <div class="block-title"><span class="dot blue"></span> 课程内容补充建议</div>
+            <ul class="issue-list">
+                <li class="info"><strong>建议增加"创业伦理与社会责任"模块</strong>：在 CLO 5 或 CLO 6 中增加创业伦理维度，引导学生思考商业决策的社会影响。</li>
+                <li class="info"><strong>建议增加"数字创业"专题</strong>：涵盖直播电商、AIGC 内容创业、平台经济等新型创业形态，与当前学生关注度高的领域对齐。</li>
+                <li class="info"><strong>建议增加"乡村振业创业"路径</strong>：结合国家乡村振兴战略，提供涉农创业的特色案例和资源，拓宽创业视野。</li>
+                <li class="info"><strong>建议引入"创业模拟沙盘"环节</strong>：在 Task 03-05 之间增加一个综合模拟环节，让学生在虚拟环境中体验完整的创业决策循环。</li>
+                <li class="info"><strong>建议与"互联网+"和"挑战杯"赛事深度绑定</strong>：将创新创业大赛评审标准结构化展示，并提供历年获奖项目的深度拆解（不只是 4 个案例的简介）。</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- ════════════════════════════════════════════ -->
+    <!-- 专家三：教学设计专家视角 -->
+    <!-- ════════════════════════════════════════════ -->
+    <div class="expert-section">
+        <div class="expert-header design">
+            <div class="expert-icon design">教</div>
+            <div class="expert-title">
+                <h2>专家三：教学设计专家视角</h2>
+                <p>学习路径 · 教学策略 · 评价设计 · 个性化学习 · 技术赋能</p>
+            </div>
+            <div class="score-badge">
+                <div class="score-num b">78</div>
+                <div class="score-label">综合评分 / 100</div>
+            </div>
+        </div>
+
+        <div class="content-block">
+            <div class="block-title"><span class="dot green"></span> 教学设计的亮点</div>
+            <ul class="issue-list">
+                <li class="good"><strong>知识图谱可视化支持非线性学习</strong>：ECharts 力导向图展示了知识点之间的前置依赖和跨模块关联，学生可以自主探索学习路径，突破了线性课表的局限。</li>
+                <li class="good"><strong>AI 智能体分层辅助设计合理</strong>：4 大专项智能体（痛点挖掘 Agent / 财务精算 Agent / BP 撰写 Agent / 模拟路演 Agent）分别对应不同 CLO 的能力训练需求，形成"AI 辅导老师"角色矩阵。</li>
+                <li class="good"><strong>三方评价机制设计科学</strong>："学生自评互评 30% + 教师督导 50% + 企业专家盲审 20%"的权重分配兼顾了过程性评价和结果性评价，引入企业专家视角增强了评价的行业真实性。</li>
+                <li class="good"><strong>学情看板有预警机制</strong>：CLO 达成度低于 0.70 红线时自动预警，并给出改进策略建议（如"增加 1 学时精益财务演练"），形成了"诊断-反馈-干预"的教学闭环。</li>
+                <li class="good"><strong>闪电活动设计有创新</strong>：<code>activities.html</code> 的 24 个 45 分钟微课中心，"提交/思考/求助"三角色流程看板设计，体现了课堂互动管理的创新思路。</li>
+            </ul>
+        </div>
+
+        <div class="content-block">
+            <div class="block-title"><span class="dot red"></span> 需要优先解决的教学设计问题 (P0)</div>
+            <table class="summary-table">
+                <thead>
+                    <tr><th style="width:60px;">优先级</th><th>问题</th><th>教学影响</th></tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><span class="priority-tag p0">P0</span></td>
+                        <td><strong>缺少前置知识诊断和分层入口</strong>：学生进入平台后没有能力前测或学习风格诊断，所有人看到相同内容。不同专业背景（理工 vs 文科）的学生创业基础差异巨大，需要差异化学习路径。</td>
+                        <td>基础好的学生觉得太简单，基础弱的学生跟不上</td>
+                    </tr>
+                    <tr>
+                        <td><span class="priority-tag p0">P0</span></td>
+                        <td><strong>学习进度追踪机制不完整</strong>：<code>student.html</code> 有档案和登录功能，但缺少学习路径记录、任务完成进度追踪、知识点掌握度标记等功能。学生无法知道自己"学到哪了"。</td>
+                        <td>学习过程不可见，学生缺乏成就感和持续动力</td>
+                    </tr>
+                    <tr>
+                        <td><span class="priority-tag p0">P0</span></td>
+                        <td><strong>AI 对话是模拟而非真实可用</strong>：<code>index.html</code> 中的 AI 对话框是前端模拟的固定回复（<code>setTimeout</code> + 预设模板），<code>chat.html</code> 虽有 108 题预置 Q&A，但缺少真正的 NLP/AI 对话能力。</td>
+                        <td>学生体验后会发现 AI 是"假的"，信任度下降</td>
+                    </tr>
+                    <tr>
+                        <td><span class="priority-tag p0">P0</span></td>
+                        <td><strong>缺少协作学习支持</strong>：PBL 任务明确要求团队完成（如"10 户用户访谈""BMC 画布绘制"），但平台没有团队协作功能（团队空间、任务分配、协作编辑、互评打分等）。</td>
+                        <td>PBL 的核心价值——协作学习——无法在平台上落地</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="content-block">
+            <div class="block-title"><span class="dot amber"></span> 教学设计优化建议 (P1)</div>
+            <ul class="issue-list">
+                <li class="warn"><strong>布鲁姆认知层级覆盖不均衡</strong>：当前任务设计偏重"应用"和"创造"层级（MVP 搭建、BP 撰写），但"分析"和"评价"层级的任务偏少。建议增加"分析成功/失败案例的关键决策点""评价不同商业模式的优劣"等任务。</li>
+                <li class="warn"><strong>反馈机制单一</strong>：学情看板只有数值和进度条，缺少质性反馈（教师评语、同伴反馈、AI 分析建议）。建议在任务提交后提供多维度的反馈报告。</li>
+                <li class="warn"><strong>缺少学习反思环节</strong>：每个 PBL 任务完成后没有结构化的反思引导（如"你学到了什么？遇到了什么困难？下次会怎么做 differently？"）。反思是经验学习理论（Kolb 循环）的关键环节。</li>
+                <li class="warn"><strong>知识图谱缺少学习状态标记</strong>：图谱节点应显示"已掌握/学习中/未开始"状态，让学生通过图谱直观看到自己的学习进度，但目前节点仅有知识内容没有学习状态。</li>
+                <li class="warn"><strong>考试测评与 PBL 任务脱节</strong>：<code>exam.html</code> 的综合测评与 PBL 任务体系的关联关系不清晰。建议明确标注每道题目对应的 CLO 和知识点，形成"教-学-评"一致性。</li>
+                <li class="warn"><strong>缺少差异化学习路径推荐</strong>：平台应能根据学生的专业、兴趣（科技创业 vs 社会创新）和学习数据，推荐个性化的学习路径和案例资源。</li>
+            </ul>
+        </div>
+
+        <div class="content-block">
+            <div class="block-title"><span class="dot blue"></span> 教学设计创新建议</div>
+            <ul class="issue-list">
+                <li class="info"><strong>引入翻转课堂支持</strong>：为每个课时提供"课前预习材料+课中活动设计+课后巩固任务"的三段式设计，将知识图谱作为课前自主学习的导航工具。</li>
+                <li class="info"><strong>增加"创业决策模拟器"</strong>：设计一个交互式决策模拟工具，让学生在虚拟创业场景中做关键决策（定价、招聘、融资），并看到决策后果，强化体验式学习。</li>
+                <li class="info"><strong>建立"学习徽章"激励体系</strong>：完成每个 CLO 对应的任务群后获得数字徽章（如"痛点猎手""MVP 极客""路演达人"），增强学习动力和成就感。</li>
+                <li class="info"><strong>设计"同伴互评"结构化流程</strong>：在 PBL 任务提交后，系统自动分配 3 位同伴进行互评，使用 Rubric 量表打分 + 文字反馈，减少教师负担同时促进学生深度学习。</li>
+                <li class="info"><strong>知识图谱增加"学习路径推荐"功能</strong>：基于学生的当前能力和目标，AI 推荐最优学习路径（如"你的 CLO 2 较弱，建议先学习模块三的 BMC 画布基础，再完成 Task 03"）。</li>
+                <li class="info"><strong>增加"创业日志"功能</strong>：让学生在整个课程中持续记录创业想法的变化、关键决策的思考和反思，作为过程性评价的重要依据。</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- ════════════════════════════════════════════ -->
+    <!-- 总体总结 -->
+    <!-- ════════════════════════════════════════════ -->
+    <div class="overall-summary">
+        <h2>总体评估结论</h2>
+        <p>
+            该项目在<strong>课程框架设计</strong>和<strong>技术实现广度</strong>上展现了很高的完成度——OBE 成果导向理念贯穿始终，9 课 18 学时的知识体系完整，ECharts 知识图谱、AI 智能体矩阵、学情看板、PBL 任务系统、PPT 演播系统等功能模块覆盖了"教-学-评-管"全链路。作为一个高校双创课程的教学平台，其<strong>功能丰富度和理念先进性</strong>已经超过了多数同类产品。
+        </p>
+        <p>
+            但项目最核心的问题是<strong>"广度有余、深度不足"</strong>：页面数量多但设计系统碎片化、功能模块多但交互深度不够、案例数量少且拆解不充分、AI 对话为模拟而非真实可用。这些问题不影响演示效果，但在<strong>真实教学使用</strong>中会显著影响师生体验。
+        </p>
+
+        <div class="action-checklist">
+            <h3>建议的优先改进行动（按紧急程度排序）</h3>
+            <div class="action-item">
+                <div class="action-num">1</div>
+                <div><strong>统一设计系统</strong>：将所有页面的 CSS 变量、导航栏、配色方案统一到一套设计 Token 中，消除内联样式和 <code>!important</code> 覆盖。（预计工作量：2-3 天）</div>
+            </div>
+            <div class="action-item">
+                <div class="action-num">2</div>
+                <div><strong>修正数据一致性</strong>：统一 CLO 编号体系（4 个还是 6 个）、知识节点数量（128 还是 28）、PBL 任务编号，确保所有页面数据一致。（预计工作量：1 天）</div>
+            </div>
+            <div class="action-item">
+                <div class="action-num">3</div>
+                <div><strong>补充知识图谱节点数据</strong>：将 28 个节点扩展到真实的 28 个，拆分到知识点级别，并在节点上标记学习状态。（预计工作量：2-3 天）</div>
+            </div>
+            <div class="action-item">
+                <div class="action-num">4</div>
+                <div><strong>完善 Rubric 评分量规</strong>：为 18 个 PBL 任务各编写完整的 Rubric 矩阵（3-5 维度 × 4 级表现），取代当前的一两句话描述。（预计工作量：2 天）</div>
+            </div>
+            <div class="action-item">
+                <div class="action-num">5</div>
+                <div><strong>实现学习进度追踪</strong>：在 <code>student.html</code> 中增加任务完成状态、知识点掌握度、学习时长统计等功能，让学习过程可见。（预计工作量：3-5 天）</div>
+            </div>
+            <div class="action-item">
+                <div class="action-num">6</div>
+                <div><strong>增加移动端导航</strong>：为所有页面添加响应式汉堡菜单，确保移动端可正常导航。（预计工作量：0.5 天）</div>
+            </div>
+            <div class="action-item">
+                <div class="action-num">7</div>
+                <div><strong>接入真实 AI 对话能力</strong>：将 AI 导师从模拟回复升级为真实的大模型 API 调用，或至少丰富 Q&A 知识库至覆盖更多场景。（预计工作量：视方案而定）</div>
+            </div>
+            <div class="action-item">
+                <div class="action-num">8</div>
+                <div><strong>增加失败案例和创业伦理内容</strong>：补充 2-3 个创业失败案例的深度拆解，并在课程中显性化融入思政教学目标。（预计工作量：2 天）</div>
+            </div>
+        </div>
+    </div>
+
+</div>
+</body>
+</html>

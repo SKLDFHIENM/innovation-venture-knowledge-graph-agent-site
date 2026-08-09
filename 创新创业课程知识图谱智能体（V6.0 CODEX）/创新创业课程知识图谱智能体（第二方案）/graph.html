@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>实战能力图谱 - 《大学生创新创业基础》OBE 能力系统</title>
+    <!-- FontAwesome 6.x SVG+JS 离线库 -->
+    <script src="js/all.min.js" defer></script>
+    <!-- 自定义主样式表 -->
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        /* ═══════════════════════════════════════════════════════
+           完全严格对标 knowledge_graph.html 风格范式 (简约极客版)
+           ═══════════════════════════════════════════════════════ */
+        html, body {
+            height: 100% !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            overflow: hidden !important;
+            background: #0b0f19 !important;
+            color: #f8fafc !important;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
+        header, .global-navbar {
+            position: sticky !important;
+            top: 0 !important;
+            z-index: 1000 !important;
+            background: #0b0f19 !important;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+        }
+
+        main, .knowledge-main-viewport {
+            padding: 0 !important;
+            overflow: hidden !important;
+            height: calc(100vh - 65px) !important;
+            position: relative !important;
+            box-sizing: border-box !important;
+            display: flex !important;
+            flex-direction: column !important;
+        }
+
+        #pane-graph {
+            display: flex !important;
+            width: 100% !important;
+            height: 100% !important;
+            overflow: hidden !important;
+            position: relative !important;
+        }
+
+        .graph-viewport {
+            flex: 1 !important;
+            min-width: 0 !important;
+            height: 100% !important;
+            position: relative !important;
+            background: #090D16 !important;
+            display: flex !important;
+            flex-direction: column !important;
+            align-items: center !important;
+            justify-content: center !important;
+            padding: 20px !important;
+        }
+
+        #radar-canvas-box {
+            width: 100% !important;
+            max-width: 500px !important;
+            aspect-ratio: 1 / 1 !important;
+            position: relative !important;
+        }
+
+        #radar-chart {
+            width: 100% !important;
+            height: 100% !important;
+        }
+
+        /* 侧边信息栏完全对标 knowledge_graph.html */
+        .info-sidebar {
+            width: 360px !important;
+            min-width: 320px !important;
+            flex-shrink: 0 !important;
+            height: 100% !important;
+            background: #111827 !important;
+            border-left: 1px solid rgba(255, 255, 255, 0.08) !important;
+            display: flex !important;
+            flex-direction: column !important;
+            overflow-y: auto !important;
+            word-break: break-word !important;
+            padding: 20px !important;
+        }
+
+        .side-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+
+        .warning-box {
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.12) 0%, rgba(255,255,255,0.02) 100%);
+            border: 1px solid rgba(245, 158, 11, 0.35);
+            border-left: 4px solid #f59e0b;
+            border-radius: 8px;
+            padding: 14px;
+            margin-bottom: 16px;
+        }
+
+        .score-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px dashed rgba(255,255,255,0.08);
+            font-size: 13px;
+        }
+
+        @media (max-width: 1024px) {
+            #pane-graph { flex-direction: column !important; overflow-y: auto !important; }
+            .info-sidebar { width: 100% !important; height: auto !important; }
+        }
+    </style>
+</head>
+<body id="app-root" class="dark-mode">
+
+<!-- 粒子背景画布 -->
+<canvas id="particles-canvas" style="position:fixed; top:0; left:0; width:100vw; height:100vh; z-index:-9999; pointer-events:none;"></canvas>
+
+<!-- 顶部导航 Header (对标 knowledge_graph.html 范式) -->
+<header class="global-navbar">
+    <div class="logo-area" style="display:flex; align-items:center;">
+        <div class="school-badge">
+            <i class="fas fa-graduation-cap"></i>
+        </div>
+        <div class="logo-text-group">
+            <span class="logo-main">高校双创平台</span>
+            <span class="logo-course">《大学生创新创业基础》· 课程学习智能体</span>
+        </div>
+        <a href="help.html" class="logo-version-badge" title="查看使用说明" style="text-decoration:none; display:inline-flex; align-items:center; gap:5px; background:rgba(0,194,224,0.12); border:1px solid rgba(0,194,224,0.25); color:var(--cyan); font-size:11px; padding:3px 8px; border-radius:12px; margin-left:12px; font-weight:700;">
+            <span class="version-dot" style="width:6px; height:6px; background:#10b981; border-radius:50%; box-shadow:0 0 5px #10b981;"></span>
+            v6.7 OBE-Matrix (2026.07.21)
+        </a>
+    </div>
+
+    <div class="header-tools">
+        <nav>
+            <a class="nav-item" href="index.html"><i class="fas fa-home"></i><span class="nav-text"> 首页</span></a>
+            <a class="nav-item" href="map.html"><i class="fas fa-map-marked-alt"></i><span class="nav-text"> 课程地图</span></a>
+            <a class="nav-item" href="knowledge_graph.html"><i class="fas fa-brain"></i><span class="nav-text"> 理论知识图谱</span></a>
+            <a class="nav-item active" href="graph.html"><i class="fas fa-chart-radar"></i><span class="nav-text"> 实战能力图谱</span></a>
+            <a class="nav-item" href="chat.html"><i class="fas fa-comments"></i><span class="nav-text"> AI导师</span></a>
+            <a class="nav-item" href="activities.html"><i class="fas fa-bolt"></i><span class="nav-text"> 闪电活动</span></a>
+            <a class="nav-item" href="resources.html"><i class="fas fa-cubes"></i><span class="nav-text"> 任务资源</span></a>
+            <a class="nav-item" href="admin.html" style="color:#fbbf24; font-weight:800;"><i class="fas fa-user-tie"></i><span class="nav-text"> 教师控制台</span></a>
+            <a class="nav-item" href="student.html"><i class="fas fa-user-graduate"></i><span class="nav-text"> 我的档案</span></a>
+            <div class="nav-dropdown">
+                <span class="nav-item nav-dropdown-trigger"><i class="fas fa-ellipsis-h"></i> 更多 ▾</span>
+                <div class="nav-dropdown-menu">
+                    <a href="glossary.html"><i class="fas fa-book"></i> 术语词典</a>
+                    <a href="presentation.html"><i class="fas fa-desktop"></i> 大屏演示</a>
+                    <a href="exam.html"><i class="fas fa-poll-h"></i> 综合测评</a>
+                </div>
+            </div>
+        </nav>
+        <button class="nav-search-trigger" onclick="openCmdKModal()" title="全站快捷搜索 (Ctrl + K)">
+            <i class="fas fa-search"></i> <span>搜索...</span> <kbd>Ctrl K</kbd>
+        </button>
+        <button id="theme-toggle-btn" onclick="toggleTheme()" title="切换日夜主题" aria-label="切换主题">🌙</button>
+    </div>
+</header>
+
+<main class="knowledge-main-viewport">
+    <!-- 顶部 Banner (对标 knowledge_graph.html 头部 Banner 区分) -->
+    <div style="background:rgba(245, 158, 11, 0.08); border-bottom:1px solid rgba(245, 158, 11, 0.25); padding:8px 24px; display:flex; justify-content:space-between; align-items:center; flex-shrink:0; backdrop-filter:blur(10px);">
+        <div style="font-size:12.5px; color:#e2e8f0; display:flex; align-items:center; gap:8px;">
+            <span style="background:rgba(245, 158, 11, 0.2); color:#fbbf24; padding:2px 8px; border-radius:6px; font-weight:800; font-size:11px;"><i class="fas fa-chart-radar"></i> 能力域 (怎么做)</span>
+            <span><strong>OBE 实战能力图谱 (大二通识版)：</strong>评估 6 大维度达标度，提供「警示提示 → 理论补修 → AI导师」轻量修复路径。</span>
+        </div>
+        <div style="display:flex; gap:10px; align-items:center;">
+            <button onclick="window.print()" style="background:#2563eb; color:#fff; border:none; padding:4px 12px; border-radius:12px; font-size:12px; font-weight:800; cursor:pointer;">
+                <i class="fas fa-file-pdf"></i> 📥 导出报告 (PDF)
+            </button>
+            <a href="knowledge_graph.html" style="background:rgba(0,242,254,0.15); border:1px solid #00f2fe; color:#00f2fe; padding:3px 12px; border-radius:12px; text-decoration:none; font-size:12px; font-weight:800;">
+                <i class="fas fa-brain"></i> 切换至【🧠 理论知识图谱】
+            </a>
+        </div>
+    </div>
+
+    <!-- 主体解耦区域 (对标 knowledge_graph.html pane-graph) -->
+    <div class="view-pane active" id="pane-graph">
+        
+        <!-- 左侧/中间：雷达图拓扑画布 -->
+        <div class="graph-viewport">
+            <div style="margin-bottom:12px; text-align:center;">
+                <h3 style="margin:0; font-size:16px; font-weight:800; color:#f8fafc;">OBE 六维能力评估雷达 (阶梯化双轨线)</h3>
+                <p style="margin:4px 0 0 0; font-size:12px; color:#94a3b8;">绿虚线：75分校/省铜奖达标线 | 金虚线：85分国金冲刺线</p>
+            </div>
+
+            <div id="radar-canvas-box">
+                <div id="radar-chart"></div>
+            </div>
+        </div>
+
+        <!-- 右侧：侧边诊断与 18 项能力细则面板 (对标 knowledge_graph.html info-sidebar) -->
+        <aside class="info-sidebar">
+            
+            <!-- C5 靶向引导预警 -->
+            <div class="warning-box">
+                <div style="font-size:14px; font-weight:800; color:#fbbf24; margin-bottom:6px;">
+                    <i class="fas fa-lightbulb"></i> C5 团队领航与股权治理 (70分)
+                </div>
+                <div style="font-size:12px; color:#cbd5e1; line-height:1.5; margin-bottom:10px;">
+                    <b>大二通俗解构：</b>团队怎么分家与合伙人契约。<br>
+                    本项为团队组建黄金防坑点，卡点在合伙人离职回购与退股机制。
+                </div>
+                <a href="chat.html?prompt=老师，我们是大二团队，合伙人没有出资全是技术，怎么设计退股回购协议才不会有矛盾？" style="display:inline-block; background:linear-gradient(135deg,#4facfe,#00f2fe); color:#050b18; padding:6px 12px; border-radius:6px; text-decoration:none; font-size:12px; font-weight:800;">
+                    🤖 咨询 AI 导师退股防坑 ➔
+                </a>
+            </div>
+
+            <!-- 六维达标度概览 -->
+            <div class="side-card">
+                <h4 style="margin:0 0 10px 0; font-size:14px; color:#38bdf8;">六维能力达标度概览</h4>
+                <div class="score-row"><span>C1 痛点洞察力</span><strong style="color:#34d399;">88分 (达标)</strong></div>
+                <div class="score-row"><span>C2 MVP 构建力</span><strong style="color:#38bdf8;">75分 (中等)</strong></div>
+                <div class="score-row"><span>C3 商业模式闭环</span><strong style="color:#34d399;">92分 (优秀)</strong></div>
+                <div class="score-row"><span>C4 路演答辩防御</span><strong style="color:#c084fc;">82分 (达标)</strong></div>
+                <div class="score-row" style="color:#fbbf24;"><span>C5 团队与股权治理</span><strong>70分 (提示)</strong></div>
+                <div class="score-row"><span>C6 资金政策落地</span><strong style="color:#f472b6;">85分 (达标)</strong></div>
+            </div>
+
+            <!-- 18 项 PBL 实战能力节点概览 -->
+            <div class="side-card">
+                <h4 style="margin:0 0 10px 0; font-size:14px; color:#f8fafc;">18 项 PBL 实战能力节点</h4>
+                <div style="font-size:12.5px; color:#cbd5e1; line-height:1.8;">
+                    <div>✔️ M1 认识理论与思维 (3 项完成)</div>
+                    <div>✔️ M2 精益开发与 MVP (3 项完成)</div>
+                    <div>✔️ M3 商业规划与模式 (3 项完成)</div>
+                    <div>✔️ M4 大赛求职与表达 (3 项完成)</div>
+                    <div style="color:#fbbf24; font-weight:bold;">⚠️ M5 团队与股权治理 (当前弱项)</div>
+                    <div>✔️ M6 政策落地与资源 (3 项完成)</div>
+                </div>
+            </div>
+
+        </aside>
+    </div>
+</main>
+
+<!-- 脚本引入 (纯粹简单直接) -->
+<script src="js/echarts.min.js"></script>
+<script src="js/data.js"></script>
+<script src="js/data_details.js"></script>
+<script src="js/app.js"></script>
+
+<script>
+// ── 雷达图初始化 (纯粹干净) ──
+var radarChart = null;
+function initRadarChart() {
+    var container = document.getElementById('radar-chart');
+    if (!container || typeof echarts === 'undefined') return;
+
+    if (radarChart) radarChart.dispose();
+    radarChart = echarts.init(container);
+
+    var option = {
+        backgroundColor: 'transparent',
+        tooltip: { trigger: 'item' },
+        radar: {
+            center: ['50%', '50%'],
+            radius: '68%',
+            indicator: [
+                { name: 'C1 痛点洞察 (88分)', max: 100 },
+                { name: 'C2 MVP构建 (75分)', max: 100 },
+                { name: 'C3 商业闭环 (92分)', max: 100 },
+                { name: 'C4 答辩防御 (82分)', max: 100 },
+                { name: 'C5 股权治理 (70分)💡', max: 100 },
+                { name: 'C6 政策落地 (85分)', max: 100 }
+            ],
+            axisName: { color: '#cbd5e1', fontSize: 12, fontWeight: 'bold' },
+            splitLine: { lineStyle: { color: 'rgba(255,255,255,0.1)' } },
+            splitArea: { show: true, areaStyle: { color: ['rgba(255,255,255,0.02)', 'rgba(255,255,255,0.05)'] } },
+            axisLine: { lineStyle: { color: 'rgba(255,255,255,0.15)' } }
+        },
+        series: [{
+            type: 'radar',
+            data: [
+                {
+                    value: [88, 75, 92, 82, 70, 85],
+                    name: '我的得分',
+                    symbol: 'circle', symbolSize: 6,
+                    itemStyle: { color: '#00f2fe' },
+                    lineStyle: { color: '#00f2fe', width: 2.5 },
+                    areaStyle: { color: 'rgba(0, 242, 254, 0.25)' }
+                },
+                {
+                    value: [75, 75, 75, 75, 75, 75],
+                    name: '75分 校/省铜奖达标线',
+                    symbol: 'none',
+                    lineStyle: { color: '#34d399', width: 1.5, type: 'dashed' }
+                },
+                {
+                    value: [85, 85, 85, 85, 85, 85],
+                    name: '85分 国金冲刺线',
+                    symbol: 'none',
+                    lineStyle: { color: '#fbbf24', width: 1.5, type: 'dashed' }
+                }
+            ]
+        }]
+    };
+
+    radarChart.setOption(option);
+}
+
+window.addEventListener('DOMContentLoaded', function() {
+    setTimeout(initRadarChart, 150);
+    window.addEventListener('resize', function() {
+        if (radarChart) radarChart.resize();
+    });
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>使用与开发说明 - 《大学生创新创业基础》项目制智能体</title>
+    <!-- FontAwesome 6.x SVG+JS 离线库 -->
+    <script src="js/all.min.js" defer></script>
+    <!-- 自定义主样式表 -->
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        main {
+            overflow-y: auto !important;
+            height: calc(100vh - 70px) !important;
+            padding: 30px var(--spacing-lg);
+            box-sizing: border-box;
+        }
+        .help-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+        .changelog-timeline {
+            position: relative;
+            padding-left: 30px;
+            margin-top: 15px;
+            border-left: 2px solid rgba(0, 194, 224, 0.2);
+        }
+        .changelog-item {
+            position: relative;
+            margin-bottom: 25px;
+        }
+        .changelog-item::before {
+            content: '';
+            position: absolute;
+            left: -37px;
+            top: 5px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--cyan);
+            border: 3px solid var(--bg-dark);
+            box-shadow: 0 0 8px var(--cyan);
+        }
+        .changelog-item.current::before {
+            background: var(--accent);
+            box-shadow: 0 0 10px var(--accent);
+        }
+        .changelog-version {
+            font-size: 16px;
+            font-weight: 800;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .changelog-date {
+            font-size: 12px;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+        .changelog-content {
+            margin-top: 8px;
+            font-size: 13.5px;
+            color: var(--text-sub);
+            line-height: 1.6;
+        }
+        .changelog-content ul {
+            margin-top: 5px;
+            padding-left: 20px;
+        }
+        .changelog-content li {
+            margin-bottom: 4px;
+        }
+    </style>
+<style>
+.global-footer {
+    background: rgba(8, 15, 30, 0.95);
+    border-top: 1px solid rgba(0, 242, 254, 0.15);
+    padding: 16px 24px;
+    margin-top: auto;
+    font-size: 12px;
+    color: #94a3b8;
+    box-sizing: border-box;
+    width: 100%;
+}
+.footer-content {
+    max-width: 1400px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+.footer-device-tags {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+.device-badge {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 11px;
+    color: #cbd5e1;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+}
+@media (max-width: 768px) {
+    .footer-content {
+        flex-direction: column;
+        text-align: center;
+    }
+    .footer-content > div {
+        text-align: center !important;
+    }
+    .footer-device-tags {
+        justify-content: center;
+    }
+}
+</style>
+</head>
+<body id="app-root" class="dark-mode" style="background:#090D16; color:#f8fafc;">
+
+<!-- 动态粒子背景画布 -->
+<canvas id="particles-canvas"></canvas>
+
+<!-- 顶部导航 Header -->
+        <!-- 全局统一精细化 Header 导航栏 -->
+    <header class="global-navbar">
+    <div class="logo-area">
+        <img src="images/school_logo.png" alt="校徽" class="school-logo-img">
+        <div class="logo-text-group">
+            <div class="logo-title">
+                <span class="logo-main-name">《大学生创新创业基础》</span>
+                <span class="logo-sub-name">· 课程知识图谱-课程智能体</span>
+            </div>
+        </div>
+        <div class="logo-slogan-wrap">
+            <span class="slogan-calligraphy-badge" title="中国国际大学生创新大赛精神">
+                <img src="images/slogan_calligraphy_transparent.png" alt="敢闯会创" class="slogan-img">
+            </span>
+            <a href="help.html" class="logo-version-badge" title="查看 Changelog 版本更新日志">
+                <span class="version-dot"></span>
+                <span>v6.0 Official</span>
+            </a>
+        </div>
+    </div>
+    <div class="nav-right-area">
+        <div class="nav-items-wrap">
+            <a class="nav-item " href="index.html"><i class="fas fa-home"></i> 首页</a>
+            <a class="nav-item " href="map.html"><i class="fas fa-map-signs"></i> 课程地图</a>
+            <a class="nav-item " href="knowledge_graph.html"><i class="fas fa-project-diagram"></i> 理论知识图谱</a>
+            <a class="nav-item " href="graph.html"><i class="fas fa-brain"></i> 实战能力图谱</a>
+            <a class="nav-item " href="gold_cases.html"><i class="fas fa-award"></i> 金奖案例</a>
+            <a class="nav-item " href="competition.html"><i class="fas fa-trophy"></i> 双创大赛</a>
+            <a class="nav-item " href="chat.html"><i class="fas fa-comments"></i> AI导师</a>
+            <a class="nav-item " href="activities.html"><i class="fas fa-bolt"></i> 闪电活动</a>
+            
+            <div class="nav-dropdown">
+                <a class="nav-item" href="javascript:void(0)"><i class="fas fa-ellipsis-h"></i> 更多 ▾</a>
+                <div class="nav-dropdown-menu">
+                    <a href="notice_analysis.html"><i class="fas fa-file-alt"></i> 大赛通知解读</a>
+                    <a href="resources.html"><i class="fas fa-folder-open"></i> 任务资源</a>
+                    <a href="exam.html"><i class="fas fa-clipboard-check"></i> 综合测评</a>
+                    <a href="glossary.html"><i class="fas fa-book"></i> 术语词典</a>
+                    <a href="admin.html"><i class="fas fa-user-shield"></i> 教师控制台</a>
+                    <a href="student.html"><i class="fas fa-user-graduate"></i> 我的档案</a>
+                    <a href="help.html"><i class="fas fa-question-circle"></i> 帮助与日志</a>
+                </div>
+            </div>
+        </div>
+        <button class="nav-search-trigger" onclick="if(window.openGlobalSearchModal) openGlobalSearchModal();">
+            <i class="fas fa-search"></i>
+            <span>搜索...</span>
+            <kbd>Ctrl K</kbd>
+        </button>
+        <button id="theme-toggle-btn" title="切换暗黑/白天模式" onclick="if(window.toggleTheme) toggleTheme();">
+            <i class="fas fa-moon"></i>
+        </button>
+    </div>
+</header>
+
+<main>
+    <div class="help-container">
+        <!-- 头部标题栏 -->
+        <div class="resources-header glass-panel" style="padding: 25px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
+            <div>
+                <span class="pres-badge" style="background: var(--accent); color: white; padding: 2px 8px; font-size: 11px;">v5.5 Refactored</span>
+                <h2 style="margin-top: 5px; margin-bottom: 5px;"><i class="fas fa-info-circle"></i> 课程智能体使用与开发说明</h2>
+                <p style="margin: 0;">《大学生创新创业基础》PBL项目式金课智能辅助系统 · 独立帮助指南与迭代日志</p>
+            </div>
+            <a href="index.html" class="action-btn primary-gradient"><i class="fas fa-arrow-left"></i> 返回平台首页</a>
+        </div>
+
+        <!-- 详细说明网格 -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
+            <!-- 开发与设计说明 -->
+            <div class="glass-panel" style="padding: 22px;">
+                <h3 style="font-size: 16px; color: var(--secondary); font-weight: 800; border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 10px; margin-bottom: 12px;">
+                    <i class="fas fa-pencil-alt"></i> 系统开发与设计说明
+                </h3>
+                <div style="font-size: 13.5px; color: var(--text-sub); line-height: 1.7; display: flex; flex-direction: column; gap: 8px;">
+                    <p><strong>1. 项目定位</strong>：本平台旨在为高校《大学生创新创业基础》课程提供数字化、交互式的知识图谱教学辅助。将枯燥的大纲知识点重构为直观的能力图谱、课程地图与实战任务矩阵。</p>
+                    <p><strong>2. 教学理念</strong>：全面贯彻 <strong>PBL (Project-Based Learning) 项目式教学</strong> 理念。摒弃传统的死记硬背，将课程划分为 9 次大课（18学时），串联 18 项实操演练任务，以终为始，通过任务产出驱动理论学习。</p>
+                    <p><strong>3. 技术特点</strong>：采用原生 HTML/CSS/JS 构建，融入了微光粒子画布、自适应日夜主题切换、高颜值玻璃拟物（Glassmorphic）设计。内置 AI 对话助手、股权比例智能估算器、商业画布交互导出等功能，全面支持现代化智慧教室大屏物理触摸操作。</p>
+                </div>
+            </div>
+
+            <!-- 教学使用建议 -->
+            <div class="glass-panel" style="padding: 22px;">
+                <h3 style="font-size: 16px; color: var(--secondary); font-weight: 800; border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 10px; margin-bottom: 12px;">
+                    <i class="fas fa-chalkboard-teacher"></i> 教学实施与操作建议
+                </h3>
+                <div style="font-size: 13.5px; color: var(--text-sub); line-height: 1.7; display: flex; flex-direction: column; gap: 8px;">
+                    <p><strong>1. 大屏多媒体投影投影</strong>：在多媒体教室的大屏上演示时，教师可在首页或地图中直接<strong>触摸点击 18 项核心实战矩阵徽章</strong>，系统会即时弹出<strong>“全屏PPT大字号投影层”</strong>，支持左右物理手势翻页、答辩问题即点即显、大字提示，确保最后一排学生清晰可见。</p>
+                    <p><strong>2. PBL 课堂活动组织</strong>：建议教师在每堂 2 学时的课程中，将 70% 的时间交由学生开展“跨学科技能连结扑克牌”、“盈亏平衡保本销量算账PK”或“模拟 TS 轮投资谈判”等小组内博弈，发挥学生主动性。</p>
+                    <p><strong>3. 考核与评价机制</strong>：系统为 18 项子任务均制定了明确的“核心成果审核评价清单（Review）”，教师可对照大屏幕上的标准进行课堂打分或作业评定，构建过程性评价闭环。</p>
+                </div>
+            </div>
+        </div>
+
+        
+        <!-- 双创课程改革与备赛大纲说明 -->
+        <div class="glass-panel" style="padding: 25px;">
+            <h3 style="font-size: 17px; color: var(--text-main); font-weight: 800; border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 10px; margin-bottom: 15px;">
+                <i class="fas fa-file-invoice"></i> 《大学生创新创业基础》18学时课改与备赛辅导大纲
+            </h3>
+            
+            <h4 style="color:var(--cyan); font-size:14.5px; margin: 15px 0 8px 0;"><i class="fas fa-balance-scale"></i> 32学时至18学时双创课程改革修订说明</h4>
+            <p style="font-size:13px; color:var(--text-sub); line-height:1.6; margin:0 0 15px 0;">
+                根据高校新经济常识及一流本科课程（金课）建设规范，本课程将传统的 32 学时纯理论课程重构为 <strong>18 学时（9 次里程碑大课，每次 2 学时）的敏捷 PBL 项目制翻转课堂</strong>。课程削减了传统冗长的灌输式讲授，将教学绝对重心锚定在“机会识别、MVP（最小可行产品）开发、股权确权与路演防御”等核心实战成果上，通过“过程性考核雷达”和“3+3+4”评分机制促使学生在实操中理解 Sarasvathy 效果推理和 Ries 精益创业双法则，确保教学效果不减、实战质量倍增。
+            </p>
+
+            <h4 style="color:var(--cyan); font-size:14.5px; margin: 15px 0 8px 0;"><i class="fas fa-bolt"></i> 8学时/16学时 备赛辅导大纲 (中国国际大学生创新大赛与“挑战杯”)</h4>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; font-size:12.5px; color:var(--text-sub); line-height:1.65;">
+                <div style="background:rgba(255,255,255,0.01); border:1px solid rgba(255,255,255,0.04); border-radius:8px; padding:15px;">
+                    <strong style="color:#fff; font-size:13.5px;"><i class="fas fa-rocket"></i> 8学时高效备赛大纲 (适用于急骤演练)</strong>
+                    <ul style="margin:8px 0 0 0; padding-left:18px; list-style-type: decimal;">
+                        <li><strong>第一讲 (2学时)</strong>：核心机会与商业痛点挖掘（SCAMPER（奔驰法） & 效果推理冷启动）</li>
+                        <li><strong>第二讲 (2学时)</strong>：商业模式画布 (BMC（商业模式画布）) 九要素智能校验（精益创业与 MVP（最小可行产品） 测试）</li>
+                        <li><strong>第三讲 (2学时)</strong>：团队出资、股权动态成熟 (Vesting（股权分期成熟机制）) 确权与思思政红线</li>
+                        <li><strong>第四讲 (2学时)</strong>：3分钟路演 Pitch 润色与评审专家高压答辩防守对抗</li>
+                    </ul>
+                </div>
+                <div style="background:rgba(255,255,255,0.01); border:1px solid rgba(255,255,255,0.04); border-radius:8px; padding:15px;">
+                    <strong style="color:#fff; font-size:13.5px;"><i class="fas fa-trophy"></i> 16学时金奖冲刺大纲 (适用于系统孵化)</strong>
+                    <ul style="margin:8px 0 0 0; padding-left:18px; list-style-type: decimal;">
+                        <li><strong>第一讲</strong>：SCAMPER（奔驰法）、TRIZ（发明问题解决理论） 思维工具与真实痛点挖掘</li>
+                        <li><strong>第二讲</strong>：宏观合规 PEST（宏观环境分析） 研判与用户真实差评监听分析</li>
+                        <li><strong>第三讲</strong>：产品三层次定位与 MVP（最小可行产品） 极简原型快速搭建</li>
+                        <li><strong>第四讲</strong>：精益画布 BMC（商业模式画布） 九要素一致性打磨与付费测试</li>
+                        <li><strong>第五讲</strong>：合伙人动态确权与 Vesting（股权分期成熟机制） 股权控制权锁定</li>
+                        <li><strong>第六讲</strong>：财务预算、客单获取 (CAC) 与盈亏平衡 (BEP（盈亏平衡点）) 核算</li>
+                        <li><strong>第七讲</strong>：商业计划书 (BP) 商业计划书十模块结构撰写与四层次摘要</li>
+                        <li><strong>第八讲</strong>：大屏 PPT 演示排版、3分钟黄金路演与评委对抗</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- 版本迭代记录 (Changelog) -->
+        <div class="glass-panel" style="padding: 25px;">
+            <h3 style="font-size: 17px; color: var(--text-main); font-weight: 800; border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 10px; margin-bottom: 15px;">
+                <i class="fas fa-history"></i> 版本迭代更新日志 (Changelog)
+            </h3>
+            
+            <div class="changelog-timeline">
+                <div class="changelog-item current">
+                    <div class="changelog-version">
+                        <span>v6.0 CODEX 增强版 (当前版本)</span>
+                        <span class="changelog-date">2026-07-24</span>
+                    </div>
+                    <div class="changelog-content">
+                        <p><strong>全站功能重构、国赛金奖案例库与全终端交互升维：</strong></p>
+                        <ul>
+                            <li><strong>新增《全国大学生双创金奖案例选编》 (`gold_cases.html`)</strong>：深度收录“高原农产品边缘 AI 分拣”、“非遗纹样 AIGC 重构”等教育部国赛金奖案例，集成了高阶渐变 PPT 封面设计与商业壁垒/AI 赋能弹窗剖析。</li>
+                            <li><strong>大屏演播与演示系统彻底修复与增强</strong>：全面修正 `presentation.html` 幻灯片布局算法，消除页面并排重叠异常，实现 16:9 标准单页演播；新增黑金尊享、纯白极简、深海极光、霓虹紫罗兰等 6 种经典教学主题色系；为悬浮控制菜单引入原生鼠标/触摸拖拽交互。</li>
+                            <li><strong>创新创业能力图谱重构</strong>：升级 `graph.html`，完全镜像 `knowledge_graph.html` 核心 ECharts 引擎与双向联动抽屉，并在首页 `index.html` 精准聚焦嵌入“创新创业实战能力拆解”模块。</li>
+                            <li><strong>学术语言规范与全设备自适应</strong>：全站扫描并清理“黑科技”、“降维打击”等夸张杂糅用词，全面提升为符合高校教学规范的严谨学术表达；全站部署 mobile/tablet/desktop/touch screen 统一响应式页脚 (`app-footer`)。</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="changelog-item">
+                    <div class="changelog-version">
+                        <span>v5.8 全场景教学模态与微课演播系统</span>
+                        <span class="changelog-date">2026-07-22</span>
+                    </div>
+                    <div class="changelog-content">
+                        <p><strong>微课活动与演示联动系统：</strong></p>
+                        <ul>
+                            <li><strong>微课活动与演示联动</strong>：整合 8 大教学章节与 33 套 PBL 互动微课，支持从知识节点、微课列表一键调出 16:9 全屏答辩与理论演播大屏。</li>
+                            <li><strong>键盘快捷控制与交互升级</strong>：支持 `F` 全屏切换、`Space/PageDown` 下一页、`PageUp` 上一页、`Esc` 退出演播，提升大屏授课效率。</li>
+                            <li><strong>学情管理与多端状态协同</strong>：优化 `admin.html` 教师管理后台与 `student.html` 学生端的数据状态流转与本地离线持久化。</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="changelog-item">
+                    <div class="changelog-version">
+                        <span>v5.5 Modern JS Framework & 100% Offline UI</span>
+                        <span class="changelog-date">2026-07-19</span>
+                    </div>
+                    <div class="changelog-content">
+                        <p><strong>主流 JS 框架重构与全离线精美 UI 升级：</strong></p>
+                        <ul>
+                            <li><strong>主流前端框架集成</strong>：新增 `js/modules/framework.js` 模块，引入响应式 Store 状态数据管理、离线持久化与全局通知 UI 引擎。</li>
+                            <li><strong>全站 100% 离线支持</strong>：彻底清理与核查项目内所有网络 CDN 依赖，保障无网环境下的流畅完美运行。</li>
+                            <li><strong>精美大气视觉升级</strong>：全面提升高阶极光 Glassmorphic 拟态、卡片 3D 浮动及微动效呈现。</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="changelog-item">
+                    <div class="changelog-version">
+                        <span>v5.0 动态知识图谱与 PBL 项目制架构升级</span>
+                        <span class="changelog-date">2026-07-18</span>
+                    </div>
+                    <div class="changelog-content">
+                        <p><strong>动态拓扑网络与项目制研讨模态：</strong></p>
+                        <ul>
+                            <li><strong>核心 ECharts 知识网络</strong>：上线 `knowledge_graph.html` 拓扑力导向图，实现 8 大课程模块与 33 个核心知识节点的动态关联、防碰撞布局与实时筛选。</li>
+                            <li><strong>交互式抽屉面板</strong>：点击图谱节点即时滑出抽屉，实时展现理论解析、思考题、案例剖析与对应大屏微课入口。</li>
+                            <li><strong>项目研讨与学习路线</strong>：上线 `map.html` 学习路线图与 `activities.html` 教学活动研讨模块。</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="changelog-item">
+                    <div class="changelog-version">
+                        <span>v4.0 智能导学与全套课程数字化</span>
+                        <span class="changelog-date">2026-07-05</span>
+                    </div>
+                    <div class="changelog-content">
+                        <p><strong>智能问答、学术词典与自测考试系统：</strong></p>
+                        <ul>
+                            <li><strong>专业术语词典系统</strong>：上线 `glossary.html` 双创专业术语词典，提供 100+ 专业名词解释、拼音索引与全文检索功能。</li>
+                            <li><strong>智能问答与思维导图</strong>：上线 `chat.html` 智能对话界面，支持双创启发式问答与思维导图生成导出。</li>
+                            <li><strong>自动化测试与试题库</strong>：上线 `exam.html` 章节测验与综合模拟考试系统。</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="changelog-item">
+                    <div class="changelog-version">
+                        <span>v3.0 跨终端响应式适配与触摸教学屏支持</span>
+                        <span class="changelog-date">2026-06-28</span>
+                    </div>
+                    <div class="changelog-content">
+                        <p><strong>全终端设备自适应与教学视觉提质：</strong></p>
+                        <ul>
+                            <li><strong>全终端设备自适应</strong>：全面针对手机、iPad/平板电脑、PC 桌面与智慧教室触摸大屏进行 Media Query 断点适配与手势优化。</li>
+                            <li><strong>高阶教学 UI 样式表</strong>：升级 `css/style.css`，引入高对比度教学色系、微动效与玻璃拟态视觉风格。</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="changelog-item">
+                    <div class="changelog-version">
+                        <span>v2.0 课程体系数字化与微课资源整合</span>
+                        <span class="changelog-date">2026-06-20</span>
+                    </div>
+                    <div class="changelog-content">
+                        <p><strong>数字化教案与核心资源中心：</strong></p>
+                        <ul>
+                            <li><strong>全课程内容结构化</strong>：梳理 8 大教学章节（团队构建、痛点识别、MVP验证、商业模式画布、财务核算、路演答辩等）数字化教案。</li>
+                            <li><strong>基础演播框架搭建</strong>：搭建首版 Slide 演播组件与教学资源中心 (`resources.html`)。</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="changelog-item">
+                    <div class="changelog-version">
+                        <span>v1.0 Release 基础版发布</span>
+                        <span class="changelog-date">2026-06-15</span>
+                    </div>
+                    <div class="changelog-content">
+                        <p><strong>创客原型上线：</strong>《大学生创新创业基础》课程知识图谱智能体原型发布，提供基础教案浏览与节点展示。</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+</main>
+
+<!-- 脚本引入 (100% 离线) -->
+<script src="js/data.js"></script>
+<script src="js/modules/namespace.js"></script>
+<script src="js/modules/framework.js"></script>
+<script src="js/modules/main_framework.js"></script>
+<script src="js/app.js"></script>
+
+<script>
+if (typeof window.openPresentation !== 'function') {
+  window.openPresentation = function(deckId) {
+    window.open('presentation.html?deck=' + (deckId || '1'), '_blank');
+  };
+}
+if (typeof window.openGlobalPresModal !== 'function') {
+  window.openGlobalPresModal = function(deckId) {
+    window.openPresentation(deckId);
+  };
+}
+</script>
+
+<footer class="global-footer">
+    <div class="footer-content">
+        <div>
+            <div style="font-weight:800; color:#e2e8f0; font-size:13.5px; margin-bottom:4px;">《大学生创新创业基础》课程知识图谱智能体 V6.0</div>
+            <div>国家级一流本科课程配套 PBL 项目制智能化教学与演播系统</div>
+        </div>
+        <div class="footer-device-tags">
+            <span class="device-badge"><i class="fas fa-mobile-alt"></i> 手机自适应</span>
+            <span class="device-badge"><i class="fas fa-laptop"></i> 电脑台式端</span>
+            <span class="device-badge"><i class="fas fa-tablet-alt"></i> 平板端</span>
+            <span class="device-badge"><i class="fas fa-tv"></i> 触摸教学大屏</span>
+        </div>
+        <div style="text-align:right;">
+            <div>© 2026 创新创业金课智能体团队 保留所有权利</div>
+            <div style="font-size:11px; color:#475569; margin-top:2px;">服务端状态: Normal | 端口: 8000</div>
+        </div>
+    </div>
+</footer>
+</body>
+</html>

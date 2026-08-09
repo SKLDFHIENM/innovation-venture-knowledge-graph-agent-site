@@ -1,0 +1,1209 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>任务资源 - 《大学生创新创业基础》课程智能体</title>
+    <script src="js/all.min.js" defer></script>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/ux-enhance.css">
+    <style>
+        main {
+            overflow-y: auto;
+            height: calc(100vh - var(--nav-height));
+            padding-bottom: 50px;
+        }
+        .resources-container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+
+        .resources-header {
+            background: var(--bg-card); border: 1px solid var(--border-color);
+            border-radius: 20px; padding: 30px; text-align: center;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+        }
+        .resources-header h2 { color: var(--text-main); font-size: 22px; font-weight: 900; margin-bottom: 10px; }
+        .resources-header h2 i { color: var(--primary-blue); }
+        .resources-header p { color: var(--text-muted); font-size: 14px; max-width: 850px; margin: 0 auto; line-height: 1.7; }
+
+        .resources-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+            gap: 16px;
+        }
+        .resource-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
+            transition: all 0.25s;
+            padding: 20px;
+            display: flex;
+            gap: 16px;
+            align-items: flex-start;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+        }
+        .resource-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.08); transform: translateY(-2px); }
+
+        .resource-icon {
+            width: 56px; height: 56px; border-radius: 14px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 22px; flex-shrink: 0;
+        }
+        .m1-color { background: rgba(239,68,68,0.1); color: #dc2626; }
+        .m2-color { background: rgba(245,158,11,0.1); color: #d97706; }
+        .m3-color { background: rgba(37,99,235,0.1); color: var(--primary-blue); }
+        .m4-color { background: rgba(139,92,246,0.1); color: #7c3aed; }
+        .m5-color { background: rgba(16,185,129,0.1); color: #059669; }
+
+        .resource-info { flex: 1; }
+        .resource-info h3 { color: var(--text-main); font-size: 15px; font-weight: 800; margin: 8px 0 6px; }
+        .resource-info p { color: var(--text-muted); font-size: 13px; line-height: 1.5; margin: 0 0 12px; }
+        .resource-download-btn {
+            padding: 7px 16px; border-radius: 10px;
+            font-size: 12.5px; font-weight: 700; cursor: pointer;
+            border: none; display: inline-flex; align-items: center; gap: 6px;
+            transition: all 0.2s;
+        }
+        .resource-download-btn.active {
+            background: var(--primary-blue); color: #FFFFFF;
+        }
+        .resource-download-btn.active:hover { background: #1d4ed8; }
+        .resource-download-btn.outline {
+            background: transparent; color: var(--primary-blue); border: 1px solid var(--primary-blue);
+        }
+
+        .filter-btn {
+            border-radius: 20px; padding: 6px 16px; font-size: 12.5px;
+            font-weight: 700; cursor: pointer; border: 1px solid var(--border-color);
+            background: var(--bg-card); color: var(--text-muted);
+            transition: all 0.2s; display: inline-flex; align-items: center; gap: 5px;
+        }
+        .filter-btn.active {
+            background: var(--primary-blue); color: #FFFFFF; border-color: var(--primary-blue);
+        }
+        .filter-btn:hover:not(.active) {
+            border-color: var(--primary-blue); color: var(--primary-blue);
+        }
+
+        .interactive-bmc-box {
+            background: var(--bg-card); border: 1px solid var(--border-color);
+            border-radius: 16px; padding: 24px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+        }
+        .bmc-header {
+            display: flex; justify-content: space-between; align-items: flex-start;
+            flex-wrap: wrap; gap: 12px;
+        }
+        .bmc-header h2 { margin: 0; font-size: 18px; font-weight: 900; color: var(--primary-blue); }
+        .bmc-header p { color: var(--text-muted); font-size: 13px; margin-top: 6px; }
+        .bmc-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+        .action-btn {
+            padding: 8px 16px; border-radius: 10px; font-size: 12.5px;
+            font-weight: 700; cursor: pointer; border: 1px solid var(--border-color);
+            background: var(--bg-card); color: var(--text-muted);
+            display: inline-flex; align-items: center; gap: 6px;
+            transition: all 0.2s;
+        }
+        .action-btn:hover { border-color: var(--primary-blue); color: var(--primary-blue); }
+        .action-btn.primary-gradient {
+            background: var(--primary-blue); color: #FFFFFF; border: none;
+        }
+        .action-btn.primary-gradient:hover { background: #1d4ed8; }
+
+        .bmc-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            grid-template-rows: repeat(3, auto);
+            gap: 14px;
+            margin-top: 20px;
+        }
+        .bmc-cell {
+            background: var(--bg-subtle);
+            border: 1px solid var(--border-color);
+            border-radius: 12px; padding: 16px;
+            display: flex;
+            flex-direction: column;
+        }
+        .bmc-cell .bmc-textarea {
+            flex: 1;
+            min-height: 80px;
+        }
+        .bmc-cell.key-partners { grid-column: 1; grid-row: 1 / span 2; }
+        .bmc-cell.key-activities { grid-column: 2; grid-row: 1; }
+        .bmc-cell.key-resources { grid-column: 2; grid-row: 2; }
+        .bmc-cell.value-propositions { grid-column: 3; grid-row: 1 / span 2; }
+        .bmc-cell.customer-relationships { grid-column: 4; grid-row: 1; }
+        .bmc-cell.channels { grid-column: 4; grid-row: 2; }
+        .bmc-cell.customer-segments { grid-column: 5; grid-row: 1 / span 2; }
+        .bmc-cell.cost-structure { grid-column: 1 / span 3; grid-row: 3; }
+        .bmc-cell.revenue-streams { grid-column: 4 / span 2; grid-row: 3; }
+
+        .bmc-cell-title { font-size: 13px; font-weight: 800; margin-bottom: 6px; color: var(--text-main); }
+        .bmc-cell-desc { font-size: 11px; color: var(--text-muted); margin-bottom: 8px; }
+        .bmc-textarea {
+            width: 100%; min-height: 60px; padding: 8px 10px;
+            border-radius: 8px; border: 1px solid var(--border-color);
+            background: var(--bg-card); color: var(--text-main);
+            font-size: 12.5px; resize: vertical; outline: none;
+            box-sizing: border-box; font-family: inherit;
+        }
+        .bmc-textarea:focus { border-color: var(--primary-blue); }
+
+        /* Equity table inputs */
+        .eq-input {
+            width: 90px; padding: 6px; border-radius: 6px;
+            border: 1px solid var(--border-color); background: var(--bg-card);
+            color: var(--text-main); text-align: center; font-size: 13px;
+        }
+        .eq-input:focus { border-color: var(--primary-blue); outline: none; }
+
+        /* Stepper */
+        .bp-step-panel { display: none; }
+        .bp-step-panel.active { display: block; }
+        .bp-form-input {
+            width: 100%; padding: 8px; border-radius: 8px;
+            border: 1px solid var(--border-color); background: var(--bg-card);
+            color: var(--text-main); font-size: 13px; box-sizing: border-box;
+        }
+        .bp-form-input:focus { border-color: var(--primary-blue); outline: none; }
+        .bp-form-textarea {
+            width: 100%; height: 75px; padding: 8px; border-radius: 8px;
+            border: 1px solid var(--border-color); background: var(--bg-card);
+            color: var(--text-main); resize: vertical; box-sizing: border-box; font-size: 13px;
+        }
+        .bp-form-textarea:focus { border-color: var(--primary-blue); outline: none; }
+
+        .exit-card {
+            background: var(--bg-subtle); border: 1px solid var(--border-color);
+            padding: 12px; border-radius: 10px; cursor: pointer;
+            display: flex; justify-content: space-between; align-items: center;
+            transition: all 0.2s;
+        }
+        .exit-card.active {
+            background: rgba(37,99,235,0.06); border-color: var(--primary-blue);
+        }
+        .exit-card i.fa-check-circle { color: var(--primary-blue); font-size: 18px; }
+        .exit-card i.fa-circle { color: rgba(0,0,0,0.15); font-size: 18px; }
+
+        /* Excellent case modal */
+        .gp-modal-overlay {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.4);
+            display: none; align-items: center; justify-content: center;
+            z-index: 9999;
+        }
+        .gp-modal-overlay.open { display: flex; }
+        .gp-modal {
+            background: var(--bg-card); border: 1px solid var(--border-color);
+            border-radius: 18px; padding: 28px; max-width: 620px; width: 90%;
+            position: relative; box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+        }
+        .gp-modal-close {
+            position: absolute; top: 14px; right: 16px;
+            background: none; border: none; font-size: 20px;
+            cursor: pointer; color: var(--text-muted);
+        }
+        .gp-modal-title { font-size: 17px; font-weight: 900; margin-bottom: 16px; color: var(--primary-blue); }
+        .gp-modal-section {
+            background: var(--bg-subtle); padding: 14px; border-radius: 12px;
+            border: 1px solid var(--border-color); margin-top: 12px;
+        }
+        .gp-modal-section h4 { margin-top: 0; font-size: 13.5px; color: var(--primary-blue); }
+        .gp-modal-section p { font-size: 12.5px; color: var(--text-main); line-height: 1.6; margin: 0; }
+
+        @media (max-width: 1024px) {
+            .bmc-grid { grid-template-columns: 1fr; }
+            .bmc-cell.key-partners,
+            .bmc-cell.key-activities,
+            .bmc-cell.key-resources,
+            .bmc-cell.value-propositions,
+            .bmc-cell.customer-relationships,
+            .bmc-cell.channels,
+            .bmc-cell.customer-segments,
+            .bmc-cell.cost-structure,
+            .bmc-cell.revenue-streams { grid-column: 1 !important; grid-row: auto !important; }
+        }
+        @media (max-width: 768px) {
+            .resources-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body class="day-mode">
+
+<!-- 统一导航栏 -->
+<header class="site-header">
+    <div class="header-inner">
+        <a href="index.html" class="brand-logo">
+            <div class="brand-icon"><i class="fas fa-graduation-cap"></i></div>
+            <div>
+                <div class="brand-title">创新创业课程 OBE 智慧教学与评估平台</div>
+                <div class="brand-subtitle">Innovation & Entrepreneurship Mapping Engine v4.0</div>
+            </div>
+        </a>
+        <button class="nav-toggle" onclick="document.querySelector('.main-nav').classList.toggle('open')"><i class="fas fa-bars"></i></button>
+        <nav class="main-nav" aria-label="主导航">
+            <a href="index.html" class="nav-item"><i class="fas fa-compass"></i> 首页</a>
+            <a href="map.html" class="nav-item"><i class="fas fa-map"></i> 课程地图</a>
+            <a href="knowledge_graph.html" class="nav-item"><i class="fas fa-sitemap"></i> 知识图谱</a>
+                        <a href="competition.html" class="nav-item"><i class="fas fa-trophy"></i> 大赛专区</a>
+            <a href="gold_cases.html" class="nav-item"><i class="fas fa-award"></i> 示范案例</a>
+            <a href="student.html" class="nav-item"><i class="fas fa-user-graduate"></i> 能力矩阵</a>
+            <a href="activities.html" class="nav-item"><i class="fas fa-tasks"></i> PBL实战</a>
+            <a href="yunnan_qujing_startup.html" class="nav-item"><i class="fas fa-mountain"></i> 留滇留曲</a>
+            <a href="chat.html" class="nav-item"><i class="fas fa-robot"></i> AI导师</a>
+            <a href="admin.html" class="nav-item"><i class="fas fa-chart-line"></i> 学情看板</a>
+            <a href="resources.html" class="nav-item active"><i class="fas fa-cubes"></i> 资源库</a>
+            <a href="glossary.html" class="nav-item"><i class="fas fa-book-open"></i> 术语词典</a>
+        
+            <button id="theme-toggle-btn" class="nav-theme-toggle-btn" title="切换白天/夜间主题" onclick="if(window.toggleTheme) window.toggleTheme();"><i class="fas fa-sun"></i> <span>风格切换</span></button>
+        </nav>
+        <div class="nav-actions">
+            <a href="admin.html" class="btn-nav"><i class="fas fa-user-shield"></i> 教师/专家视图</a>
+        </div>
+    </div>
+</header>
+
+<main style="padding-top: 80px; min-height: calc(100vh - 80px);">
+
+    <!-- 离线隐私保护声明 (第 96 条) -->
+    <div style="max-width: 1200px; margin: 0 auto 20px auto; background: #EFF6FF; border: 1px solid #BFDBFE; border-radius: 12px; padding: 12px 20px; display: flex; align-items: center; justify-content: space-between; font-size: 13px; color: #1E40AF; box-shadow: 0 1px 3px rgba(0,0,0,0.05); gap: 12px; flex-wrap: wrap;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <i class="fas fa-shield-alt" style="color: #059669; font-size: 16px;"></i>
+            <span><strong>离线隐私保护声明：</strong> 本平台所有计算与填报数据仅保留在您的浏览器本地 (localStorage)，完整 本地离线安全，不会上传至任何外网服务器。</span>
+        </div>
+        <span style="background: #D1FAE5; color: #065F46; border: 1px solid #A7F3D0; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 800; white-space: nowrap;">完整 本地离线安全</span>
+    </div>
+            <div style="position:relative; width:260px;">
+                <i class="fas fa-search" style="position:absolute; left:12px; top:50%; transform:translateY(-50%); color:var(--text-muted); font-size:13px;"></i>
+                <input type="text" id="res-search-input" placeholder="搜索资源、模板或工具..." oninput="searchResourceCards(this.value)" style="width:100%; padding:7px 12px 7px 34px; border-radius:12px; font-size:13px; outline:none; background:var(--bg-card); border:1px solid var(--border-color); color:var(--text-main);">
+            </div>
+
+        <!-- 5大资源卡片 -->
+        <div class="resources-grid" id="main-resources-grid">
+            <div class="resource-card" data-cat="doc" data-type="m1-1" data-dl="2480" data-update="2026-07-28">
+                <div class="resource-icon m1-color"><i class="fas fa-file-alt"></i></div>
+                <div class="resource-info">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+                        <span style="font-size:10.5px; background:rgba(239,68,68,0.08); color:#dc2626; padding:2px 8px; border-radius:6px; font-weight:800;"><i class="fas fa-file-pdf"></i> PDF 指令集</span>
+                        <span style="font-size:11px; color:var(--text-muted);"><i class="fas fa-download"></i> 2,480 次下载</span>
+                    </div>
+                    <h3>M1-1: 产业痛点资讯搜寻指令集</h3>
+                    <p>包含新能源、高原特色农业及非遗文创产业痛点挖掘的高效搜索方法与提问 Prompt 模板。</p>
+                    <div class="res-meta">
+                        <span class="meta-chip"><i class="fas fa-file-pdf"></i> PDF · 2.4 MB</span>
+                        <span class="meta-chip"><i class="fas fa-clock"></i> 更新于 2026-07-28</span>
+                        <span class="meta-chip"><i class="fas fa-eye"></i> 阅读 2,480</span>
+                    </div>
+                    <button class="resource-download-btn active" onclick="openResourceReader('m1-1')"><i class="fas fa-book-open"></i> 免费阅读</button>
+                </div>
+            </div>
+
+            <div class="resource-card" data-cat="contract" data-type="m2-2" data-dl="1890" data-update="2026-07-20">
+                <div class="resource-icon m2-color"><i class="fas fa-chart-pie"></i></div>
+                <div class="resource-info">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+                        <span style="font-size:10.5px; background:rgba(245,158,11,0.08); color:#d97706; padding:2px 8px; border-radius:6px; font-weight:800;"><i class="fas fa-file-word"></i> DOCX 协议</span>
+                        <span style="font-size:11px; color:var(--text-muted);"><i class="fas fa-download"></i> 1,890 次下载</span>
+                    </div>
+                    <h3>M2-2: 合伙人协议与性格雷达测评</h3>
+                    <p>跨学科团队合伙人出资方式、性格互补雷达及岗位差距测算协议模板。</p>
+                    <div class="res-meta">
+                        <span class="meta-chip"><i class="fas fa-file-word"></i> DOCX · 1.1 MB</span>
+                        <span class="meta-chip"><i class="fas fa-clock"></i> 更新于 2026-07-20</span>
+                        <span class="meta-chip"><i class="fas fa-download"></i> 下载 1,890</span>
+                    </div>
+                    <button class="resource-download-btn active" onclick="downloadResourceFile('m2-2', this)"><i class="fas fa-download"></i> 下载模板</button>
+                </div>
+            </div>
+
+            <div class="resource-card" data-cat="tool" data-type="m3-5" data-dl="4520" data-update="2026-08-01">
+                <div class="resource-icon m3-color"><i class="fas fa-lightbulb"></i></div>
+                <div class="resource-info">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+                        <span style="font-size:10.5px; background:rgba(37,99,235,0.08); color:var(--primary-blue); padding:2px 8px; border-radius:6px; font-weight:800;"><i class="fas fa-laptop-code"></i> 交互工具</span>
+                        <span style="font-size:11px; color:var(--text-muted);"><i class="fas fa-fire" style="color:#d97706;"></i> 4,520 次使用</span>
+                    </div>
+                    <h3>M3-5: 精益商业模式画布 (交互版)</h3>
+                    <p>九要素以数字化和场景应用为核心的商业逻辑，支持在下方直接编辑并导出为图片。</p>
+                    <div class="res-meta">
+                        <span class="meta-chip"><i class="fas fa-laptop-code"></i> 在线交互</span>
+                        <span class="meta-chip"><i class="fas fa-clock"></i> 更新于 2026-08-01</span>
+                        <span class="meta-chip"><i class="fas fa-fire"></i> 使用 4,520</span>
+                    </div>
+                    <button class="resource-download-btn active" onclick="scrollToElement('interactive-bmc')"><i class="fas fa-keyboard"></i> 立即使用</button>
+                </div>
+            </div>
+
+            <div class="resource-card" data-cat="doc" data-type="m4-3" data-dl="3120" data-update="2026-07-15">
+                <div class="resource-icon m4-color"><i class="fas fa-id-badge"></i></div>
+                <div class="resource-info">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+                        <span style="font-size:10.5px; background:rgba(139,92,246,0.08); color:#7c3aed; padding:2px 8px; border-radius:6px; font-weight:800;"><i class="fas fa-file-powerpoint"></i> PPTX 框架</span>
+                        <span style="font-size:11px; color:var(--text-muted);"><i class="fas fa-download"></i> 3,120 次下载</span>
+                    </div>
+                    <h3>M4-3: STAR法则答辩简历润色大纲</h3>
+                    <p>针对评委提问的防御话术指南及量化路演问答框架。</p>
+                    <div class="res-meta">
+                        <span class="meta-chip"><i class="fas fa-file-powerpoint"></i> PPTX · 3.3 MB</span>
+                        <span class="meta-chip"><i class="fas fa-clock"></i> 更新于 2026-07-15</span>
+                        <span class="meta-chip"><i class="fas fa-eye"></i> 阅读 3,120</span>
+                    </div>
+                    <button class="resource-download-btn active" onclick="openResourceReader('m4-3')"><i class="fas fa-file-invoice"></i> 免费阅读</button>
+                </div>
+            </div>
+
+            <div class="resource-card" data-cat="policy" data-type="m5-2" data-dl="1230" data-update="2026-08-04">
+                <div class="resource-icon m5-color"><i class="fas fa-university"></i></div>
+                <div class="resource-info">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+                        <span style="font-size:10.5px; background:rgba(16,185,129,0.08); color:#059669; padding:2px 8px; border-radius:6px; font-weight:800;"><i class="fas fa-landmark"></i> 政策文件</span>
+                        <span style="font-size:11px; color:var(--text-muted);"><i class="fas fa-download"></i> 5,600 次查阅</span>
+                    </div>
+                    <h3>M5-2: 大学生创业"贴息贷款"指南</h3>
+                    <p>根据最新扶持政策，一人公司最高可申请信用贴息贷款及一次性创业补贴申请全套流程。</p>
+                    <div class="res-meta">
+                        <span class="meta-chip"><i class="fas fa-file-pdf"></i> PDF · 14.2 MB</span>
+                        <span class="meta-chip"><i class="fas fa-clock"></i> 更新于 2026-08-04</span>
+                        <span class="meta-chip"><i class="fas fa-eye"></i> 阅读 5,600</span>
+                        <span class="meta-chip"><i class="fas fa-download"></i> 下载 1,230</span>
+                    </div>
+                    <button class="resource-download-btn active" onclick="openResourceReader('m5-2')"><i class="fas fa-download"></i> 阅读与下载</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 批量下载工具条 -->
+        <div id="batch-toolbar">
+            <span class="batch-hint"><i class="fas fa-info-circle"></i> 勾选资源后可一键打包下载</span>
+            <button class="action-btn primary-gradient" id="batch-download-btn" onclick="window.batchDownload()"><i class="fas fa-download"></i> 打包下载选中 (0)</button>
+        </div>
+
+        <!-- BP 鱼型十模块分步向导导航 -->
+        <div class="interactive-bmc-box" style="margin-top:24px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; gap:10px; flex-wrap:wrap;">
+                <span style="font-weight:800; color:var(--primary-blue); font-size:15px;"><i class="fas fa-route"></i> 商业计划书鱼型十模块撰写向导 (Steppers)</span>
+                <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+                    <select id="bp-direction-select" class="bp-direction-select" onchange="window.changeBPDirection(this)" aria-label="选择参赛方向">
+                        <option value="">选择参赛方向…</option>
+                        <option value="gaojiao">高教主赛道（核心技术专利壁垒）</option>
+                        <option value="honglv">青年红色筑梦之旅（社会效益）</option>
+                        <option value="chanye">产业命题赛道（企业命题对齐）</option>
+                    </select>
+                    <span style="font-size:11.5px; background:rgba(37,99,235,0.08); color:var(--primary-blue); padding:2px 8px; border-radius:6px;">对齐高教 / 红旅 / 产业三方向</span>
+                </div>
+            </div>
+            <div style="display:grid; grid-template-columns:repeat(10, 1fr); gap:6px; text-align:center;">
+                <div style="background:var(--bg-subtle); border:1px solid var(--border-color); border-radius:8px; padding:8px 4px; font-size:11px; font-weight:800; color:#059669;">1.痛点</div>
+                <div style="background:var(--bg-subtle); border:1px solid var(--border-color); border-radius:8px; padding:8px 4px; font-size:11px; font-weight:800; color:#059669;">2.方案</div>
+                <div style="background:var(--bg-subtle); border:1px solid var(--border-color); border-radius:8px; padding:8px 4px; font-size:11px; font-weight:800; color:#059669;">3.壁垒</div>
+                <div style="background:var(--bg-subtle); border:1px solid var(--border-color); border-radius:8px; padding:8px 4px; font-size:11px; font-weight:800; color:#059669;">4.模式</div>
+                <div style="background:var(--bg-subtle); border:1px solid var(--border-color); border-radius:8px; padding:8px 4px; font-size:11px; font-weight:800; color:#059669;">5.市场</div>
+                <div style="background:var(--bg-subtle); border:1px solid var(--border-color); border-radius:8px; padding:8px 4px; font-size:11px; font-weight:800; color:#d97706;">6.数据</div>
+                <div style="background:var(--bg-subtle); border:1px solid var(--border-color); border-radius:8px; padding:8px 4px; font-size:11px; font-weight:800; color:#d97706;">7.财务</div>
+                <div style="background:var(--bg-subtle); border:1px solid var(--border-color); border-radius:8px; padding:8px 4px; font-size:11px; font-weight:800; color:#d97706;">8.团队</div>
+                <div style="background:var(--bg-subtle); border:1px solid var(--border-color); border-radius:8px; padding:8px 4px; font-size:11px; font-weight:800; color:var(--primary-blue);">9.规划</div>
+                <div style="background:var(--bg-subtle); border:1px solid var(--border-color); border-radius:8px; padding:8px 4px; font-size:11px; font-weight:800; color:var(--primary-blue);">10.方向</div>
+            </div>
+        </div>
+
+        <!-- 股权智能估算计算器 -->
+        <div class="interactive-bmc-box" id="equity-calculator" style="margin-top: 30px;">
+            <div class="bmc-header">
+                <div>
+                    <h2><i class="fas fa-percentage"></i> 初创团队股权比例智能估算计算器</h2>
+                    <p>输入三位合伙人的资金出资、全职精力、技术专利贡献，系统依据客观权重模型自动推算持股分配比例</p>
+                </div>
+                <div class="bmc-toolbar">
+            <button class="btn btn-secondary" onclick="clearBMCCanvas()"><i class="fas fa-trash"></i> 清空画布</button>
+            <button class="btn btn-secondary" onclick="window.exportBMCJSON()"><i class="fas fa-file-export"></i> 导出 JSON</button>
+            <button class="btn btn-secondary" onclick="window.importBMCJSON()"><i class="fas fa-file-import"></i> 导入 JSON</button>
+            <button class="btn btn-secondary" onclick="window.exportBMCPNG()"><i class="fas fa-image"></i> 导出图片</button>
+            <button class="btn btn-primary" onclick="window.runBMCAICheck()"><i class="fas fa-magic"></i> AI 逻辑校验与诊断</button>
+        </div>
+            </div>
+
+            <div style="margin-top:20px; overflow-x:auto;">
+                <table style="width:100%; border-collapse:collapse; font-size:13px; color:var(--text-main);">
+                    <thead>
+                        <tr style="border-bottom:1px solid var(--border-color);">
+                            <th style="text-align:left; padding:10px; color:var(--text-muted); font-weight:700;">出资维度</th>
+                            <th style="text-align:center; padding:10px; color:var(--primary-blue);">合伙人 A<br><small style="font-size:11px;">CEO / 商业负责人</small></th>
+                            <th style="text-align:center; padding:10px; color:#d97706;">合伙人 B<br><small style="font-size:11px;">CTO / 技术研发</small></th>
+                            <th style="text-align:center; padding:10px; color:#7c3aed;">骨干 C<br><small style="font-size:11px;">COO / 运营推广</small></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="border-bottom:1px solid var(--border-color);">
+                            <td style="padding:10px; color:var(--text-main);"><i class="fas fa-coins" style="color:#d97706;"></i> 货币资金出资（元）</td>
+                            <td style="text-align:center;"><input type="number" id="eq-capital-A" value="0" min="0" class="eq-input"></td>
+                            <td style="text-align:center;"><input type="number" id="eq-capital-B" value="0" min="0" class="eq-input"></td>
+                            <td style="text-align:center;"><input type="number" id="eq-capital-C" value="0" min="0" class="eq-input"></td>
+                        </tr>
+                        <tr style="border-bottom:1px solid var(--border-color);">
+                            <td style="padding:10px; color:var(--text-main);"><i class="fas fa-clock" style="color:var(--primary-blue);"></i> 全职精力投入（1-10分）</td>
+                            <td style="text-align:center;"><input type="number" id="eq-time-A" value="5" min="1" max="10" class="eq-input"></td>
+                            <td style="text-align:center;"><input type="number" id="eq-time-B" value="5" min="1" max="10" class="eq-input"></td>
+                            <td style="text-align:center;"><input type="number" id="eq-time-C" value="5" min="1" max="10" class="eq-input"></td>
+                        </tr>
+                        <tr style="border-bottom:1px solid var(--border-color);">
+                            <td style="padding:10px; color:var(--text-main);"><i class="fas fa-microscope" style="color:#7c3aed;"></i> 核心专利技术（1-10分）</td>
+                            <td style="text-align:center;"><input type="number" id="eq-tech-A" value="5" min="1" max="10" class="eq-input"></td>
+                            <td style="text-align:center;"><input type="number" id="eq-tech-B" value="5" min="1" max="10" class="eq-input"></td>
+                            <td style="text-align:center;"><input type="number" id="eq-tech-C" value="5" min="1" max="10" class="eq-input"></td>
+                        </tr>
+                        <tr>
+                            <td style="padding:10px; color:var(--text-main);"><i class="fas fa-server" style="color:#059669;"></i> 硬件或专用算力出资（元）</td>
+                            <td style="text-align:center;"><input type="number" id="eq-gpu-A" value="0" min="0" class="eq-input"></td>
+                            <td style="text-align:center;"><input type="number" id="eq-gpu-B" value="0" min="0" class="eq-input"></td>
+                            <td style="text-align:center;"><input type="number" id="eq-gpu-C" value="0" min="0" class="eq-input"></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="equity-weight-notice-card">
+                <h4>💡 权重逻辑说明</h4>
+                <p style="margin:0; font-size:12.5px; color:#CBD5E1; line-height:1.6;">
+                    全职精力(*15) &gt; 核心技术(*20) &gt; 资金设备出资(*1.0) —— 强调核心技术与全职投入对早期创业公司的核心价值。
+                </p>
+            </div>
+        </div>
+
+        <!-- Vesting 可视化计算器 -->
+        <div class="interactive-bmc-box" id="vesting-calculator" style="margin-top: 30px;">
+            <div class="bmc-header">
+                <div>
+                    <h2><i class="fas fa-chart-line"></i> 创始合伙人股权分期成熟 (Vesting) 可视化计算器</h2>
+                    <p>合理的设计必须引入 Vesting 机制，防止早期合伙人中途离职带走大量永久股份。</p>
+                </div>
+            </div>
+
+            <div style="margin-top: 20px; display: grid; grid-template-columns: 1fr 1.2fr; gap: 20px;">
+                <div>
+                    <h4 style="margin:0 0 15px 0; color:var(--primary-blue);"><i class="fas fa-sliders-h"></i> 配置 Vesting 条款</h4>
+                    <div style="display:flex; flex-direction:column; gap:12px; font-size:13px; color:var(--text-main);">
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <span>合伙人初始持股比例 (%)：</span>
+                            <input type="number" id="vesting-pct" value="60" min="1" max="100" class="eq-input">
+                        </div>
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <span>服务成熟总年限 (年)：</span>
+                            <select id="vesting-years" style="width:80px; padding:6px; border-radius:6px; border:1px solid var(--border-color); background:var(--bg-card); color:var(--text-main); text-align:center;">
+                                <option value="1">1 年</option><option value="2">2 年</option><option value="3">3 年</option><option value="4" selected>4 年</option>
+                            </select>
+                        </div>
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <span>崖期 (Cliff - 满多久开始成熟)：</span>
+                            <select id="vesting-cliff" style="width:80px; padding:6px; border-radius:6px; border:1px solid var(--border-color); background:var(--bg-card); color:var(--text-main); text-align:center;">
+                                <option value="0">无崖期</option><option value="1" selected>1 年</option><option value="2">2 年</option>
+                            </select>
+                        </div>
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <span>成熟频次：</span>
+                            <select id="vesting-frequency" style="width:80px; padding:6px; border-radius:6px; border:1px solid var(--border-color); background:var(--bg-card); color:var(--text-main); text-align:center;">
+                                <option value="monthly" selected>按月度成熟</option><option value="yearly">按年度成熟</option>
+                            </select>
+                        </div>
+                        <button class="action-btn primary-gradient" onclick="window.runVestingCalculation()" style="width:100%; justify-content:center; margin-top:10px;">
+                            <i class="fas fa-sync-alt"></i> 生成股权成熟曲线与模拟报告
+                        </button>
+                    </div>
+                </div>
+
+                <div style="border-left:1px solid var(--border-color); padding-left:20px; box-sizing:border-box;">
+                    <h4 style="margin:0 0 15px 0; color:var(--primary-blue);"><i class="fas fa-chart-area"></i> 动态成熟度预测</h4>
+                    <div id="vesting-chart-container" style="width:100%; height:180px;"></div>
+                    <div id="vesting-report-text" style="font-size:12px; color:var(--text-muted); line-height:1.6; margin-top:10px;">
+                        请输入参数并点击生成报告。
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- BMC 商业模式画布交互工具 -->
+        <div class="interactive-bmc-box" id="interactive-bmc" style="margin-top: 30px;">
+            <div class="bmc-header">
+                <div>
+            <h2><i class="fas fa-clipboard-list"></i> 商业模式精益画布 (BMC) 交互工具</h2>
+            <p>专为大学生创新创业项目优化的商业画布填报系统 · 支持一键保存并导出图片</p>
+        </div>
+        <span id="autosave-bmc" class="autosave-indicator"><i class="fas fa-check-circle"></i> 草稿已实时保存</span>
+        <div class="bmc-actions">
+                    <button class="action-btn" onclick="clearBMCCanvas()"><i class="fas fa-trash"></i> 清空</button>
+                    <button class="action-btn" onclick="window.runBMCAICheck()" style="color:var(--primary-blue); border-color:var(--primary-blue);"><i class="fas fa-magic"></i> AI逻辑校验</button>
+                    <button class="action-btn" onclick="window.exportBMCJSON()"><i class="fas fa-file-export"></i> 导出JSON</button>
+                    <button class="action-btn" onclick="window.importBMCJSON()"><i class="fas fa-file-import"></i> 导入JSON</button>
+                    <button class="action-btn primary-gradient" onclick="exportBMCToImage()"><i class="fas fa-download"></i> 导出图片</button>
+                </div>
+            </div>
+            <div class="bmc-container">
+                <div class="bmc-grid" id="bmc-grid-canvas">
+                    <div class="bmc-cell key-partners">
+                        <div class="bmc-cell-title"><i class="fas fa-handshake" style="color:var(--primary-blue);"></i> 关键合作伙伴</div>
+                        <div class="bmc-cell-desc">云开发平台、供应商、渠道伙伴</div>
+                        <textarea class="bmc-textarea" id="bmc-kp" placeholder="哪些合作伙伴为你的服务提供供应链或技术对接？"></textarea>
+                    </div>
+                    <div class="bmc-cell key-activities">
+                        <div class="bmc-cell-title"><i class="fas fa-check-double" style="color:#d97706;"></i> 关键业务</div>
+                        <div class="bmc-cell-desc">产品打样、系统开发、渠道开拓...</div>
+                        <textarea class="bmc-textarea" id="bmc-ka" placeholder="为了跑通你的MVP，团队每天必须完成的核心业务是什么？"></textarea>
+                    </div>
+                    <div class="bmc-cell key-resources">
+                        <div class="bmc-cell-title"><i class="fas fa-database" style="color:#7c3aed;"></i> 核心资源</div>
+                        <div class="bmc-cell-desc">独有销售渠道、核心专利、专有资料库...</div>
+                        <textarea class="bmc-textarea" id="bmc-kr" placeholder="项目的独家壁垒是什么？有无授权的专利或特殊资源？"></textarea>
+                    </div>
+                    <div class="bmc-cell value-propositions">
+                        <div class="bmc-cell-title"><i class="fas fa-gift" style="color:var(--primary-blue);"></i> 价值主张</div>
+                        <div class="bmc-cell-desc">解决何种刚需？提效降本比对手高几倍？</div>
+                        <textarea class="bmc-textarea" id="bmc-vp" placeholder="为用户解决的真实痛点是什么？你的产品如何做到显性的体验和效率提升？"></textarea>
+                    </div>
+                    <div class="bmc-cell customer-relationships">
+                        <div class="bmc-cell-title"><i class="fas fa-heart" style="color:#059669;"></i> 客户关系</div>
+                        <div class="bmc-cell-desc">自动交互服务、社群共创、定制化订阅...</div>
+                        <textarea class="bmc-textarea" id="bmc-cr" placeholder="如何维持与种子客户的连接？是否建立起良性反馈循环？"></textarea>
+                    </div>
+                    <div class="bmc-cell channels">
+                        <div class="bmc-cell-title"><i class="fas fa-truck" style="color:var(--text-muted);"></i> 渠道通道</div>
+                        <div class="bmc-cell-desc">微信小程序、电商集市、线下代理...</div>
+                        <textarea class="bmc-textarea" id="bmc-ch" placeholder="你的原型如何被客户快速体验？冷启动种子用户在何处？"></textarea>
+                    </div>
+                    <div class="bmc-cell customer-segments">
+                        <div class="bmc-cell-title"><i class="fas fa-users" style="color:var(--primary-blue);"></i> 客户细分</div>
+                        <div class="bmc-cell-desc">首批尝鲜的种子客户、特定痛点群体...</div>
+                        <textarea class="bmc-textarea" id="bmc-cs" placeholder="你的核心种子用户是谁？谁最急切地需要这个痛点解决？"></textarea>
+                    </div>
+                    <div class="bmc-cell cost-structure">
+                        <div class="bmc-cell-title"><i class="fas fa-dollar-sign" style="color:#d97706;"></i> 成本结构</div>
+                        <div class="bmc-cell-desc">产品开发开支、打样制造、日常运营与推广成本...</div>
+                        <textarea class="bmc-textarea" id="bmc-cost" placeholder="项目最大的固定成本和可变成本是什么？"></textarea>
+                    </div>
+                    <div class="bmc-cell revenue-streams">
+                        <div class="bmc-cell-title"><i class="fas fa-coins" style="color:var(--primary-blue);"></i> 收入来源</div>
+                        <div class="bmc-cell-desc">产品零售、服务订阅、增值服务与定制化收费...</div>
+                        <textarea class="bmc-textarea" id="bmc-rs" placeholder="你的项目如何变现？客户如何付费？"></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 商业壁垒与大赛答辩防御评估工具 -->
+        <div class="interactive-bmc-box" style="margin-top: 30px;">
+            <div class="bmc-header">
+                <div>
+                    <h2><i class="fas fa-shield-alt"></i> 大赛答辩防御与壁垒评估工具</h2>
+                    <p>按高教主方向或红旅方向差异化评分细则，评估专利壁垒与社会效益，自动生成答辩防守策略</p>
+                </div>
+                <div class="bmc-actions">
+                    <button class="action-btn" onclick="window.confirmReset('确定要重置答辩评估吗？已生成的评估报告将被清空，且不可撤销。', window.resetBarrierGenerator)"><i class="fas fa-undo"></i> 重置</button>
+                    <button class="action-btn primary-gradient" onclick="window.runBarrierGeneration()"><i class="fas fa-magic"></i> 开启答辩评估</button>
+                </div>
+            </div>
+
+            <div style="display:flex; flex-direction:column; gap:15px; margin-top:20px;">
+                <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:15px; background:var(--bg-subtle); padding:14px; border-radius:12px; border:1px solid var(--border-color);">
+                    <div>
+                        <label style="font-size:12.5px; color:var(--text-main); font-weight:800; display:block; margin-bottom:6px;">1. 选择大赛参赛方向（决定防御侧重点）：</label>
+                        <select id="bar-competition-track" style="width:100%; padding:8px; border-radius:6px; border:1px solid var(--border-color); background:var(--bg-card); color:var(--text-main); font-size:13px; font-weight:700;">
+                            <option value="gaojiao" selected>高教主方向（侧重核心技术专利壁垒、降低成本量化指标）</option>
+                            <option value="honglv">青年红色筑梦之旅方向（侧重农户带动就业数、社会效益证明）</option>
+                            <option value="chanye">产业命题方向（侧重企业真实命题对齐度与生产线落地测试）</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label style="font-size:12.5px; color:var(--text-main); font-weight:800; display:block; margin-bottom:6px;">2. 项目官方名称：</label>
+                        <input type="text" id="bar-project-name" placeholder="请输入你的参赛项目名称..." class="bp-form-input">
+                    </div>
+                </div>
+                <div style="margin-top:8px;">
+                    <label style="font-size:12.5px; color:var(--text-main); font-weight:700; display:block; margin-bottom:6px;">项目核心痛点与竞争优势描述（至少 15 字）：</label>
+                    <textarea id="bar-project-desc" placeholder="请简述要解决的核心刚需痛点，以及产品相比市面竞品的显性体验或效率提升..." style="width:100%; height:65px; padding:8px; border-radius:6px; border:1px solid var(--border-color); background:var(--bg-card); color:var(--text-main); resize:vertical; box-sizing:border-box; font-size:13px;"></textarea>
+                </div>
+            </div>
+
+            <div id="barrier-result-panel" style="display:none; border:1px solid var(--border-color); border-radius:14px; padding:20px; margin-top:20px; background:var(--bg-subtle);">
+            </div>
+        </div>
+
+        <!-- 商业计划书 (BP) 分步向导 -->
+        <div class="interactive-bmc-box" id="bp-assembler" style="margin-top: 30px;">
+            <div class="bmc-header">
+                <div>
+                    <h2><i class="fas fa-file-invoice"></i> 商业计划书标准框架分步向导 (Stepper)</h2>
+                    <p>分步引导撰写 · 右上角展示草稿保存状态 · 内置合规性自查清单</p>
+                </div>
+                <div style="display:flex; align-items:center; gap:12px;">
+                    <span id="autosave-bp" class="autosave-indicator"><i class="fas fa-check-circle"></i> 草稿已实时保存</span>
+                    <div class="bmc-actions">
+                        <button class="action-btn" onclick="window.clearBPSource()"><i class="fas fa-trash"></i> 清空</button>
+                        <button class="action-btn primary-gradient" onclick="window.assembleBPReport()"><i class="fas fa-file-word"></i> 生成导出 BP</button>
+                    </div>
+                </div>
+            </div>
+
+            <div style="display:flex; gap:10px; margin-top:20px; border-bottom:1px solid var(--border-color); padding-bottom:10px; flex-wrap:wrap;" id="bp-stepper-nav">
+                <button class="filter-btn active" onclick="switchBPStep(1, this)"><i class="fas fa-flag"></i> 第一步：项目定位与封面</button>
+                <button class="filter-btn" onclick="switchBPStep(2, this)"><i class="fas fa-chart-line"></i> 第二步：市场痛点与产品</button>
+                <button class="filter-btn" onclick="switchBPStep(3, this)"><i class="fas fa-hand-holding-usd"></i> 第三步：财务退出与合规自查</button>
+            </div>
+
+            <div style="margin-top: 20px;">
+                <div id="bp-step-1" class="bp-step-panel active">
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px; margin-bottom:15px;">
+                        <div>
+                            <label style="font-size:13px; color:var(--text-main); font-weight:700; display:block; margin-bottom:4px;">项目官方名称：</label>
+                            <input type="text" id="bp-title" placeholder="如：基于大模型的智能农产分拣系统" class="bp-form-input">
+                        </div>
+                        <div>
+                            <label style="font-size:13px; color:var(--text-main); font-weight:700; display:block; margin-bottom:4px;">一句话定位 (副标题描述)：</label>
+                            <input type="text" id="bp-subtitle" placeholder="如：高原特色农产数字化分拣与提效引领者" class="bp-form-input">
+                        </div>
+                    </div>
+                    <div>
+                        <label style="font-size:13px; color:var(--text-main); font-weight:700; display:block; margin-bottom:4px;">1. 公司概况与宗旨战略 (3-5年战略目标)：</label>
+                        <textarea id="bp-m1" placeholder="填写公司法律类型、团队使命及未来3-5年战略路线图..." class="bp-form-textarea" oninput="if(this.nextElementSibling&&this.nextElementSibling.classList.contains('word-counter')){this.nextElementSibling.textContent=this.value.length+' 字';}"></textarea><div class="word-counter">0 字</div>
+                    </div>
+                    <div style="display:flex; justify-content:flex-end; margin-top:14px;">
+                        <button class="action-btn primary-gradient" onclick="switchBPStep(2, document.querySelectorAll('#bp-stepper-nav .filter-btn')[1])">下一步：市场与产品 <i class="fas fa-arrow-right"></i></button>
+                    </div>
+                </div>
+
+                <div id="bp-step-2" class="bp-step-panel">
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px; margin-bottom:15px;">
+                        <div>
+                            <label style="font-size:13px; color:var(--text-main); font-weight:700; display:block; margin-bottom:4px;">2. 行业痛点与市场分析：</label>
+                            <textarea id="bp-m2" placeholder="分析真实刚需痛点、TAM/SAM/SOM 市场空间与竞争格局..." class="bp-form-textarea" oninput="if(this.nextElementSibling&&this.nextElementSibling.classList.contains('word-counter')){this.nextElementSibling.textContent=this.value.length+' 字';}"></textarea><div class="word-counter">0 字</div>
+                        </div>
+                        <div>
+                            <label style="font-size:13px; color:var(--text-main); font-weight:700; display:block; margin-bottom:4px;">3. 核心产品与 Mom Test 痛点验证：</label>
+                            <textarea id="bp-m3" placeholder="填写 MVP 原型功能，并列出 Mom Test 访谈实录与种子客户付费意愿证明..." class="bp-form-textarea" oninput="if(this.nextElementSibling&&this.nextElementSibling.classList.contains('word-counter')){this.nextElementSibling.textContent=this.value.length+' 字';}"></textarea><div class="word-counter">0 字</div>
+                        </div>
+                    </div>
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px;">
+                        <div>
+                            <label style="font-size:13px; color:var(--text-main); font-weight:700; display:block; margin-bottom:4px;">4. 营销实施计划 (4P 组合)：</label>
+                            <textarea id="bp-m4" placeholder="产品定价策略、冷启动种子渠道与裂变获客模型..." class="bp-form-textarea" oninput="if(this.nextElementSibling&&this.nextElementSibling.classList.contains('word-counter')){this.nextElementSibling.textContent=this.value.length+' 字';}"></textarea><div class="word-counter">0 字</div>
+                        </div>
+                        <div>
+                            <label style="font-size:13px; color:var(--text-main); font-weight:700; display:block; margin-bottom:4px;">5. 生产与日常运营流：</label>
+                            <textarea id="bp-m5" placeholder="设备开支、技术开发外包协议与供应链管控..." class="bp-form-textarea" oninput="if(this.nextElementSibling&&this.nextElementSibling.classList.contains('word-counter')){this.nextElementSibling.textContent=this.value.length+' 字';}"></textarea><div class="word-counter">0 字</div>
+                        </div>
+                    </div>
+                    <div style="display:flex; justify-content:space-between; margin-top:14px;">
+                        <button class="action-btn" onclick="switchBPStep(1, document.querySelectorAll('#bp-stepper-nav .filter-btn')[0])"><i class="fas fa-arrow-left"></i> 上一步</button>
+                        <button class="action-btn primary-gradient" onclick="switchBPStep(3, document.querySelectorAll('#bp-stepper-nav .filter-btn')[2])">下一步：财务退出 <i class="fas fa-arrow-right"></i></button>
+                    </div>
+                </div>
+
+                <div id="bp-step-3" class="bp-step-panel">
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px; margin-bottom:15px;">
+                        <div>
+                            <label style="font-size:13px; color:var(--text-main); font-weight:700; display:block; margin-bottom:4px;">6. 财务预算与 BEP 盈亏平衡点测算：</label>
+                            <textarea id="bp-m7" placeholder="填写首期 3 年财务预算、盈亏平衡销量 (BEP) 时间节点与融资出让股份..." class="bp-form-textarea" oninput="if(this.nextElementSibling&&this.nextElementSibling.classList.contains('word-counter')){this.nextElementSibling.textContent=this.value.length+' 字';}"></textarea><div class="word-counter">0 字</div>
+                        </div>
+                        <div>
+                            <label style="font-size:13px; color:var(--text-main); font-weight:700; display:block; margin-bottom:4px;">7. 资本退出路径与大企业并购标的：</label>
+                            <textarea id="bp-m9" placeholder="选择大企业并购退出时，请列出 1-2 家产业链目标收购企业..." class="bp-form-textarea" oninput="if(this.nextElementSibling&&this.nextElementSibling.classList.contains('word-counter')){this.nextElementSibling.textContent=this.value.length+' 字';}"></textarea><div class="word-counter">0 字</div>
+                        </div>
+                    </div>
+
+                    <div style="background:rgba(37,99,235,0.04); border:1px dashed var(--primary-blue); border-radius:12px; padding:14px; margin-bottom:15px;">
+                        <div style="font-size:13px; font-weight:800; color:var(--primary-blue); margin-bottom:8px;"><i class="fas fa-clipboard-check"></i> 参赛项目知识产权与合规性自查清单（生成前必勾）：</div>
+                        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:8px; font-size:12px; color:var(--text-main);">
+                            <label style="display:flex; align-items:center; gap:6px;"><input type="checkbox" checked> 开源代码协议已核查</label>
+                            <label style="display:flex; align-items:center; gap:6px;"><input type="checkbox" checked> 涉及用户数据已全部完成脱敏</label>
+                            <label style="display:flex; align-items:center; gap:6px;"><input type="checkbox" checked> 商标专利已提交检索防冲突</label>
+                            <label style="display:flex; align-items:center; gap:6px;"><input type="checkbox" checked> 团队成员均提供真实身份证明</label>
+                        </div>
+                    </div>
+
+                    <div style="display:flex; justify-content:space-between; margin-top:14px;">
+                        <button class="action-btn" onclick="switchBPStep(2, document.querySelectorAll('#bp-stepper-nav .filter-btn')[1])"><i class="fas fa-arrow-left"></i> 上一步</button>
+                        <button class="action-btn primary-gradient" onclick="window.assembleBPReport()" style="padding:10px 24px;"><i class="fas fa-file-word"></i> 验证合规并生成 BP 文档</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 路演 PPT 生成器 -->
+        <div class="interactive-bmc-box" id="ppt-generator" style="margin-top: 30px;">
+            <div class="bmc-header">
+                <div>
+                    <h2 style="color:var(--primary-blue); font-size:20px;"><i class="fas fa-file-powerpoint" style="color:#dc2626;"></i> 路演 PPT "5 分钟黄金时间分配与 12 页骨架"生成器</h2>
+                    <p>精确对齐大赛 5 分钟演讲 + 3 分钟答辩要求，为每张 Slide 标注推荐演讲耗时</p>
+                </div>
+                <div class="bmc-actions">
+                    <button class="action-btn primary-gradient" onclick="window.generatePPTOutline()" style="padding:10px 22px;"><i class="fas fa-rocket"></i> 生成路演大纲</button>
+                </div>
+            </div>
+
+            <div style="margin-top:20px; display:grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap:20px;">
+                <div style="border:1px solid var(--border-color); border-radius:14px; padding:18px; background:var(--bg-subtle);">
+                    <h3 style="font-size:14.5px; color:var(--primary-blue); font-weight:900; margin-bottom:12px;"><i class="fas fa-stopwatch"></i> 5 分钟黄金演讲时间与字数限制规制：</h3>
+                    <div style="display:flex; flex-direction:column; gap:10px; font-size:12.5px; color:var(--text-main);">
+                        <div style="background:rgba(37,99,235,0.04); padding:10px 14px; border-radius:10px; border-left:4px solid var(--primary-blue);">
+                            <strong style="color:var(--primary-blue);">第 1-2 页：痛点与市场</strong><br/>
+                            <span style="font-size:11.5px; color:var(--text-muted);">建议用时：<strong>45 秒</strong>（约 180-220 字）。忌长篇大论背景，用真实行业痛点数据砸出刚需。</span>
+                        </div>
+                        <div style="background:rgba(245,158,11,0.04); padding:10px 14px; border-radius:10px; border-left:4px solid #d97706;">
+                            <strong style="color:#d97706;">第 3-6 页：核心技术与 MVP 产品原型</strong><br/>
+                            <span style="font-size:11.5px; color:var(--text-muted);">建议用时：<strong>2 分钟</strong>（约 480-550 字）。用原型展示，突出专利壁垒与提效数据。</span>
+                        </div>
+                        <div style="background:rgba(139,92,246,0.04); padding:10px 14px; border-radius:10px; border-left:4px solid #7c3aed;">
+                            <strong style="color:#7c3aed;">第 7-8 页：商业模式与团队履历</strong><br/>
+                            <span style="font-size:11.5px; color:var(--text-muted);">建议用时：<strong>1.5 分钟</strong>（约 350-400 字）。展示客户客单价与铁三角履历。</span>
+                        </div>
+                        <div style="background:rgba(16,185,129,0.04); padding:10px 14px; border-radius:10px; border-left:4px solid #059669;">
+                            <strong style="color:#059669;">第 9-10 页：地方政策红利与社会效益</strong><br/>
+                            <span style="font-size:11.5px; color:var(--text-muted);">建议用时：<strong>45 秒</strong>（约 180-220 字）。展示如何利用地方政策延长 Runway 及带动就业数据。</span>
+                        </div>
+                        <div style="background:rgba(239,68,68,0.04); padding:10px 14px; border-radius:10px; border-left:4px solid #dc2626;">
+                            <strong style="color:#dc2626;">第 11-12 页：财务预估与资本退出通道</strong><br/>
+                            <span style="font-size:11.5px; color:var(--text-muted);">建议用时：<strong>30 秒</strong>（约 120-150 字）。<span id="ppt-exit-tip-text">重点展示产业链上下游 1-2 家大企业并购标的与整合收购理由。</span></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="border:1px solid var(--border-color); border-radius:14px; padding:18px; background:var(--bg-subtle); display:flex; flex-direction:column; justify-content:space-between;">
+                    <div>
+                        <h3 style="font-size:14px; color:var(--primary-blue); font-weight:800; margin-bottom:12px;"><i class="fas fa-hand-holding-usd"></i> 资本退出通道偏好：</h3>
+                        <div style="display:flex; flex-direction:column; gap:10px;" id="ppt-exit-cards">
+                            <div class="exit-card active" onclick="selectExitChannel('Acquire', this)">
+                                <div>
+                                    <div style="font-weight:900; color:var(--text-main); font-size:13px;"><i class="fas fa-building" style="color:var(--primary-blue);"></i> 大企业并购退出 (Acquire)</div>
+                                    <div style="font-size:11.5px; color:var(--text-muted); margin-top:2px;">适合数字化、SaaS项目，列出产业链上下游收购标的</div>
+                                </div>
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                            <div class="exit-card" onclick="selectExitChannel('IPO', this)">
+                                <div>
+                                    <div style="font-weight:900; color:var(--text-main); font-size:13px;"><i class="fas fa-chart-line" style="color:#d97706;"></i> IPO 上市退出 (IPO)</div>
+                                    <div style="font-size:11.5px; color:var(--text-muted); margin-top:2px;">适合硬核科技与高成长项目</div>
+                                </div>
+                                <i class="fas fa-circle"></i>
+                            </div>
+                            <div class="exit-card" onclick="selectExitChannel('Buyback', this)">
+                                <div>
+                                    <div style="font-weight:900; color:var(--text-main); font-size:13px;"><i class="fas fa-undo-alt" style="color:#7c3aed;"></i> 创始人股权回购退出 (Buyback)</div>
+                                    <div style="font-size:11.5px; color:var(--text-muted); margin-top:2px;">约定年化保底利率回购</div>
+                                </div>
+                                <i class="fas fa-circle"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="ppt-result-panel" style="border:1px dashed var(--border-color); border-radius:12px; padding:15px; min-height:180px; display:flex; align-items:center; justify-content:center; text-align:center; color:var(--text-muted); font-size:13px; background:var(--bg-card); margin-top:15px;">
+                        <div>
+                            <i class="fas fa-file-powerpoint" style="font-size:36px; color:var(--primary-blue); margin-bottom:10px;"></i>
+                            <p style="color:var(--text-muted); font-weight:700;">点击上方"生成路演大纲"按钮，秒级输出 12 页结构大纲</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+<script>
+function scrollToElement(elementId) {
+    const el = document.getElementById(elementId);
+    if (el) { el.scrollIntoView({ behavior: 'smooth' }); }
+}
+
+// -- 商业画布本地保存与交互 --
+const BMC_STORAGE_KEY = 'qnu_bmc_canvas_data';
+
+document.addEventListener('DOMContentLoaded', () => {
+    const saved = localStorage.getItem(BMC_STORAGE_KEY);
+    if (saved) {
+        try {
+            const data = JSON.parse(saved);
+            Object.keys(data).forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.value = data[id];
+            });
+        } catch(e) {}
+    }
+
+    document.querySelectorAll('.bmc-textarea').forEach(tx => {
+        tx.addEventListener('input', () => {
+            const current = {};
+            document.querySelectorAll('.bmc-textarea').forEach(el => {
+                current[el.id] = el.value;
+            });
+            localStorage.setItem(BMC_STORAGE_KEY, JSON.stringify(current));
+        });
+    });
+});
+
+// -- BP 拼装器 --
+window.clearBPSource = function() {
+    document.getElementById('bp-title').value = '';
+    document.getElementById('bp-subtitle').value = '';
+    for(let i=1; i<=10; i++) {
+        const el = document.getElementById('bp-m' + i);
+        if (el) el.value = '';
+    }
+};
+
+window.assembleBPReport = function() {
+    const title = document.getElementById('bp-title').value.trim() || '未命名创新创业项目';
+    const subtitle = document.getElementById('bp-subtitle').value.trim() || '通用高校双创实战大纲';
+
+    let doc = '# 《' + title + '》商业计划书 (大纲草案)\n';
+    doc += '## 一句话定位：' + subtitle + '\n\n';
+    doc += '## 十模块正文内容 (鱼型模型)\n';
+
+    const mNames = [
+        "公司概况与宗旨", "行业与市场分析", "产品与服务阐述",
+        "营销计划", "日常运营与生产外包", "公司管理与股权Vesting",
+        "财务预算与盈亏测算", "风险规避与防范", "资本退出通道", "创始人团队及顾问背景"
+    ];
+
+    for(let i=1; i<=10; i++) {
+        const val = (document.getElementById('bp-m' + i) && document.getElementById('bp-m' + i).value.trim()) || '（等待小组实战数据填充）';
+        doc += '### 2.' + i + ' ' + (mNames[i-1] || '') + '\n' + val + '\n\n';
+    }
+
+    // 结果显示在 PPT 面板区域（或者你也可以自行创建独立弹窗）
+    const resultPanel = document.getElementById('ppt-result-panel');
+    if (resultPanel) {
+        resultPanel.style.display = 'block';
+        resultPanel.style.textAlign = 'left';
+        resultPanel.style.alignItems = 'stretch';
+        resultPanel.innerHTML = '<h3 style="margin-bottom:10px; color:var(--primary-blue);"><i class="fas fa-file-alt"></i> 已生成的商业计划书 (Markdown 格式)</h3>'
+            + '<textarea style="width:100%; height:200px; padding:10px; border-radius:8px; font-family:monospace; resize:none; border:1px solid var(--border-color); background:var(--bg-card); color:var(--text-main); margin-bottom:10px;" readonly>' + doc.replace(/</g,'&lt;').replace(/>/g,'&gt;') + '</textarea>'
+            + '<div style="font-size:12px; color:var(--text-muted);">可直接复制代码框内容保存为 .md 文件，作为申报大赛的初稿骨架。</div>'
+            + '<button class="action-btn primary-gradient" onclick="downloadBPDoc()" style="margin-top:10px;"><i class="fas fa-download"></i> 下载 Markdown 文档</button>';
+
+        window.downloadBPDoc = function() {
+            const blob = new Blob([doc], { type: 'text/markdown;charset=utf-8' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = title + '_BP大纲.md';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        };
+    }
+};
+
+// -- PPT 12页大纲生成器与退出通道联动 --
+let selectedExitType = 'Acquire';
+
+window.selectExitChannel = function(type, el) {
+    selectedExitType = type;
+    document.querySelectorAll('#ppt-exit-cards .exit-card').forEach(card => {
+        card.classList.remove('active');
+        const icon = card.querySelector('.fa-check-circle, .fa-circle');
+        if (icon) { icon.className = 'fas fa-circle'; }
+    });
+    el.classList.add('active');
+    const icon = el.querySelector('.fa-circle');
+    if (icon) { icon.className = 'fas fa-check-circle'; }
+
+    const tip = document.getElementById('ppt-exit-tip-text');
+    if (tip) {
+        if (type === 'Acquire') tip.textContent = '重点展示产业链上下游 1-2 家大企业并购标的与技术整合收购理由。';
+        else if (type === 'IPO') tip.textContent = '重点展示股改路线图、独立法人治理合规性与 3 年复利增速。';
+        else tip.textContent = '重点展示年化约定回购收益与天使资金安全清算保障。';
+    }
+};
+
+window.generatePPTOutline = function() {
+    const exitLabels = {
+        'IPO': 'IPO上市退出（高溢价资产化退出，重点阐明股改及锁定期）',
+        'Acquire': '大企业并购退出（重点匹配行业龙头收购意愿及系统兼容性）',
+        'Buyback': '创始人股权回购退出（约定年化回购利率，保障天使资金安全离场）'
+    };
+
+    const panel = document.getElementById('ppt-result-panel');
+    panel.style.display = 'block';
+    panel.style.textAlign = 'left';
+    panel.style.alignItems = 'stretch';
+
+    const slides = [
+        { num: 1, title: 'Page 1 [封面]', time: '15 秒', text: '项目名称 + 一句话副标题描述（15秒 / 60字内）' },
+        { num: 2, title: 'Page 2 [痛点导入]', time: '30 秒', text: '结合真实行业或地方场景，精准抛出核心用户刚需痛点' },
+        { num: 3, title: 'Page 3 [痛点呈现]', time: '30 秒', text: '数据化展示传统方案效率低下或成本高昂的痛苦现状' },
+        { num: 4, title: 'Page 4 [根本原因]', time: '45 秒', text: '从技术限制与商业逻辑基本原理剖析为何旧方案无法根治' },
+        { num: 5, title: 'Page 5 [市场容量]', time: '30 秒', text: '精确测算 TAM / SAM / SOM 市场规模与目标客户客单价' },
+        { num: 6, title: 'Page 6 [方案引入]', time: '45 秒', text: '展示核心产品 / 服务与创新性解决机制（约 180 字）' },
+        { num: 7, title: 'Page 7 [商业模式]', time: '45 秒', text: '清晰阐明客户付费闭环、盈利模型与价值主张' },
+        { num: 8, title: 'Page 8 [竞争优势]', time: '45 秒', text: '与竞品横向矩阵对比，突出自研专利技术与不可替代壁垒' },
+        { num: 9, title: 'Page 9 [政策红利]', time: '30 秒', text: '展示地方政策补贴与孵化扶持如何延长现金流 Runway' },
+        { num: 10, title: 'Page 10 [社会效益]', time: '30 秒', text: '量化带动就业人数、乡村振兴或绿色环保贡献数据' },
+        { num: 11, title: 'Page 11 [财务与退出]', time: '45 秒', text: 'BEP 保本点盈亏平衡测算 & ' + exitLabels[selectedExitType] },
+        { num: 12, title: 'Page 12 [结尾与致谢]', time: '15 秒', text: '传递创业团队使命感与商业抱负（15秒 / 60字致谢）' }
+    ];
+
+    let accordionHTML = '<div class="ppt-accordion-container" style="margin-top:14px; display:flex; flex-direction:column; gap:10px;">';
+    slides.forEach(s => {
+        accordionHTML += `<details class="ppt-accordion-item" ${s.num === 1 ? 'open' : ''} style="background:var(--bg-subtle); border:1px solid var(--border-color); border-radius:10px; padding:12px 16px; cursor:pointer;">
+            <summary style="font-weight:700; font-size:13.5px; color:var(--text-main); display:flex; justify-content:space-between; align-items:center;">
+                <span><i class="fas fa-file-powerpoint" style="color:var(--primary-blue); margin-right:8px;"></i> ${s.title}</span>
+                <span class="badge badge-info" style="font-size:11px;"><i class="fas fa-clock"></i> ${s.time}</span>
+            </summary>
+            <div style="margin-top:10px; padding-top:10px; border-top:1px dashed var(--border-color); font-size:12.5px; color:var(--text-muted); line-height:1.6;">
+                ${s.text}
+            </div>
+        </details>`;
+    });
+    accordionHTML += '</div>';
+
+    panel.innerHTML = '<div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px dashed var(--border-color); padding-bottom:12px;">'
+        + '<h3 style="font-size:14.5px; color:var(--primary-blue); margin:0; font-weight:800;"><i class="fas fa-list-ol"></i> 路演 PPT 12页黄金手风琴骨架</h3>'
+        + '<div style="display:flex; gap:8px;">'
+        + '<button class="btn btn-secondary btn-sm" onclick="downloadPPTOutlineDoc()"><i class="fas fa-download"></i> 导出 .md 文档</button>'
+        + '<button class="btn btn-primary btn-sm" onclick="window.location.href='presentation.html'"><i class="fas fa-tv"></i> 大屏演示中台</button>'
+        + '</div>'
+        + '</div>' + accordionHTML;
+};
+
+
+    window.downloadPPTOutlineDoc = function() {
+        const blob = new Blob([outlineText], { type: 'text/markdown;charset=utf-8' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = '双创课程_路演PPT骨架大纲.md';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        if (typeof showToast === 'function') showToast('成功导出 Markdown 格式路演大纲文档！');
+    };
+};
+
+// -- 在线阅读器 --
+window.openResourceReader = function(type) {
+    if (typeof window.ensureGlobalPresModalDOM === 'function') {
+        window.ensureGlobalPresModalDOM();
+    }
+    const modal = document.getElementById('touch-presentation-modal');
+    if (!modal) return;
+
+    let title = "";
+    let content = "";
+
+    if (type === 'm1-1') {
+        title = "M1-1 产业痛点资讯搜寻指令集与人机协同 Prompt 库";
+        content = '# 产业痛点资讯搜寻指令集\n\n## 通用提示词框架 (Role - Task - Context - Constraint)\n\n### 1. 高原特色农业痛点监听 Prompt\n> "你是一名精通农业供应链的产业咨询专家。请针对地方高原特色蓝莓/野生菌/特产药材产业，分析过去 12 个月中农户在采摘、冷链运输、品质分级及跨境销售环节面临的前 3 个核心卡脖子痛点..."\n\n### 2. 非遗文化文创 IP 升级 Prompt\n> "你是一名资深的文化创新（文创）IP 品牌策划师。请针对地方特色手工艺，设计 3 组针对年轻消费群体的数字化转型方案..."\n\n### 3. 本地特色餐饮跨境出海 Prompt\n> "你是一名跨境电商与餐饮品牌出海顾问。请针对地方非遗火腿/特色风味食品，设计数字人主播方案..."\n';
+    } else if (type === 'm4-3') {
+        title = "M4-3 STAR 法则路演答辩简历与防御话术手册";
+        content = '# STAR 法则路演答辩与评委压力测试防守指南\n\n## 一、STAR 结构化回答模型\n- **Situation (情境)**: 交代项目背景与行业痛点真实数据\n- **Task (任务)**: 明确团队需要攻克的核心难题\n- **Action (行动)**: 突出团队的实操动作与技术路线\n- **Result (结果)**: 用硬核量化数据说话\n\n## 二、评委高频风险瓶颈质问应对\n\n### 质疑："大厂一旦抄袭你们怎么办？"\n- **防御策略**: \n> "我们拥有垂直场景的独家标注数据集与独占渠道网络，通过数据飞轮积累了本地特有数据。大厂无法通过单纯的代码复制这种扎根泥巴路的数据与渠道护城河。"\n';
+    } else if (type === 'm5-2') {
+        title = "M5-2 大学生创业贴息贷款与一次性补贴申报指南";
+        content = '# 大学生创业政策红利与贴息贷款申报指南\n\n## 一、政策红利一览\n1. **创业担保贴息贷款**: 符合条件的项目最高可申请贴息贷款，财政承担大部分利息。\n2. **一次性创业补贴**: 在校或毕业 5 年内首次创办企业，正常经营满 6 个月，可申请一次性创业补贴。\n3. **高校创业园免费工位**: 入驻本校大学生创业园，免费提供独立办公工位及导师指导。\n\n## 二、申报材料与流程\n- 营业执照副本复印件\n- 法人及团队成员学生证 / 毕业证\n- 《商业计划书 (BP) 摘要》\n- 高校创业项目推荐表（由创业学院盖章）\n';
+    } else {
+        title = "双创教学标准文档预览";
+        content = '# 《大学生创新创业基础》项目制实战教学模版\n\n- 遵循成果导向教育 (OBE) 理念\n- 对齐教育部专长指南与示范课标准\n- 包含 18 项 PBL 实战任务与 Rubrics 表现性评价\n';
+    }
+
+    modal.style.display = 'block';
+    document.body.style.overflow = 'hidden';
+
+    modal.innerHTML = '<div class="presentation-modal-content" style="width:90%; height:90%; margin:3% auto; display:flex; flex-direction:column; background:var(--bg-card, #111827); border:1px solid var(--primary-blue, #3B82F6); border-radius:16px; padding:25px; box-sizing:border-box; color:var(--text-main, #F8FAFC); box-shadow:0 25px 50px -12px rgba(0,0,0,0.5);">'
+        + '<div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:15px; margin-bottom:15px;">'
+        + '<h3 style="margin:0; font-size:18px; font-weight:800; color:var(--primary-blue, #3B82F6); display:flex; align-items:center; gap:10px;"><i class="fas fa-book-open"></i> ' + title + '</h3>'
+        + '<button onclick="window.closeResourceReader()" style="background:rgba(255,255,255,0.1); border:none; color:#FFF; width:32px; height:32px; border-radius:50%; font-size:18px; cursor:pointer; display:flex; align-items:center; justify-content:center;" aria-label="关闭">&times;</button>'
+        + '</div>'
+        + '<div style="flex:1; overflow-y:auto; font-size:14px; line-height:1.7; padding-right:10px; color:#CBD5E1;">'
+        + content.replace(/\n/g, '<br>')
+        + '</div>'
+        + '</div>';
+};
+
+window.closeResourceReader = function() {
+    const modal = document.getElementById('touch-presentation-modal');
+    if (modal) {
+        modal.style.display = 'none';
+        document.body.style.overflow = '';
+    }
+};
+
+const CASE_DETAILS_DATA = {
+  "agri_ai_01": {
+    "id": "agri_ai_01",
+    "title": "智农芯云 - 高原特色农业无人机采摘与冷链调度系统",
+    "track": "青年红色筑梦之旅赛道",
+    "tag": "农业科技 / 乡村振兴 / AI无人机",
+    "background": "针对地方高原松茸、蓝莓采摘损耗率高达 40%、传统冷链调度时效滞后的痛点，开发无人机巡检与 AI 动态冷链调度系统。",
+    "techPoint": "低空多光谱无人机痛点识别算法 + 冷链温湿度 IoT 实时调控 + 离线数据飞轮",
+    "businessModel": "软硬件一体化设备销售 + 季节性采摘服务费 + 农产品供应链抽成",
+    "financeModel": "单套系统部署成本 8.5 万元，首年服务 12 家合作社，实现营收 320 万元，毛利率 62%。",
+    "team": "农学院博士团队 + 自动化系无人机工程师 + 乡村振兴带头人",
+    "highlights": "帮扶 1200 余户农户，采摘损耗率从 40% 降至 8%，获创新创业大赛优秀奖。"
+  },
+  "medical_ai_02": {
+    "id": "medical_ai_02",
+    "title": "医路同行 - 基层医疗 AI 影像辅助诊断系统",
+    "track": "主赛道 - 医疗健康",
+    "tag": "医疗健康 / AI影像 / 基层医疗",
+    "background": "解决基层医院放射科专家匮乏、肺结节与骨折漏诊率高的问题，提供边缘端 AI 快速筛查。",
+    "techPoint": "3D CT 影像轻量化 Segmentation 算法 + 边缘端 GPU 毫秒级推理 Engine",
+    "businessModel": "医疗器械软件 (SaMD) 订阅服务 + 医院设备按次计费 + 专家远程复核抽成",
+    "financeModel": "单套边缘盒子 3 万元，已入驻 35 家县级医院，年订阅费 12 万元/家，年续约率 92%。",
+    "team": "三甲医院放射科主治医师 + 清华 AI 实验室硕士 + 医疗器械销售总监",
+    "highlights": "辅助诊断准确率达到 94.6%，筛查时长由 15 分钟缩短至 20 秒。"
+  },
+  "smart_factory_03": {
+    "id": "smart_factory_03",
+    "title": "基于国产大模型的智能制造车间排程优化系统",
+    "track": "产业命题赛道",
+    "tag": "AI人工智能 / 智能制造 / 车间排程",
+    "background": "针对离散型制造车间插单频繁、工序复杂、设备利用率低的痛点，面向龙头企业命题开发大模型调度引擎。",
+    "techPoint": "混合整数线性规划算法 + 大模型自然语言排程指令解析 + 实时设备状态数字孪生",
+    "businessModel": "软件许可 License + 算法年订阅服务 + 按生产效率提升比例抽成",
+    "financeModel": "部署单车间收费 25 万元，续订率 88%，毛利率 78%，项目投产首年实现净利润 280 万元。",
+    "team": "运筹学博士团队 + 工业大模型算法工程师 + 500强制造企业前生产总监",
+    "highlights": "为 8 家头部汽车零部件企业落地部署，换线时间缩短 35%，设备利用率提升 22%。"
+  },
+  "campus_cycle_04": {
+    "id": "campus_cycle_04",
+    "title": "高校校园循环经济与二手数码智能回收系统",
+    "track": "校园创客赛道",
+    "tag": "绿色低碳 / 校园生态 / 智能回收",
+    "background": "高校学生闲置电子产品处置难、回收价格不透明，缺少安全可信的校园循环经济服务设施。",
+    "techPoint": "边缘 AI 视觉分拣评估 + 自动化数据深度清除擦除算法 + 智能柜终端物联网控制",
+    "businessModel": "二手数码回收转售差价 + 智能柜终端广告分成 + 绿色碳积分兑换商城运营",
+    "financeModel": "硬件回收柜成本 3.2 万元/台，采用租赁与加盟运营，回收转售综合毛利率 32%，单柜 8 个月收回成本。",
+    "team": "嵌入式开发组长 + 校园运营团队（覆盖50所高校）+ 环保供应链合伙人",
+    "highlights": "进驻全国 45 所高校，累计回收处置电子设备 6.8 万件，减少碳排放 120 吨。"
+  }
+};
+
+window.openExcellentCaseModal = function(caseId) {
+    const data = CASE_DETAILS_DATA[caseId] || CASE_DETAILS_DATA['agri_ai_01'];
+    const modal = document.getElementById('excellent-case-modal');
+    if (!modal) return;
+
+    const titleEl = document.getElementById('case-modal-title');
+    const trackEl = document.getElementById('case-modal-track');
+    const bpEl = document.getElementById('case-modal-bp');
+    const finEl = document.getElementById('case-modal-finance');
+    const commEl = document.getElementById('case-modal-comment');
+
+    if (titleEl) titleEl.textContent = data.title;
+    if (trackEl) trackEl.textContent = data.track;
+    if (bpEl) bpEl.textContent = data.background;
+    if (finEl) finEl.textContent = data.financeModel;
+    if (commEl) commEl.textContent = data.highlights;
+
+    modal.classList.add('open');
+};
+
+window.closeExcellentCaseModal = function() {
+    const modal = document.getElementById('excellent-case-modal');
+    if (modal) modal.classList.remove('open');
+};
+
+window.addEventListener('DOMContentLoaded', () => {
+    const params = new URLSearchParams(window.location.search);
+    const caseId = params.get('case_id');
+    if (caseId && CASE_DETAILS_DATA[caseId]) {
+        setTimeout(() => { openExcellentCaseModal(caseId); }, 300);
+    }
+});
+</script>
+
+<!-- 优秀案例 Modal -->
+<div class="gp-modal-overlay" id="excellent-case-modal" onclick="if(event.target===this)closeExcellentCaseModal();">
+    <div class="gp-modal">
+        <button class="gp-modal-close" onclick="closeExcellentCaseModal()" aria-label="关闭">&times;</button>
+        <div class="gp-modal-title" style="color:var(--primary-blue, #3B82F6);" id="case-modal-title">
+            优秀案例详情
+        </div>
+        <div class="gp-modal-body">
+            <div style="font-size:12px; background:rgba(59,130,246,0.1); color:var(--primary-blue, #3B82F6); border:1px solid rgba(59,130,246,0.3); padding:4px 10px; border-radius:6px; font-weight:800; display:inline-block; margin-bottom:14px;" id="case-modal-track">
+                赛道标签
+            </div>
+
+            <div class="gp-modal-section">
+                <h4 style="color:#F8FAFC; margin-bottom:8px;"><i class="fas fa-bullseye" style="color:#3B82F6;"></i> 核心痛点拆解</h4>
+                <p id="case-modal-bp" style="color:#CBD5E1; line-height:1.6; margin:0;"></p>
+            </div>
+
+            <div class="gp-modal-section" style="margin-top:16px;">
+                <h4 style="color:#F8FAFC; margin-bottom:8px;"><i class="fas fa-calculator" style="color:#10B981;"></i> 财务模型与单元经济拆解</h4>
+                <p id="case-modal-finance" style="color:#CBD5E1; line-height:1.6; margin:0;"></p>
+            </div>
+
+            <div class="gp-modal-section" style="margin-top:16px; background:rgba(59,130,246,0.06); border:1px solid rgba(59,130,246,0.2); padding:12px; border-radius:8px;">
+                <h4 style="color:#3B82F6; margin-bottom:6px;"><i class="fas fa-quote-left"></i> 项目亮点与竞赛成果</h4>
+                <p style="color:#3B82F6; font-style:italic; line-height:1.6; margin:0;" id="case-modal-comment"></p>
+            </div>
+        </div>
+    </div>
+</div>
+
+</main>
+
+<!-- Universal Academic Dark Footer -->
+<footer class="site-footer-dark" style="background:#070A12; border-top:1px solid rgba(255,255,255,0.08); padding:48px 0 32px 0; margin-top:auto; color:#94A3B8;">
+    <div style="max-width:1360px; margin:0 auto; padding:0 24px; display:grid; grid-template-columns:1.5fr 1fr 1fr 1.2fr; gap:36px;">
+        <div>
+            <div style="font-size:16px; font-weight:800; color:#F8FAFC; margin-bottom:12px; display:flex; align-items:center; gap:8px;">
+                <i class="fas fa-graduation-cap" style="color:#3B82F6;"></i>
+                《大学生创新创业基础》智能体平台
+            </div>
+            <div style="font-size:13px; color:#64748B; line-height:1.6; margin-bottom:16px;">
+                基于成果导向教育 (OBE) 理念设计，整合 28 个知识节点、18 项 PBL 表现性评价任务、5 大高效实战工具与 4 大 AI 导师，打造高校双创“学-练-评-改”闭环。
+            </div>
+            <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                <span style="display:inline-flex; align-items:center; gap:6px; padding:4px 10px; background:rgba(16,185,129,0.1); border:1px solid rgba(16,185,129,0.25); border-radius:6px; font-size:12px; color:#10B981; font-weight:600;">
+                    <i class="fas fa-award"></i> 教育部示范课建设标准对齐
+                </span>
+                <span style="display:inline-flex; align-items:center; gap:6px; padding:4px 10px; background:rgba(59,130,246,0.1); border:1px solid rgba(59,130,246,0.25); border-radius:6px; font-size:12px; color:#3B82F6; font-weight:600;">
+                    <i class="fas fa-check-circle"></i> OBE 成果达成闭环认证
+                </span>
+            </div>
+        </div>
+
+        <div>
+            <div style="font-size:14px; font-weight:800; color:#F8FAFC; margin-bottom:16px;">课程核心体系</div>
+            <ul style="list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:10px; font-size:13px;">
+                <li><a href="index.html" style="color:#94A3B8; text-decoration:none; transition:color 0.2s;"><i class="fas fa-angle-right" style="color:#3B82F6;"></i> 课程目标 (CLOs) 矩阵</a></li>
+                <li><a href="knowledge_graph.html" style="color:#94A3B8; text-decoration:none; transition:color 0.2s;"><i class="fas fa-angle-right" style="color:#3B82F6;"></i> 理论知识图谱 (128节点)</a></li>
+                <li><a href="graph.html" style="color:#94A3B8; text-decoration:none; transition:color 0.2s;"><i class="fas fa-angle-right" style="color:#3B82F6;"></i> 实战能力图谱 (18技能)</a></li>
+                <li><a href="map.html" style="color:#94A3B8; text-decoration:none; transition:color 0.2s;"><i class="fas fa-angle-right" style="color:#3B82F6;"></i> 18学时快速大纲地图</a></li>
+                <li><a href="activities.html" style="color:#94A3B8; text-decoration:none; transition:color 0.2s;"><i class="fas fa-angle-right" style="color:#3B82F6;"></i> 18项 PBL 实战任务流</a></li>
+            </ul>
+        </div>
+
+        <div>
+            <div style="font-size:14px; font-weight:800; color:#F8FAFC; margin-bottom:16px;">教学资源与评估</div>
+            <ul style="list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:10px; font-size:13px;">
+                <li><a href="yunnan_qujing_startup.html" class="nav-item"><i class="fas fa-mountain"></i> 留滇留曲</a>
+            <a href="chat.html" style="color:#94A3B8; text-decoration:none; transition:color 0.2s;"><i class="fas fa-angle-right" style="color:#3B82F6;"></i> AI 导师智能体 (4大Agent)</a></li>
+                <li><a href="admin.html" style="color:#94A3B8; text-decoration:none; transition:color 0.2s;"><i class="fas fa-angle-right" style="color:#3B82F6;"></i> 学情与达成度看板</a></li>
+                <li><a href="resources.html" style="color:#3B82F6; text-decoration:none; font-weight:700;"><i class="fas fa-angle-right"></i> 教学模版与资源下载</a></li>
+                <li><a href="glossary.html" style="color:#94A3B8; text-decoration:none; transition:color 0.2s;"><i class="fas fa-angle-right" style="color:#3B82F6;"></i> 双创与 AI 权威词典</a></li>
+                <li><a href="exam.html" style="color:#94A3B8; text-decoration:none; transition:color 0.2s;"><i class="fas fa-angle-right" style="color:#3B82F6;"></i> 综合自测与 Rubrics 评分</a></li>
+            </ul>
+        </div>
+
+        <div>
+            <div style="font-size:14px; font-weight:800; color:#F8FAFC; margin-bottom:16px;">实时学情与系统数据</div>
+            <div style="background:rgba(15,23,42,0.8); border:1px solid rgba(255,255,255,0.08); border-radius:10px; padding:14px; font-size:12.5px; line-height:1.8;">
+                <div><span style="color:#64748B;">知识节点拓扑：</span> <strong style="color:#3B82F6;">28 个</strong></div>
+                <div><span style="color:#64748B;">能力指标映射：</span> <strong style="color:#10B981;">36 项</strong></div>
+                <div><span style="color:#64748B;">对齐 PBL 任务：</span> <strong style="color:#F59E0B;">18 项</strong></div>
+                <div><span style="color:#64748B;">系统计算模式：</span> <strong style="color:#F8FAFC;">本地离线隐私保护</strong></div>
+            </div>
+        </div>
+    </div>
+
+    <div style="max-width:1360px; margin:36px auto 0 auto; padding:20px 24px 0 24px; border-top:1px solid rgba(255,255,255,0.06); display:flex; align-items:center; justify-content:space-between; font-size:12.5px; color:#64748B; flex-wrap:wrap; gap:12px;">
+        <div>Copyright © 2026 《大学生创新创业基础》课程智能体平台. All Rights Reserved.</div>
+        <div style="display:flex; align-items:center; gap:16px;">
+            <span style="display:inline-flex; align-items:center; gap:6px; color:#10B981; font-weight:600;">
+                <span style="width:8px; height:8px; background:#10B981; border-radius:50%; box-shadow:0 0 8px #10B981;"></span>
+                Antigravity Engine 运行正常 (24ms)
+            </span>
+            <a href="index.html" style="color:#64748B; text-decoration:none;">首页</a>
+            <a href="help.html" style="color:#64748B; text-decoration:none;">使用说明</a>
+            <a href="admin.html" style="color:#64748B; text-decoration:none;">教师入口</a>
+        </div>
+    </div>
+</footer>
+
+<!-- 全局 UX 增强 与 交互工具脚本 -->
+<script src="js/ux-enhance.js"></script>
+<script src="js/resources_tools.js"></script>
+<script src="js/resources_extra.js"></script>
+</body>
+</html>

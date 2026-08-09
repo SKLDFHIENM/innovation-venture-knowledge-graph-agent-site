@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>【8 页全景 深度解读】刚需识别与痛点极限拷问 - 全大屏演播 Deck</title>
+    <!-- Base Styles & Guizang Theme -->
+    <link rel="stylesheet" href="../css/ppt/ppt_base.css">
+    <link rel="stylesheet" href="../css/ppt/guizang_theme.css">
+    <link rel="stylesheet" href="../css/ppt/animations.css">
+    <link rel="stylesheet" id="theme-link" href="../css/ppt/themes/tokyo-night.css">
+    <script src="../js/all.min.js" defer></script>
+    <style>
+        .deck-header-bar {
+            position: fixed;
+            top: 25px;
+            left: 45px;
+            right: 45px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+            pointer-events: none;
+        }
+        .deck-header-bar * { pointer-events: auto; }
+        .header-btn {
+            background: rgba(11, 15, 25, 0.9);
+            backdrop-filter: blur(16px);
+            border: 1.5px solid rgba(245, 158, 11, 0.5);
+            color: #fbbf24;
+            padding: 10px 22px;
+            border-radius: 25px;
+            font-size: 15px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            box-shadow: 0 0 20px rgba(245, 158, 11, 0.25);
+        }
+        .header-btn:hover {
+            background: #f59e0b;
+            color: #050608;
+            border-color: #f59e0b;
+            box-shadow: 0 0 30px rgba(245, 158, 11, 0.6);
+        }
+        .theme-select {
+            background: rgba(11, 15, 25, 0.9);
+            backdrop-filter: blur(16px);
+            border: 1.5px solid rgba(0, 242, 254, 0.5);
+            color: #00f2fe;
+            padding: 9px 18px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 800;
+            outline: none;
+            cursor: pointer;
+        }
+    
+        /* ─────────────────────────────────────────────
+           高阶可视化构图组件库 v2.0
+           为所有 Deck 注入专业图形构图能力
+           ───────────────────────────────────────────── */
+
+        /* == 水平流程管道图 == */
+        .dk-pipeline {
+            display: flex;
+            align-items: stretch;
+            gap: 0;
+            width: 100%;
+            margin: 16px 0;
+        }
+        .dk-pipe-step {
+            flex: 1;
+            background: rgba(245,158,11,0.08);
+            border: 1.5px solid rgba(245,158,11,0.35);
+            border-radius: 16px;
+            padding: 18px 16px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            gap: 8px;
+            position: relative;
+            transition: all 0.25s;
+        }
+        .dk-pipe-step:hover {
+            background: rgba(245,158,11,0.16);
+            transform: translateY(-3px);
+            box-shadow: 0 0 24px rgba(245,158,11,0.3);
+        }
+        .dk-pipe-step.cyan {
+            background: rgba(0,242,254,0.06);
+            border-color: rgba(0,242,254,0.35);
+        }
+        .dk-pipe-step.cyan:hover { background: rgba(0,242,254,0.14); box-shadow: 0 0 24px rgba(0,242,254,0.3); }
+        .dk-pipe-step.violet {
+            background: rgba(192,132,252,0.07);
+            border-color: rgba(192,132,252,0.35);
+        }
+        .dk-pipe-step.violet:hover { background: rgba(192,132,252,0.14); }
+        .dk-pipe-step.green {
+            background: rgba(52,211,153,0.07);
+            border-color: rgba(52,211,153,0.35);
+        }
+        .dk-pipe-step.green:hover { background: rgba(52,211,153,0.14); }
+        .dk-pipe-icon {
+            font-size: 2rem;
+            margin-bottom: 6px;
+        }
+        .dk-pipe-num {
+            width: 28px; height: 28px;
+            border-radius: 50%;
+            background: rgba(245,158,11,0.9);
+            color: #050608;
+            font-weight: 900;
+            font-size: 13px;
+            display: flex; align-items: center; justify-content: center;
+            margin: 0 auto 6px;
+        }
+        .dk-pipe-title {
+            font-size: 0.95rem;
+            font-weight: 800;
+            color: #f8fafc;
+            margin-bottom: 4px;
+        }
+        .dk-pipe-desc {
+            font-size: 12px;
+            color: #94a3b8;
+            line-height: 1.55;
+        }
+        .dk-pipe-arrow {
+            display: flex;
+            align-items: center;
+            padding: 0 6px;
+            color: rgba(245,158,11,0.7);
+            font-size: 1.1rem;
+            flex-shrink: 0;
+            animation: dk-arrow-pulse 1.5s ease-in-out infinite;
+        }
+        @keyframes dk-arrow-pulse {
+            0%, 100% { opacity: 0.5; transform: translateX(0); }
+            50% { opacity: 1; transform: translateX(3px); }
+        }
+
+        /* == 数据看板卡片 == */
+        .dk-stat-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 14px;
+            margin: 14px 0;
+        }
+        .dk-stat-card {
+            background: rgba(255,255,255,0.04);
+            border: 1.5px solid rgba(245,158,11,0.3);
+            border-radius: 18px;
+            padding: 20px 16px;
+            text-align: center;
+            transition: all 0.25s;
+        }
+        .dk-stat-card:hover {
+            background: rgba(245,158,11,0.1);
+            transform: translateY(-4px);
+            box-shadow: 0 0 28px rgba(245,158,11,0.25);
+        }
+        .dk-stat-num {
+            font-size: 3rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, #f59e0b, #fbbf24);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            line-height: 1;
+            margin-bottom: 8px;
+        }
+        .dk-stat-label {
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: #f8fafc;
+            margin-bottom: 4px;
+        }
+        .dk-stat-sub {
+            font-size: 11px;
+            color: #64748b;
+            line-height: 1.5;
+        }
+
+        /* == 矩阵对比图 == */
+        .dk-matrix {
+            display: grid;
+            gap: 12px;
+            margin: 14px 0;
+            flex: 1;
+        }
+        .dk-matrix-2x2 { grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; }
+        .dk-matrix-3x1 { grid-template-columns: 1fr 1fr 1fr; }
+        .dk-matrix-cell {
+            background: rgba(255,255,255,0.04);
+            border: 1.5px solid rgba(255,255,255,0.1);
+            border-radius: 14px;
+            padding: 18px 16px;
+            transition: all 0.25s;
+        }
+        .dk-matrix-cell:hover {
+            background: rgba(255,255,255,0.08);
+            border-color: rgba(245,158,11,0.4);
+        }
+        .dk-matrix-cell-head {
+            font-size: 0.9rem;
+            font-weight: 800;
+            color: #fbbf24;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .dk-matrix-cell-body {
+            font-size: 13px;
+            color: #cbd5e1;
+            line-height: 1.65;
+        }
+
+        /* == 纵向时间轴 == */
+        .dk-timeline {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+            margin: 14px 0;
+            position: relative;
+        }
+        .dk-timeline-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+            padding-bottom: 18px;
+            position: relative;
+        }
+        .dk-timeline-item::before {
+            content: '';
+            position: absolute;
+            left: 17px;
+            top: 36px;
+            bottom: 0;
+            width: 2px;
+            background: linear-gradient(180deg, rgba(245,158,11,0.6), rgba(245,158,11,0.1));
+        }
+        .dk-timeline-item:last-child::before { display: none; }
+        .dk-timeline-dot {
+            width: 36px; height: 36px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: #050608;
+            font-weight: 900;
+            font-size: 14px;
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0;
+            box-shadow: 0 0 16px rgba(245,158,11,0.5);
+        }
+        .dk-timeline-content {
+            background: rgba(245,158,11,0.06);
+            border: 1.5px solid rgba(245,158,11,0.25);
+            border-radius: 12px;
+            padding: 12px 16px;
+            flex: 1;
+        }
+        .dk-timeline-title {
+            font-size: 0.95rem;
+            font-weight: 800;
+            color: #fbbf24;
+            margin-bottom: 4px;
+        }
+        .dk-timeline-desc {
+            font-size: 13px;
+            color: #94a3b8;
+            line-height: 1.6;
+        }
+
+        /* == 层级对比表 == */
+        .dk-compare-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0 8px;
+            margin: 12px 0;
+        }
+        .dk-compare-table th {
+            background: rgba(245,158,11,0.15);
+            color: #fbbf24;
+            font-size: 13px;
+            font-weight: 800;
+            padding: 10px 16px;
+            text-align: left;
+            border-radius: 8px;
+        }
+        .dk-compare-table td {
+            background: rgba(255,255,255,0.03);
+            color: #cbd5e1;
+            font-size: 13px;
+            padding: 10px 16px;
+            border-top: 1px solid rgba(255,255,255,0.06);
+            transition: background 0.2s;
+        }
+        .dk-compare-table tr:hover td {
+            background: rgba(245,158,11,0.08);
+        }
+        .dk-compare-table td:first-child {
+            color: #f8fafc;
+            font-weight: 700;
+            border-radius: 8px 0 0 8px;
+        }
+        .dk-compare-table td:last-child {
+            border-radius: 0 8px 8px 0;
+        }
+
+        /* == 标签徽章组 == */
+        .dk-tag-cloud {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin: 10px 0;
+        }
+        .dk-tag {
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+            border: 1.5px solid;
+            transition: all 0.2s;
+        }
+        .dk-tag.gold { background: rgba(245,158,11,0.15); color: #fbbf24; border-color: rgba(245,158,11,0.4); }
+        .dk-tag.cyan { background: rgba(0,242,254,0.1); color: #00f2fe; border-color: rgba(0,242,254,0.35); }
+        .dk-tag.violet { background: rgba(192,132,252,0.1); color: #c084fc; border-color: rgba(192,132,252,0.35); }
+        .dk-tag.green { background: rgba(52,211,153,0.1); color: #34d399; border-color: rgba(52,211,153,0.35); }
+        .dk-tag:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
+
+        /* == 强调引用块 == */
+        .dk-highlight-box {
+            background: linear-gradient(135deg, rgba(245,158,11,0.12), rgba(245,158,11,0.04));
+            border-left: 4px solid #f59e0b;
+            border-radius: 0 14px 14px 0;
+            padding: 16px 20px;
+            margin: 12px 0;
+        }
+        .dk-highlight-box.cyan {
+            background: linear-gradient(135deg, rgba(0,242,254,0.1), rgba(0,242,254,0.03));
+            border-left-color: #00f2fe;
+        }
+        .dk-highlight-box.green {
+            background: linear-gradient(135deg, rgba(52,211,153,0.1), rgba(52,211,153,0.03));
+            border-left-color: #34d399;
+        }
+        .dk-highlight-box p {
+            color: #f8fafc;
+            font-size: 1.05rem;
+            font-weight: 600;
+            line-height: 1.75;
+            margin: 0;
+        }
+
+        /* == 全屏布局增强 == */
+        .guizang-slide-box {
+            max-height: calc(100vh - 120px);
+            overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(245,158,11,0.3) transparent;
+        }
+
+    </style>
+</head>
+<body data-themes="tokyo-night,glassmorphism,aurora,cyberpunk-neon,blueprint,pitch-deck-vc">
+
+    <!-- 顶部统一控制工具栏 -->
+    <div class="deck-header-bar">
+        <div style="display:flex; align-items:center; gap:12px; background:rgba(11,15,25,0.9); backdrop-filter:blur(16px); padding:10px 24px; border-radius:25px; border:1.5px solid rgba(245,158,11,0.5); color:#fbbf24; font-size:16px; font-weight:800; box-shadow:0 0 25px rgba(245,158,11,0.3);">
+            <i class="fas fa-crown" style="font-size:1.2rem;"></i> 高清大屏演播 (8 Slide 深度解读)：刚需识别与痛点极限拷问
+        </div>
+        <div style="display:flex; gap:12px; align-items:center;">
+            <!-- 36 套风格手动选择器 -->
+            <select class="theme-select" onchange="changePPTTheme(this.value)" title="手动切换 PPT 皮肤风格">
+                <option value="tokyo-night">🎨 皮肤: Tokyo Night (暗黑黑金)</option>
+                <option value="glassmorphism">🎨 皮肤: Glassmorphism (高辉玻璃)</option>
+                <option value="aurora">🎨 皮肤: Aurora (极光深蓝)</option>
+                <option value="cyberpunk-neon">🎨 皮肤: Cyberpunk (赛博霓虹)</option>
+                <option value="blueprint">🎨 皮肤: Blueprint (工程蓝图)</option>
+                <option value="pitch-deck-vc">🎨 皮肤: VC Pitch Deck (风投高能)</option>
+            </select>
+            <button class="header-btn" onclick="location.href='../graph.html'" title="返回能力图谱">
+                <i class="fas fa-project-diagram"></i> 能力图谱
+            </button>
+            <button class="header-btn" onclick="location.href='../map.html'" title="返回课程地图">
+                <i class="fas fa-map-marked-alt"></i> 课程地图
+            </button>
+        </div>
+    </div>
+
+    <!-- html-ppt-skill 核心 .deck 容器 -->
+    <div class="deck">
+
+        <!-- Slide 1: 课题封面 (Guizang 黑金全景 + Baoyu 金句) -->
+        <section class="slide is-active" data-fx="starfield">
+            <div class="guizang-slide-box" style="text-align:center;">
+                <div>
+                    <div class="guizang-badge">
+                        <i class="fas fa-fire"></i> 同理心拷问 · 8 页深度解读版
+                    </div>
+                </div>
+                <h1 class="guizang-title-gold" data-anim="fade-up">
+                    刚需识别与痛点极限拷问
+                </h1>
+                <p style="font-size:1.4rem; color:#e2e8f0; margin-bottom:20px; font-weight:600;" data-anim="fade-up">
+                    <i class="fas fa-book-reader" style="color:#fbbf24; margin-right:8px;"></i> 出处: 第五章 创业机会 / 第四节 创业机会的评价 P118
+                </p>
+                <div class="guizang-quote" data-anim="fade-up">
+                    “痛点极限质询：戳穿自我感动式的‘伪需求’，只有用户产生真金白银的付费痛苦才是刚需。”
+                </div>
+
+                <div style="display:flex; justify-content:center; gap:18px; font-size:15px; color:#ffffff; margin-top:20px;" data-anim="fade-up">
+                    <span style="background:rgba(245,158,11,0.2); border:1.5px solid rgba(245,158,11,0.45); color:#fbbf24; padding:8px 20px; border-radius:16px; font-weight:800;">← / → 翻页</span>
+                    <span style="background:rgba(0,242,254,0.2); border:1.5px solid rgba(0,242,254,0.45); color:#00f2fe; padding:8px 20px; border-radius:16px; font-weight:800;">S 键提词器</span>
+                    <span style="background:rgba(192,132,252,0.2); border:1.5px solid rgba(192,132,252,0.45); color:#c084fc; padding:8px 20px; border-radius:16px; font-weight:800;">T 键换皮肤</span>
+                    <span style="background:rgba(255,255,255,0.1); border:1.5px solid rgba(255,255,255,0.2); color:#fff; padding:8px 20px; border-radius:16px; font-weight:800;">O 键全景网格</span>
+                </div>
+            </div>
+
+            <aside class="notes">
+                同学们好！欢迎来到《刚需识别与痛点极限拷问》深度解读放映中心。本课题共包含 8 Slide 深度解读，涵盖实体痛点、理论框架、课堂 45 分钟实战与 OBE（成果导向教育） 雷达达成。
+            </aside>
+        </section>
+
+        <!-- Slide 2: 实体产业痛点与需求引爆 (Guizang 赛博蓝) -->
+        <section class="slide" data-fx="particle-burst">
+            <div class="guizang-slide-box">
+                <div>
+                    <div class="guizang-badge" style="background:rgba(0,242,254,0.2); border-color:rgba(0,242,254,0.5); color:#00f2fe;">
+                        <i class="fas fa-lightbulb"></i> 解读 1: 痛点引爆与需求发散
+                    </div>
+                </div>
+                <h2 class="guizang-title-cyan" data-anim="fade-up">引入：戳穿看似完美的伪需求</h2>
+                <p style="font-size:1.05rem; line-height:1.6; color:#e2e8f0; margin-bottom:12px; font-weight:500;" data-anim="fade-up">伪需求是大学生创业项目的最大死因。我们需要站在目标用户的真实视角，极限拷问我们的商业设想，判断用户是否具有真实的付费意愿，还是这只是我们的主观未经实证的假设。<br/><br/><strong>💡 痛点防御提示：</strong>面对痛点极限质询，必须排除主观脑补。通过跨组扮演挑剔顾客进行极限拷问，我们能剔除 90% 的未经实证的假设型伪需求，验证痛点背后的真实损失及用户的付费动力。</p>
+
+                <div class="bento-grid-3" data-anim="stagger-list">
+                    <div class="bento-card" style="transition:all 0.3s cubic-bezier(0.34,1.56,0.64,1);">
+                        <div class="bento-card-icon" style="color:#00f2fe;"><i class="fas fa-search-location"></i></div>
+                        <div class="bento-card-title">真实需求定位</div>
+                        <div class="bento-card-desc">聚焦本地实体产业未被满足的真实痛点，拒绝空洞伪需求。</div>
+                    </div>
+                    <div class="bento-card" style="transition:all 0.3s cubic-bezier(0.34,1.56,0.64,1);">
+                        <div class="bento-card-icon" style="color:#fbbf24;"><i class="fas fa-microchip"></i></div>
+                        <div class="bento-card-title">AIGC（生成式人工智能） 脑暴拆解</div>
+                        <div class="bento-card-desc">利用 LLM（大语言模型） 拆解细分场景，破除人类局部经验的认知局限。</div>
+                    </div>
+                    <div class="bento-card" style="transition:all 0.3s cubic-bezier(0.34,1.56,0.64,1);">
+                        <div class="bento-card-icon" style="color:#c084fc;"><i class="fas fa-layer-group"></i></div>
+                        <div class="bento-card-title">资源要素盘点</div>
+                        <div class="bento-card-desc">依据 Sarasvathy 原则，优先盘点团队现有技能与渠道。</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Slide 3: 核心学术理论框架拆解 (Guizang 翡翠绿) -->
+        <section class="slide" data-fx="galaxy-swirl">
+            <div class="guizang-slide-box">
+                <div>
+                    <div class="guizang-badge" style="background:rgba(52,211,153,0.2); border-color:rgba(52,211,153,0.5); color:#34d399;">
+                        <i class="fas fa-graduation-cap"></i> 解读 2: 核心学术理论框架
+                    </div>
+                </div>
+                <h2 class="guizang-title-green" data-anim="fade-up">效果推理法则与 JTBD（待办任务理论） 待办任务双模型</h2>
+                <p style="font-size:1.05rem; line-height:1.6; color:#e2e8f0; margin-bottom:12px;" data-anim="fade-up">
+                    将学术理论转化为项目推进的操作指南，指导学生完成从假设到实证的跳跃。
+                </p>
+
+                <div class="bento-grid-3" data-anim="stagger-list">
+                    <div class="bento-card" style="transition:all 0.3s cubic-bezier(0.34,1.56,0.64,1);">
+                        <div class="bento-card-icon" style="color:#34d399;"><i class="fas fa-hands-helping"></i></div>
+                        <div class="bento-card-title">手头资源原则</div>
+                        <div class="bento-card-desc">盘点“我是谁、我知道什么、我认识谁”，手段导向。</div>
+                    </div>
+                    <div class="bento-card" style="transition:all 0.3s cubic-bezier(0.34,1.56,0.64,1);">
+                        <div class="bento-card-icon" style="color:#fbbf24;"><i class="fas fa-shield-alt"></i></div>
+                        <div class="bento-card-title">可承受损失</div>
+                        <div class="bento-card-desc">控制前置测试开销在极低零花钱范围内。</div>
+                    </div>
+                    <div class="bento-card" style="transition:all 0.3s cubic-bezier(0.34,1.56,0.64,1);">
+                        <div class="bento-card-icon" style="color:#00f2fe;"><i class="fas fa-clipboard-check"></i></div>
+                        <div class="bento-card-title">JTBD（待办任务理论） 任务驱动</div>
+                        <div class="bento-card-desc">明确用户购买产品是为了‘雇用’它完成某项特定任务。</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Slide 4: 课堂 45分钟 组员实战活动支架 (Guizang 极光紫) -->
+        <section class="slide" data-fx="orbit-ring">
+            <div class="guizang-slide-box">
+                <div>
+                    <div class="guizang-badge" style="background:rgba(192,132,252,0.2); border-color:rgba(192,132,252,0.5); color:#c084fc;">
+                        <i class="fas fa-users-cog"></i> 解读 3: 课堂 45 分钟实战活动
+                    </div>
+                </div>
+                <h2 class="guizang-title-purple" data-anim="fade-up">支架：课堂 45分钟 小组实战活动设计</h2>
+                <p style="font-size:1.05rem; line-height:1.6; color:#e2e8f0; margin-bottom:12px; font-weight:500;" data-anim="fade-up">【国赛评委深度答辩防御对抗赛】<br/><strong>Step 1 (15分钟)：项目方案陈述</strong>。各小组派出代表陈述自己锁定的痛点 and 创意方案。<br/><strong>Step 2 (20分钟)：邻近小组反转扮演</strong>。邻近小组扮演极度挑剔的评审或不愿买单的铁石心肠客户，针对“现有低成本替代方案”、“高频度”发起 3 轮质疑拷问。<br/><strong>Step 3 (10分钟)：防御应答与修正</strong>。根据拷问，重新锁定细分用户，排除非刚需人群，并在大屏幕展示防错日志。</p>
+
+                <div class="bento-grid-3" data-anim="stagger-list">
+                    <div class="bento-card" style="transition:all 0.3s cubic-bezier(0.34,1.56,0.64,1);">
+                        <div class="bento-card-icon" style="color:#34d399;"><i class="fas fa-laptop-code"></i></div>
+                        <div class="bento-card-title">Hacker（技术黑客） (黑客)</div>
+                        <div class="bento-card-desc">负责代码搭建、API（应用程序接口） 接口调用与数据流闭环。</div>
+                    </div>
+                    <div class="bento-card" style="transition:all 0.3s cubic-bezier(0.34,1.56,0.64,1);">
+                        <div class="bento-card-icon" style="color:#fbbf24;"><i class="fas fa-paint-brush"></i></div>
+                        <div class="bento-card-title">Hipster（体验潮人） (潮人)</div>
+                        <div class="bento-card-desc">负责 UI（用户界面） 界面视觉、品牌包装与交互体验。</div>
+                    </div>
+                    <div class="bento-card" style="transition:all 0.3s cubic-bezier(0.34,1.56,0.64,1);">
+                        <div class="bento-card-icon" style="color:#c084fc;"><i class="fas fa-chart-line"></i></div>
+                        <div class="bento-card-title">Hustler（商业哈斯勒） (哈斯勒)</div>
+                        <div class="bento-card-desc">负责商业模式画布填充、客户采访与转化路径。</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Slide 5: 24 小时零代码 MVP 原型构建 (Guizang 巨字指标) -->
+        <section class="slide" data-fx="data-stream">
+            <div class="guizang-slide-box">
+                <div>
+                    <div class="guizang-badge" style="background:rgba(245,158,11,0.2); border-color:rgba(245,158,11,0.5); color:#fbbf24;">
+                        <i class="fas fa-rocket"></i> 解读 4: 24h 零门槛 MVP（最简可行产品） 原型构建
+                    </div>
+                </div>
+                <h2 class="guizang-title-gold" data-anim="fade-up">实操：本地“特色伴手礼创意设计”项目的防御应答</h2>
+                <p style="font-size:1.05rem; line-height:1.6; color:#e2e8f0; margin-bottom:12px; font-weight:500;" data-anim="fade-up"><strong>质疑</strong>：“数字文创设计门槛低，别的品牌随时可以模仿，你们如何保证自己的独家壁垒？”<br/><strong>防错策略</strong>：我们不卖通用的设计模板，我们与本地特色餐饮商会签署独家标定品牌与包装协议，训练出了“最懂地方民俗与特色文化的特产包装风格模型”，对手套壳无法获得核心神韵。</p>
+
+                <div class="bento-grid-3" data-anim="stagger-list">
+                    <div class="bento-card" style="transition:all 0.3s cubic-bezier(0.34,1.56,0.64,1);; text-align:center;">
+                        <div class="guizang-metric-num">24h</div>
+                        <div class="bento-card-title" style="margin-top:10px;">极速 MVP（最简可行产品） 上线</div>
+                        <div class="bento-card-desc">利用 v0（AI 界面生成工具） / Bolt（全栈 AI 构建器） 24小时内构建高保真可交互前端。</div>
+                    </div>
+                    <div class="bento-card" style="transition:all 0.3s cubic-bezier(0.34,1.56,0.64,1);; text-align:center;">
+                        <div class="guizang-metric-num" style="background:linear-gradient(135deg,#00f2fe,#38bdf8); -webkit-background-clip:text; -webkit-text-fill-color:transparent;">10x</div>
+                        <div class="bento-card-title" style="margin-top:10px;">AI 研发提效</div>
+                        <div class="bento-card-desc">通过 Dify（大模型应用开发平台） / Coze 编排 LLM（大语言模型） API（应用程序接口），免除后端重度开发。</div>
+                    </div>
+                    <div class="bento-card" style="transition:all 0.3s cubic-bezier(0.34,1.56,0.64,1);; text-align:center;">
+                        <div class="guizang-metric-num" style="background:linear-gradient(135deg,#c084fc,#e879f9); -webkit-background-clip:text; -webkit-text-fill-color:transparent;">100%</div>
+                        <div class="bento-card-title" style="margin-top:10px;">本地产业闭环</div>
+                        <div class="bento-card-desc">结合本地特色产业（如云南非遗文创、高原农产品）。</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Slide 6: 商业模式画布 BMC 重构 (Guizang 赛博蓝) -->
+        <section class="slide" data-fx="knowledge-graph">
+            <div class="guizang-slide-box">
+                <div>
+                    <div class="guizang-badge" style="background:rgba(0,242,254,0.2); border-color:rgba(0,242,254,0.5); color:#00f2fe;">
+                        <i class="fas fa-th-large"></i> 解读 5: 商业模式画布 (BMC（商业模式画布）) 重构
+                    </div>
+                </div>
+                <h2 class="guizang-title-cyan" data-anim="fade-up">对标 SaaS + GPU 算力的财务盈亏平衡</h2>
+                <p style="font-size:1.05rem; line-height:1.6; color:#e2e8f0; margin-bottom:12px;" data-anim="fade-up">
+                    精细测算 GPU 算力租赁与 Token 消耗，确保项目的商业可持续性。
+                </p>
+
+                <div class="bento-grid-3" data-anim="stagger-list">
+                    <div class="bento-card" style="transition:all 0.3s cubic-bezier(0.34,1.56,0.64,1);">
+                        <div class="bento-card-icon" style="color:#00f2fe;"><i class="fas fa-hand-holding-usd"></i></div>
+                        <div class="bento-card-title">价值主张 (VP)</div>
+                        <div class="bento-card-desc">痛点切入明确，突出 AI 自动化提效 10 倍的核心价值。</div>
+                    </div>
+                    <div class="bento-card" style="transition:all 0.3s cubic-bezier(0.34,1.56,0.64,1);">
+                        <div class="bento-card-icon" style="color:#fbbf24;"><i class="fas fa-coins"></i></div>
+                        <div class="bento-card-title">收入来源 (RS)</div>
+                        <div class="bento-card-desc">SaaS 订阅费、API（应用程序接口） 调用量阶梯计费与定制服务费。</div>
+                    </div>
+                    <div class="bento-card" style="transition:all 0.3s cubic-bezier(0.34,1.56,0.64,1);">
+                        <div class="bento-card-icon" style="color:#c084fc;"><i class="fas fa-calculator"></i></div>
+                        <div class="bento-card-title">保本划线 (BEP)</div>
+                        <div class="bento-card-desc">严格区分固定成本与变现开销，算出保本销量。</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Slide 7: 本地实体案例分析 (Guizang 翡翠绿) -->
+        <section class="slide" data-fx="constellation">
+            <div class="guizang-slide-box">
+                <div>
+                    <div class="guizang-badge" style="background:rgba(52,211,153,0.2); border-color:rgba(52,211,153,0.5); color:#34d399;">
+                        <i class="fas fa-map-marker-alt"></i> 解读 6: 本地实体案例剖析
+                    </div>
+                </div>
+                <h2 class="guizang-title-green" data-anim="fade-up">云南特色包装 / 高原农产品 AI 赋能案例</h2>
+                <p style="font-size:1.05rem; line-height:1.6; color:#e2e8f0; margin-bottom:12px;" data-anim="fade-up">
+                    将双创方法论应用到本省真实实体项目，形成有温度、可落地、能获奖的综合实践。
+                </p>
+
+                <div class="bento-grid-3" data-anim="stagger-list">
+                    <div class="bento-card" style="transition:all 0.3s cubic-bezier(0.34,1.56,0.64,1);">
+                        <div class="bento-card-icon" style="color:#34d399;"><i class="fas fa-cube"></i></div>
+                        <div class="bento-card-title">非遗文创视觉 AI 赋能</div>
+                        <div class="bento-card-desc">利用 SD / Midjourney（AI 绘画生成器） 提取非遗纹样生成现代包装。</div>
+                    </div>
+                    <div class="bento-card" style="transition:all 0.3s cubic-bezier(0.34,1.56,0.64,1);">
+                        <div class="bento-card-icon" style="color:#fbbf24;"><i class="fas fa-apple-alt"></i></div>
+                        <div class="bento-card-title">高原农产品 AI 智能分级</div>
+                        <div class="bento-card-desc">视觉检测替代传统人工筛选，提升溢价空间。</div>
+                    </div>
+                    <div class="bento-card" style="transition:all 0.3s cubic-bezier(0.34,1.56,0.64,1);">
+                        <div class="bento-card-icon" style="color:#00f2fe;"><i class="fas fa-broadcast-tower"></i></div>
+                        <div class="bento-card-title">数字人主播带货矩阵</div>
+                        <div class="bento-card-desc">降低小微企业直播间运营成本 80% 以上。</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Slide 8: 考核评价与随堂测验 (Guizang 黑金巨字) -->
+        <section class="slide" data-fx="starfield">
+            <div class="guizang-slide-box">
+                <div>
+                    <div class="guizang-badge">
+                        <i class="fas fa-check-circle"></i> 解读 7: OBE（成果导向教育） 成果考核与互动问答
+                    </div>
+                </div>
+                <h2 class="guizang-title-gold" style="margin-top:10px;" data-anim="fade-up">PBL（基于项目的学习） 核心考核与互动问答</h2>
+                
+                <div style="background:rgba(255,255,255,0.05); padding:28px 32px; border-radius:20px; border:1.5px solid rgba(245,158,11,0.4); margin-bottom:12px; box-shadow:0 0 30px rgba(245,158,11,0.15);" data-anim="fade-up">
+                    <h4 style="color:#fbbf24; margin-bottom:14px; font-size:1.3rem;"><i class="fas fa-question-circle"></i> PBL（基于项目的学习） 随堂测试题：</h4>
+                    <p style="font-size:1.3rem; color:#ffffff; font-weight:800; margin-bottom:16px; line-height:1.5;">某团队提出开发一款“大棚智能控制降温喷淋系统”，在进行痛点同理心自检时，以下哪种回答最能证明该痛点【不是伪需求】？</p>
+                    <div style="color:#f8fafc; line-height:1.85; font-size:1.15rem; font-weight:500;">A. 小组成员全票通过，认为这个想法非常酷炫<br/>B. 指导老师觉得不错，可以在校赛里拿到奖项<br/>C. 实地调研大棚果农，果农表示“夏天大棚经常高温至 42 度导致落花落果，损失超2万元，如果你们的设备能自动控制，我们愿意在有成效后付1500元定金安装”<br/>D. 网上查到有类似的政策倡导大力推进智慧农业</div>
+                </div>
+
+                <div style="font-size:1.15rem; color:#e2e8f0;" data-anim="fade-up">
+                    <strong style="color:#fbbf24;">📋 核心评价要求：</strong> • 小组是否明确回答出“为什么现有解决方案（如低成本平替）无法满足用户”。&lt;br/&gt;• 防御策略中是否有可落地的数据积累或场景专有壁垒。
+                </div>
+            </div>
+        </section>
+
+    </div>
+
+    <!-- 全景大屏放映状态栏 -->
+    <div class="deck-footer" style="position:fixed; bottom:20px; left:45px; right:45px; display:flex; justify-content:space-between; color:#ffffff; font-size:14px; pointer-events:none; z-index:100; text-shadow:0 2px 6px rgba(0,0,0,0.9); font-weight:600;">
+        <span>全景大屏暗黑金巨字 8 Slide 版 | 按 <b style="color:#fbbf24;">S</b> 开启提词器 | 按 <b style="color:#00f2fe;">T</b> 换皮肤</span>
+        <span class="slide-number" style="color:#fbbf24; font-weight:800; font-size:16px;">Slide 1 / 8</span>
+    </div>
+
+    <script>
+        function changePPTTheme(themeName) {
+            const link = document.getElementById('theme-link');
+            if (link) {
+                link.href = '../css/ppt/themes/' + themeName + '.css';
+            }
+        }
+    </script>
+    <script src="../js/ppt/ppt_runtime.js"></script>
+    <script src="../js/ppt/fx-runtime.js"></script>
+    <script src="../js/ppt/fx/_util.js"></script>
+    <script src="../js/ppt/fx/knowledge-graph.js"></script>
+    <script src="../js/ppt/fx/constellation.js"></script>
+    <script src="../js/ppt/fx/neural-net.js"></script>
+    <script src="../js/ppt/fx/starfield.js"></script>
+    <script src="../js/ppt/fx/particle-burst.js"></script>
+    <script src="../js/ppt/fx/galaxy-swirl.js"></script>
+
+</body>
+</html>
